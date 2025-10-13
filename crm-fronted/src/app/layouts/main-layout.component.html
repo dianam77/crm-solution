@@ -1,0 +1,8 @@
+<app-navbar *ngIf="showNavbar"></app-navbar>
+<app-sidebar *ngIf="showSidebar"></app-sidebar>
+
+<div class="main-content"
+     [class.sidebar-open]="showSidebar"
+     [class.navbar-open]="showNavbar">
+  <router-outlet></router-outlet>
+</div>

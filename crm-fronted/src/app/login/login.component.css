@@ -1,0 +1,97 @@
+/* کانتینر اصلی وسط صفحه */
+.login-container {
+  width: 350px;
+  margin: 0 auto;
+  margin-top: 8%;
+  background: linear-gradient(145deg, #ffffff, #f3f6fa);
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  padding: 30px;
+  text-align: right;
+  border: none;
+  direction: rtl;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+/* انیمیشن ورود */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* عنوان */
+.login-title {
+  margin-bottom: 25px;
+  color: #0056b3;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1.6em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* گروه ورودی */
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* ورودی‌ها */
+.login-form input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cfd8dc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  margin-top: 5px;
+  box-sizing: border-box;
+  text-align: right;
+  direction: rtl;
+  background-color: #ffffff;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+  transition: all 0.2s ease-in-out;
+}
+
+  .login-form input:focus {
+    border-color: #007bff;
+    background-color: #f8fbff;
+    box-shadow: 0 0 6px rgba(0, 123, 255, 0.4);
+  }
+
+/* دکمه ورود */
+.btn-login {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(145deg, #007bff, #0056b3);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 91, 187, 0.4);
+  transition: all 0.25s ease-in-out;
+}
+
+  .btn-login:hover {
+    background: linear-gradient(145deg, #0056b3, #003d82);
+    box-shadow: 0 6px 16px rgba(0, 91, 187, 0.55);
+    transform: translateY(-1px);
+  }
+
+/* پیام خطا */
+.alert {
+  color: #d9534f;
+  margin-top: 10px;
+  font-size: 0.9em;
+  background-color: #f8d7da;
+  border-radius: 6px;
+  padding: 8px;
+  border: 1px solid #f5c6cb;
+}

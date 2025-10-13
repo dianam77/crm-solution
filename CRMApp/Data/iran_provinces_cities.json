@@ -1,0 +1,998 @@
+﻿{
+  "provinces": [
+    {
+      "provinceId": 1,
+      "provinceName": "آذربایجان شرقی",
+      "cities": [
+        {
+          "cityId": 1,
+          "cityName": "تبریز"
+        },
+        {
+          "cityId": 2,
+          "cityName": "مرند"
+        },
+        {
+          "cityId": 3,
+          "cityName": "مراغه"
+        },
+        {
+          "cityId": 4,
+          "cityName": "اهر"
+        },
+        {
+          "cityId": 5,
+          "cityName": "میانه"
+        },
+        {
+          "cityId": 6,
+          "cityName": "سراب"
+        },
+        {
+          "cityId": 7,
+          "cityName": "بستان‌آباد"
+        },
+        {
+          "cityId": 8,
+          "cityName": "هریس"
+        },
+        {
+          "cityId": 9,
+          "cityName": "کلیبر"
+        },
+        {
+          "cityId": 10,
+          "cityName": "شبستر"
+        },
+        {
+          "cityId": 11,
+          "cityName": "عجب‌شیر"
+        },
+        {
+          "cityId": 12,
+          "cityName": "کوزه‌کنان"
+        },
+        {
+          "cityId": 13,
+          "cityName": "شادگان"
+        }
+      ]
+    },
+    {
+      "provinceId": 2,
+      "provinceName": "آذربایجان غربی",
+      "cities": [
+        {
+          "cityId": 101,
+          "cityName": "ارومیه"
+        },
+        {
+          "cityId": 102,
+          "cityName": "خوی"
+        },
+        {
+          "cityId": 103,
+          "cityName": "ماکو"
+        },
+        {
+          "cityId": 104,
+          "cityName": "بوکان"
+        },
+        {
+          "cityId": 105,
+          "cityName": "سلماس"
+        },
+        {
+          "cityId": 106,
+          "cityName": "میاندوآب"
+        },
+        {
+          "cityId": 107,
+          "cityName": "نقده"
+        },
+        {
+          "cityId": 108,
+          "cityName": "پیرانشهر"
+        },
+        {
+          "cityId": 109,
+          "cityName": "شاهین‌دژ"
+        },
+        {
+          "cityId": 110,
+          "cityName": "چالدران"
+        },
+        {
+          "cityId": 111,
+          "cityName": "سردشت"
+        },
+        {
+          "cityId": 112,
+          "cityName": "اشنویه"
+        }
+      ]
+    },
+    {
+      "provinceId": 3,
+      "provinceName": "اردبیل",
+      "cities": [
+        {
+          "cityId": 201,
+          "cityName": "اردبیل"
+        },
+        {
+          "cityId": 202,
+          "cityName": "مشگین‌شهر"
+        },
+        {
+          "cityId": 203,
+          "cityName": "خلخال"
+        },
+        {
+          "cityId": 204,
+          "cityName": "پارس‌آباد"
+        },
+        {
+          "cityId": 205,
+          "cityName": "بیله‌سوار"
+        },
+        {
+          "cityId": 206,
+          "cityName": "نمین"
+        },
+        {
+          "cityId": 207,
+          "cityName": "گرمی"
+        },
+        {
+          "cityId": 208,
+          "cityName": "کوثر"
+        }
+      ]
+    },
+    {
+      "provinceId": 4,
+      "provinceName": "اصفهان",
+      "cities": [
+        {
+          "cityId": 301,
+          "cityName": "اصفهان"
+        },
+        {
+          "cityId": 302,
+          "cityName": "کاشان"
+        },
+        {
+          "cityId": 303,
+          "cityName": "نجف‌آباد"
+        },
+        {
+          "cityId": 304,
+          "cityName": "گلپایگان"
+        },
+        {
+          "cityId": 305,
+          "cityName": "خمینی‌شهر"
+        },
+        {
+          "cityId": 306,
+          "cityName": "شاهین‌شهر"
+        },
+        {
+          "cityId": 307,
+          "cityName": "فریدن"
+        },
+        {
+          "cityId": 308,
+          "cityName": "فلاورجان"
+        },
+        {
+          "cityId": 309,
+          "cityName": "آران و بیدگل"
+        },
+        {
+          "cityId": 310,
+          "cityName": "برخوار"
+        },
+        {
+          "cityId": 311,
+          "cityName": "خور و بیابانک"
+        },
+        {
+          "cityId": 312,
+          "cityName": "سمیرم"
+        },
+        {
+          "cityId": 313,
+          "cityName": "نائین"
+        }
+      ]
+    },
+    {
+      "provinceId": 5,
+      "provinceName": "البرز",
+      "cities": [
+        {
+          "cityId": 401,
+          "cityName": "کرج"
+        },
+        {
+          "cityId": 402,
+          "cityName": "هشتگرد"
+        },
+        {
+          "cityId": 403,
+          "cityName": "اشتهارد"
+        },
+        {
+          "cityId": 404,
+          "cityName": "نظرآباد"
+        },
+        {
+          "cityId": 405,
+          "cityName": "طالقان"
+        }
+      ]
+    },
+    {
+      "provinceId": 6,
+      "provinceName": "ایلام",
+      "cities": [
+        {
+          "cityId": 501,
+          "cityName": "ایلام"
+        },
+        {
+          "cityId": 502,
+          "cityName": "دهلران"
+        },
+        {
+          "cityId": 503,
+          "cityName": "آبدانان"
+        },
+        {
+          "cityId": 504,
+          "cityName": "مهران"
+        },
+        {
+          "cityId": 505,
+          "cityName": "دره‌شهر"
+        }
+      ]
+    },
+    {
+      "provinceId": 7,
+      "provinceName": "بوشهر",
+      "cities": [
+        {
+          "cityId": 601,
+          "cityName": "بوشهر"
+        },
+        {
+          "cityId": 602,
+          "cityName": "دشتستان"
+        },
+        {
+          "cityId": 603,
+          "cityName": "گناوه"
+        },
+        {
+          "cityId": 604,
+          "cityName": "کنگان"
+        },
+        {
+          "cityId": 605,
+          "cityName": "دیلم"
+        }
+      ]
+    },
+    {
+      "provinceId": 8,
+      "provinceName": "تهران",
+      "cities": [
+        {
+          "cityId": 701,
+          "cityName": "تهران"
+        },
+        {
+          "cityId": 702,
+          "cityName": "ری"
+        },
+        {
+          "cityId": 703,
+          "cityName": "شهریار"
+        },
+        {
+          "cityId": 704,
+          "cityName": "اسلامشهر"
+        },
+        {
+          "cityId": 705,
+          "cityName": "پاکدشت"
+        },
+        {
+          "cityId": 706,
+          "cityName": "ورامین"
+        },
+        {
+          "cityId": 707,
+          "cityName": "پردیس"
+        },
+        {
+          "cityId": 708,
+          "cityName": "اندیشه"
+        },
+        {
+          "cityId": 709,
+          "cityName": "دماوند"
+        },
+        {
+          "cityId": 710,
+          "cityName": "فیروزکوه"
+        }
+      ]
+    },
+    {
+      "provinceId": 9,
+      "provinceName": "چهارمحال و بختیاری",
+      "cities": [
+        {
+          "cityId": 801,
+          "cityName": "شهرکرد"
+        },
+        {
+          "cityId": 802,
+          "cityName": "بروجن"
+        },
+        {
+          "cityId": 803,
+          "cityName": "فارسان"
+        },
+        {
+          "cityId": 804,
+          "cityName": "لردگان"
+        },
+        {
+          "cityId": 805,
+          "cityName": "کیار"
+        },
+        {
+          "cityId": 806,
+          "cityName": "کوهرنگ"
+        }
+      ]
+    },
+    {
+      "provinceId": 10,
+      "provinceName": "خراسان جنوبی",
+      "cities": [
+        {
+          "cityId": 901,
+          "cityName": "بیرجند"
+        },
+        {
+          "cityId": 902,
+          "cityName": "قاین"
+        },
+        {
+          "cityId": 903,
+          "cityName": "نهبندان"
+        },
+        {
+          "cityId": 904,
+          "cityName": "سرایان"
+        },
+        {
+          "cityId": 905,
+          "cityName": "طبس مسینا"
+        }
+      ]
+    },
+    {
+      "provinceId": 11,
+      "provinceName": "خراسان رضوی",
+      "cities": [
+        {
+          "cityId": 1001,
+          "cityName": "مشهد"
+        },
+        {
+          "cityId": 1002,
+          "cityName": "نیشابور"
+        },
+        {
+          "cityId": 1003,
+          "cityName": "سبزوار"
+        },
+        {
+          "cityId": 1004,
+          "cityName": "تربت حیدریه"
+        },
+        {
+          "cityId": 1005,
+          "cityName": "خواف"
+        },
+        {
+          "cityId": 1006,
+          "cityName": "کاشمر"
+        },
+        {
+          "cityId": 1007,
+          "cityName": "فریمان"
+        },
+        {
+          "cityId": 1008,
+          "cityName": "گناباد"
+        },
+        {
+          "cityId": 1009,
+          "cityName": "تربت جام"
+        }
+      ]
+    },
+    {
+      "provinceId": 12,
+      "provinceName": "خراسان شمالی",
+      "cities": [
+        {
+          "cityId": 1101,
+          "cityName": "بجنورد"
+        },
+        {
+          "cityId": 1102,
+          "cityName": "شیروان"
+        },
+        {
+          "cityId": 1103,
+          "cityName": "اسفراین"
+        },
+        {
+          "cityId": 1104,
+          "cityName": "جاجرم"
+        },
+        {
+          "cityId": 1105,
+          "cityName": "گرمه"
+        }
+      ]
+    },
+    {
+      "provinceId": 13,
+      "provinceName": "خوزستان",
+      "cities": [
+        {
+          "cityId": 1201,
+          "cityName": "اهواز"
+        },
+        {
+          "cityId": 1202,
+          "cityName": "دزفول"
+        },
+        {
+          "cityId": 1203,
+          "cityName": "خرمشهر"
+        },
+        {
+          "cityId": 1204,
+          "cityName": "شادگان"
+        },
+        {
+          "cityId": 1205,
+          "cityName": "آبادان"
+        },
+        {
+          "cityId": 1206,
+          "cityName": "اندیمشک"
+        },
+        {
+          "cityId": 1207,
+          "cityName": "ماهشهر"
+        },
+        {
+          "cityId": 1208,
+          "cityName": "بندرماهشهر"
+        },
+        {
+          "cityId": 1209,
+          "cityName": "رامهرمز"
+        }
+      ]
+    },
+    {
+      "provinceId": 14,
+      "provinceName": "زنجان",
+      "cities": [
+        {
+          "cityId": 1301,
+          "cityName": "زنجان"
+        },
+        {
+          "cityId": 1302,
+          "cityName": "ابهر"
+        },
+        {
+          "cityId": 1303,
+          "cityName": "خرمدره"
+        },
+        {
+          "cityId": 1304,
+          "cityName": "ماه‌نشان"
+        },
+        {
+          "cityId": 1305,
+          "cityName": "طارم"
+        },
+        {
+          "cityId": 1306,
+          "cityName": "ایجرود"
+        }
+      ]
+    },
+    {
+      "provinceId": 15,
+      "provinceName": "سمنان",
+      "cities": [
+        {
+          "cityId": 1401,
+          "cityName": "سمنان"
+        },
+        {
+          "cityId": 1402,
+          "cityName": "شاهرود"
+        },
+        {
+          "cityId": 1403,
+          "cityName": "دامغان"
+        },
+        {
+          "cityId": 1404,
+          "cityName": "مهدی‌شهر"
+        },
+        {
+          "cityId": 1405,
+          "cityName": "گرمسار"
+        }
+      ]
+    },
+    {
+      "provinceId": 16,
+      "provinceName": "سیستان و بلوچستان",
+      "cities": [
+        {
+          "cityId": 1501,
+          "cityName": "زاهدان"
+        },
+        {
+          "cityId": 1502,
+          "cityName": "زابل"
+        },
+        {
+          "cityId": 1503,
+          "cityName": "چابهار"
+        },
+        {
+          "cityId": 1504,
+          "cityName": "سرباز"
+        },
+        {
+          "cityId": 1505,
+          "cityName": "ایرانشهر"
+        },
+        {
+          "cityId": 1506,
+          "cityName": "نیک‌شهر"
+        }
+      ]
+    },
+    {
+      "provinceId": 17,
+      "provinceName": "فارس",
+      "cities": [
+        {
+          "cityId": 1601,
+          "cityName": "شیراز"
+        },
+        {
+          "cityId": 1602,
+          "cityName": "مرودشت"
+        },
+        {
+          "cityId": 1603,
+          "cityName": "داراب"
+        },
+        {
+          "cityId": 1604,
+          "cityName": "کازرون"
+        },
+        {
+          "cityId": 1605,
+          "cityName": "فراشبند"
+        },
+        {
+          "cityId": 1606,
+          "cityName": "لامرد"
+        },
+        {
+          "cityId": 1607,
+          "cityName": "فسا"
+        },
+        {
+          "cityId": 1608,
+          "cityName": "جهرم"
+        }
+      ]
+    },
+    {
+      "provinceId": 18,
+      "provinceName": "قزوین",
+      "cities": [
+        {
+          "cityId": 1701,
+          "cityName": "قزوین"
+        },
+        {
+          "cityId": 1702,
+          "cityName": "بوئین زهرا"
+        },
+        {
+          "cityId": 1703,
+          "cityName": "البرز"
+        }
+      ]
+    },
+    {
+      "provinceId": 19,
+      "provinceName": "قم",
+      "cities": [
+        {
+          "cityId": 1801,
+          "cityName": "قم"
+        }
+      ]
+    },
+    {
+      "provinceId": 20,
+      "provinceName": "کردستان",
+      "cities": [
+        {
+          "cityId": 1901,
+          "cityName": "سنندج"
+        },
+        {
+          "cityId": 1902,
+          "cityName": "سقز"
+        },
+        {
+          "cityId": 1903,
+          "cityName": "بانه"
+        },
+        {
+          "cityId": 1904,
+          "cityName": "مریوان"
+        },
+        {
+          "cityId": 1905,
+          "cityName": "قروه"
+        },
+        {
+          "cityId": 1906,
+          "cityName": "دهگلان"
+        }
+      ]
+    },
+    {
+      "provinceId": 21,
+      "provinceName": "کرمان",
+      "cities": [
+        {
+          "cityId": 2001,
+          "cityName": "کرمان"
+        },
+        {
+          "cityId": 2002,
+          "cityName": "رفسنجان"
+        },
+        {
+          "cityId": 2003,
+          "cityName": "سیرجان"
+        },
+        {
+          "cityId": 2004,
+          "cityName": "بافت"
+        },
+        {
+          "cityId": 2005,
+          "cityName": "زرند"
+        },
+        {
+          "cityId": 2006,
+          "cityName": "جیرفت"
+        },
+        {
+          "cityId": 2007,
+          "cityName": "راور"
+        }
+      ]
+    },
+    {
+      "provinceId": 22,
+      "provinceName": "کرمانشاه",
+      "cities": [
+        {
+          "cityId": 2101,
+          "cityName": "کرمانشاه"
+        },
+        {
+          "cityId": 2102,
+          "cityName": "اسلام‌آباد غرب"
+        },
+        {
+          "cityId": 2103,
+          "cityName": "صحنه"
+        },
+        {
+          "cityId": 2104,
+          "cityName": "سنقر"
+        },
+        {
+          "cityId": 2105,
+          "cityName": "کنگاور"
+        }
+      ]
+    },
+    {
+      "provinceId": 23,
+      "provinceName": "کهگیلویه و بویراحمد",
+      "cities": [
+        {
+          "cityId": 2201,
+          "cityName": "یاسوج"
+        },
+        {
+          "cityId": 2202,
+          "cityName": "دوگنبدان"
+        },
+        {
+          "cityId": 2203,
+          "cityName": "دنا"
+        }
+      ]
+    },
+    {
+      "provinceId": 24,
+      "provinceName": "گلستان",
+      "cities": [
+        {
+          "cityId": 2301,
+          "cityName": "گرگان"
+        },
+        {
+          "cityId": 2302,
+          "cityName": "گنبدکاووس"
+        },
+        {
+          "cityId": 2303,
+          "cityName": "آق‌قلا"
+        },
+        {
+          "cityId": 2304,
+          "cityName": "بندرترکمن"
+        },
+        {
+          "cityId": 2305,
+          "cityName": "علی‌آباد"
+        },
+        {
+          "cityId": 2306,
+          "cityName": "رامیان"
+        },
+        {
+          "cityId": 2307,
+          "cityName": "مینودشت"
+        },
+        {
+          "cityId": 2308,
+          "cityName": "کردکوی"
+        }
+      ]
+    },
+    {
+      "provinceId": 25,
+      "provinceName": "گیلان",
+      "cities": [
+        {
+          "cityId": 2401,
+          "cityName": "رشت"
+        },
+        {
+          "cityId": 2402,
+          "cityName": "انزلی"
+        },
+        {
+          "cityId": 2403,
+          "cityName": "لاهیجان"
+        },
+        {
+          "cityId": 2404,
+          "cityName": "آستانه اشرفیه"
+        },
+        {
+          "cityId": 2405,
+          "cityName": "رودسر"
+        },
+        {
+          "cityId": 2406,
+          "cityName": "ماسال"
+        },
+        {
+          "cityId": 2407,
+          "cityName": "صومعه‌سرا"
+        }
+      ]
+    },
+    {
+      "provinceId": 26,
+      "provinceName": "لرستان",
+      "cities": [
+        {
+          "cityId": 2501,
+          "cityName": "خرم‌آباد"
+        },
+        {
+          "cityId": 2502,
+          "cityName": "دورود"
+        },
+        {
+          "cityId": 2503,
+          "cityName": "کوهدشت"
+        },
+        {
+          "cityId": 2504,
+          "cityName": "ازنا"
+        },
+        {
+          "cityId": 2505,
+          "cityName": "الیگودرز"
+        }
+      ]
+    },
+    {
+      "provinceId": 27,
+      "provinceName": "مازندران",
+      "cities": [
+        {
+          "cityId": 2601,
+          "cityName": "ساری"
+        },
+        {
+          "cityId": 2602,
+          "cityName": "آمل"
+        },
+        {
+          "cityId": 2603,
+          "cityName": "بابل"
+        },
+        {
+          "cityId": 2604,
+          "cityName": "قائم‌شهر"
+        },
+        {
+          "cityId": 2605,
+          "cityName": "بابلسر"
+        },
+        {
+          "cityId": 2606,
+          "cityName": "نوشهر"
+        },
+        {
+          "cityId": 2607,
+          "cityName": "تنکابن"
+        },
+        {
+          "cityId": 2608,
+          "cityName": "رامسر"
+        }
+      ]
+    },
+    {
+      "provinceId": 28,
+      "provinceName": "مرکزی",
+      "cities": [
+        {
+          "cityId": 2701,
+          "cityName": "اراک"
+        },
+        {
+          "cityId": 2702,
+          "cityName": "خمین"
+        },
+        {
+          "cityId": 2703,
+          "cityName": "دلیجان"
+        },
+        {
+          "cityId": 2704,
+          "cityName": "ساوه"
+        },
+        {
+          "cityId": 2705,
+          "cityName": "محلات"
+        }
+      ]
+    },
+    {
+      "provinceId": 29,
+      "provinceName": "هرمزگان",
+      "cities": [
+        {
+          "cityId": 2801,
+          "cityName": "بندرعباس"
+        },
+        {
+          "cityId": 2802,
+          "cityName": "بندرلنگه"
+        },
+        {
+          "cityId": 2803,
+          "cityName": "قشم"
+        },
+        {
+          "cityId": 2804,
+          "cityName": "میناب"
+        },
+        {
+          "cityId": 2805,
+          "cityName": "ابوموسی"
+        }
+      ]
+    },
+    {
+      "provinceId": 30,
+      "provinceName": "همدان",
+      "cities": [
+        {
+          "cityId": 2901,
+          "cityName": "همدان"
+        },
+        {
+          "cityId": 2902,
+          "cityName": "ملایر"
+        },
+        {
+          "cityId": 2903,
+          "cityName": "نهاوند"
+        },
+        {
+          "cityId": 2904,
+          "cityName": "کبودرآهنگ"
+        },
+        {
+          "cityId": 2905,
+          "cityName": "اسدآباد"
+        }
+      ]
+    },
+    {
+      "provinceId": 31,
+      "provinceName": "یزد",
+      "cities": [
+        {
+          "cityId": 3001,
+          "cityName": "یزد"
+        },
+        {
+          "cityId": 3002,
+          "cityName": "میبد"
+        },
+        {
+          "cityId": 3003,
+          "cityName": "اردکان"
+        },
+        {
+          "cityId": 3004,
+          "cityName": "طبس"
+        }
+      ]
+    }
+  ]
+}

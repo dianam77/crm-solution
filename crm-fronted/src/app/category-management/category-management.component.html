@@ -1,0 +1,35 @@
+<div class="container">
+
+  <h2 class="section-title">مدیریت دسته‌بندی‌ها</h2>
+
+  <div class="top-actions">
+    <button class="add-btn" (click)="openCategoryModal()">+ ساخت دسته‌بندی</button>
+  </div>
+  <br />
+  <!-- لیست دسته‌بندی‌ها -->
+  <div class="categories-container">
+    <div *ngFor="let category of categories" class="category-card">
+      <span class="category-name">{{ category.name }}</span>
+      <div class="category-actions">
+        <button class="edit-btn" (click)="startEditCategory(category)">ویرایش</button>
+        <button class="delete-btn" (click)="deleteCategory(category.id)">حذف</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال ساخت/ویرایش دسته‌بندی -->
+  <div *ngIf="showCategoryModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-modal-btn" (click)="closeCategoryModal()">✖</button>
+      <h3>{{ editingCategoryId ? 'ویرایش دسته‌بندی' : 'ساخت دسته‌بندی' }}</h3>
+      <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()" class="modal-form">
+        <input type="text" formControlName="name" placeholder="نام دسته‌بندی">
+        <div class="modal-buttons">
+          <button type="submit" class="submit-btn">{{ editingCategoryId ? 'ویرایش' : 'اضافه' }}</button>
+          <button type="button" class="cancel-btn" (click)="closeCategoryModal()">لغو</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>

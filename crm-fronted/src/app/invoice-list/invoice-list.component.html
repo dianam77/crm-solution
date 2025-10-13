@@ -1,0 +1,78 @@
+<div class="invoice-list">
+  <h2>لیست فاکتورها</h2>
+
+  <div class="filters">
+    <button (click)="toggleFilters()">
+      {{ filtersOpen ? 'بستن فیلترها' : 'نمایش فیلترها' }}
+    </button>
+
+    <div *ngIf="filtersOpen" class="filter-panel">
+      <label>نوع مشتری:</label>
+      <select [(ngModel)]="filterCustomerType" (change)="applyFilter()">
+        <option value="All">همه</option>
+        <option value="Individual">حقیقی</option>
+        <option value="Company">حقوقی</option>
+      </select>
+
+      <label>جستجو:</label>
+      <input type="text" [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="شماره یا نام مشتری">
+    </div>
+  </div>
+
+  <div class="action-buttons">
+    <button class="create-btn" (click)="goToCreate()">افزودن فاکتور جدید</button>
+  </div>
+
+  <!-- جدول داخل کانتینر با اسکرول افقی -->
+  <div class="table-wrapper">
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th>شماره فاکتور</th>
+          <th>مشتری</th>
+          <th>نوع فاکتور</th>
+          <th>وضعیت</th>
+          <th>تاریخ صدور</th>
+          <th>تعداد روز اعتبار</th>
+          <th>مبلغ بعد از تخفیف (ریال)</th>
+          <th>مالیات ارزش افزوده (ریال)</th>
+          <th>مبلغ کل با مالیات ارزش افزوده (ریال)</th>
+          <th>پیوست‌ها</th>
+          <th>عملیات</th>
+          <th>چاپ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let invoice of filteredInvoices">
+          <td>{{ invoice.invoiceNumber }}</td>
+          <td>{{ getCustomerName(invoice) }}</td>
+          <td>{{ getInvoiceTypeLabel(invoice.invoiceType) }}</td>
+          <td>{{ getStatusLabel(invoice.status) }}</td>
+          <td>{{ toJalali(invoice.issueDate) }}</td>
+          <td>{{ getValidityDays(invoice) }}</td>
+          <td>{{ getInvoiceTotalAfterDiscount(invoice) | number:'1.0-0' }}</td>
+          <td>{{ getInvoiceTotalVAT(invoice) | number:'1.0-0' }}</td>
+          <td>{{ getInvoiceFinalTotal(invoice) | number:'1.0-0' }}</td>
+          <td>
+            <span *ngFor="let att of invoice.attachments ?? []; let i = index">
+              <a [href]="att.fileUrl" target="_blank">{{ att.fileName }}</a><span *ngIf="i < (invoice.attachments?.length ?? 0) - 1">, </span>
+            </span>
+          </td>
+          <td>
+            <button (click)="goToEdit(invoice.id!)">ویرایش</button>
+            <button (click)="onDelete(invoice.id!)">حذف</button>
+          </td>
+          <td>
+            <button (click)="printInvoice(invoice.id!)">چاپ</button>
+          </td>
+        </tr>
+
+        <tr *ngIf="!filteredInvoices.length">
+          <td colspan="12" style="text-align:center">هیچ فاکتوری یافت نشد.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="loading" class="loading">در حال بارگذاری...</div>
+</div>

@@ -1,0 +1,170 @@
+<div class="container mt-4">
+  <button class="btn btn-primary mb-3" (click)="showModal = true">تعامل جدید</button>
+  
+  <div class="custom-modal" [class.show]="showModal">
+    <div class="modal-backdrop"></div>
+    <div class="custom-modal-dialog">
+      <div class="modal-fixed-header">
+        <h5>{{ isEditMode ? 'ویرایش تعامل' : 'تعامل جدید' }}</h5>
+        <button class="close-button" (click)="resetForm()">&times;</button>
+      </div>
+      <div class="custom-modal-body">
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <!-- نوع تعامل -->
+          <div class="form-row mb-2">
+            <label>نوع تعامل</label>
+            <select formControlName="interactionType" (change)="onInteractionTypeChange()">
+              <option value="">انتخاب کنید</option>
+              <option *ngFor="let t of interactionTypes" [ngValue]="t.value">{{ t.label }}</option>
+
+            </select>
+
+     
+
+          </div>
+
+          <!-- زمان شروع و ساعت -->
+          <div class="form-row d-flex gap-2 mb-2">
+            <ng-persian-datepicker type="date" format="jYYYY/jMM/jDD">
+              <input type="text" class="form-control" formControlName="startDateTime" placeholder="تاریخ شروع" />
+            </ng-persian-datepicker>
+
+            <input class="form-control"
+                   [ngxTimepicker]="picker"
+                   formControlName="startTime"
+                   readonly
+                   placeholder="انتخاب ساعت"
+                   (input)="onTimeTextChange($event.target.value)">
+
+            <ngx-material-timepicker #picker [format]="24"></ngx-material-timepicker>
+          </div>
+
+          <!-- مدت زمان -->
+          <div class="form-row mb-2" *ngIf="isDurationEnabled()">
+            <label>مدت زمان (دقیقه)</label>
+            <input type="text"
+                   formControlName="durationMinutes"
+                   (input)="checkNumber($event); onDurationChange()"
+                   [disabled]="!isDurationEnabled()"
+                   class="form-control">
+          </div>
+
+          <!-- زمان پایان -->
+          <div class="form-row mb-2" *ngIf="isDurationEnabled() && form.get('durationMinutes')?.value">
+            <label>زمان پایان:</label>
+            <div class="form-control bg-light">
+              {{ toJalali(calculateEndDate()) }}
+            </div>
+          </div>
+
+          <!-- انتخاب مشتری -->
+          <div class="form-row mb-2">
+            <label>انتخاب مشتری</label>
+            <div class="d-flex gap-3">
+              <label><input type="radio" name="customerType" [checked]="selectedCustomerType==='individual'" (change)="selectCustomerType('individual')"> مشتری حقیقی</label>
+              <label><input type="radio" name="customerType" [checked]="selectedCustomerType==='company'" (change)="selectCustomerType('company')"> مشتری حقوقی</label>
+            </div>
+          </div>
+
+          <div class="form-row mb-2" *ngIf="selectedCustomerType==='individual'">
+            <select class="form-control" formControlName="individualCustomerId">
+              <option [ngValue]="null">-- انتخاب مشتری حقیقی --</option>
+              <option *ngFor="let c of individualCustomers" [ngValue]="c.customerId">{{c.fullName}}</option>
+            </select>
+          </div>
+
+          <div class="form-row mb-2" *ngIf="selectedCustomerType==='company'">
+            <select class="form-control" formControlName="companyCustomerId">
+              <option [ngValue]="null">-- انتخاب مشتری حقوقی --</option>
+              <option *ngFor="let c of companyCustomers" [ngValue]="c.customerId">{{c.companyName}}</option>
+            </select>
+          </div>
+
+          <!-- موضوع و توضیحات -->
+          <div class="form-row mb-2">
+            <label>موضوع</label>
+            <input type="text" class="form-control" formControlName="subject">
+          </div>
+
+          <div class="form-row mb-2">
+            <label>توضیحات</label>
+            <textarea class="form-control" formControlName="notes"></textarea>
+          </div>
+
+          <!-- پیوست -->
+          <div class="form-row mb-2">
+            <label>پیوست</label>
+            <input type="file" #fileInput multiple style="display:none" (change)="onFileChange($event)">
+            <button type="button" class="btn btn-sm btn-outline-primary mb-2" (click)="addFileInput(fileInput)">+ افزودن فایل</button>
+
+            <div *ngIf="existingAttachmentPaths?.length">
+              <h6>فایل‌های موجود:</h6>
+              <div *ngFor="let path of existingAttachmentPaths; let i = index">
+                <a [href]="getAttachmentUrl(path)" target="_blank">{{ path.split('/').pop() }}</a>
+                <button type="button" class="btn btn-sm btn-danger ms-2" (click)="removeExistingAttachment(i)">حذف</button>
+              </div>
+            </div>
+
+            <div *ngIf="currentAttachmentFiles?.length">
+              <h6>فایل‌های جدید:</h6>
+              <div *ngFor="let file of currentAttachmentFiles; let i = index">
+                {{ file.name }}
+                <button type="button" class="btn btn-sm btn-danger ms-2" (click)="removeNewAttachment(i)">حذف</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- دکمه‌ها -->
+          <div class="form-row d-flex gap-2 mt-2">
+            <button type="submit" class="btn btn-success" [disabled]="form.invalid">{{ isEditMode ? 'ویرایش' : 'ثبت' }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- جدول تعاملات -->
+  <table class="table table-bordered mt-4">
+    <thead>
+      <tr>
+        <th>شماره ردیف</th>
+        <th>نوع تعامل</th>
+        <th>تاریخ شروع</th>
+        <th>مدت زمان (دقیقه)</th>
+        <th>تاریخ پایان</th>
+        <th>موضوع</th>
+        <th>مشتری</th>
+        <th>توسط</th>
+        <th>فایل پیوست</th>
+        <th>عملیات</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let i of interactions; let idx = index">
+        <td>{{ idx + 1 }}</td>
+        <td>{{ getInteractionLabel(i.interactionType ?? undefined) }}</td>
+
+        <td>{{ toJalali(i.startDateTime) }}</td>
+        <td>{{ i.durationMinutes ?? '-' }}</td>
+        <td>{{ toJalali(i.endDateTime ?? undefined) }}</td>
+        <td>{{ i.subject || '-' }}</td>
+        <td>{{ getCustomerDisplayName(i.customer) }}</td>
+        <td>{{ i.performedBy || '-' }}</td>
+        <td>
+          <ng-container *ngIf="i.attachments?.length; else noFile">
+            <div *ngFor="let f of i.attachments">
+              <a [href]="getAttachmentUrl(f.filePath)" target="_blank">
+                📎 {{ f.filePath.split('/').pop() }}
+              </a>
+            </div>
+          </ng-container>
+          <ng-template #noFile>-</ng-template>
+        </td>
+        <td>
+          <button (click)="editInteraction(i)" class="btn btn-sm btn-primary">ویرایش</button>
+          <button (click)="deleteInteraction(i.id!)" class="btn btn-sm btn-danger ms-2">حذف</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

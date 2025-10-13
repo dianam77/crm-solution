@@ -1,0 +1,152 @@
+<div class="container">
+
+  <!-- دکمه ساخت محصول -->
+  <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+    <button (click)="openProductModal()">+ ساخت محصول</button>
+  </div>
+
+  <!-- لیست محصولات -->
+  <h2 class="section-title">محصولات</h2>
+  <div class="products-section" *ngIf="products.length; else noProducts">
+    <div *ngFor="let product of products" class="product-card" (click)="openProductDetails(product)">
+      <div class="product-image">
+        <img [src]="getProductImage(product)" alt="{{ product.name }}">
+      </div>
+      <div class="product-details">
+        <h4 class="product-name">{{ product.name }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noProducts>
+    <p>هیچ محصولی وجود ندارد.</p>
+  </ng-template>
+
+  <!-- مودال ساخت/ویرایش محصول -->
+  <div *ngIf="showProductModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="close-modal-btn" (click)="closeProductModal()">✖</button>
+      <h3>{{ editingProductId ? 'ویرایش محصول' : 'ساخت محصول' }}</h3>
+
+      <form [formGroup]="productForm" (ngSubmit)="saveProduct()" class="product-form">
+        <!-- فیلدهای فرم مانند قبل -->
+        <label>
+          نام محصول
+          <input type="text" formControlName="name" placeholder="نام محصول">
+        </label>
+
+        <label>
+          توضیحات
+          <input type="text" formControlName="description" placeholder="توضیحات">
+        </label>
+
+        <label>
+          قیمت
+          <input type="number" formControlName="price" placeholder="قیمت">
+        </label>
+
+        <label>
+          موجودی
+          <input type="number" formControlName="stockQuantity" placeholder="موجودی">
+        </label>
+
+        <label>
+          دسته‌بندی
+          <select formControlName="categoryId">
+            <option value="">انتخاب دسته‌بندی</option>
+            <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
+          </select>
+        </label>
+
+        <label>نوع:</label>
+        <div class="radio-group">
+          <label>
+            <input type="radio" formControlName="type" value="Product" /> محصول
+          </label>
+          <label>
+            <input type="radio" formControlName="type" value="Service" /> خدمت
+          </label>
+
+
+        </div>
+
+
+        <!-- تصاویر -->
+        <div class="image-preview-container">
+          <div *ngIf="existingImages.length">
+            <h6>تصاویر موجود:</h6>
+            <div class="preview-grid">
+              <div class="preview-item" *ngFor="let img of existingImages; let i = index">
+                <img [src]="img" alt="existing" />
+                <button type="button" class="remove-btn" (click)="removeExistingImage(i)">✖</button>
+              </div>
+            </div>
+          </div>
+
+          <h6 *ngIf="!editingProductId || currentImagePreviews.length">تصاویر جدید:</h6>
+          <label class="image-upload-label">
+            <input type="file" #imageInput multiple style="display:none" (change)="onImageChange($event)">
+            <div class="image-placeholder">
+              <div class="preview-grid">
+                <div class="preview-item" *ngFor="let img of currentImagePreviews; let i = index">
+                  <img [src]="img" alt="preview" />
+                  <button type="button" class="remove-btn" (click)="removeNewImage(i)">✖</button>
+                </div>
+                <div class="add-btn" (click)="imageInput.click()">+</div>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="isActive"> فعال
+        </label>
+
+        <div class="modal-buttons">
+          <button type="submit">{{ editingProductId ? 'ویرایش' : 'اضافه' }}</button>
+          <button type="button" (click)="closeProductModal()">لغو</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- مودال جزئیات محصول -->
+  <div *ngIf="selectedProduct" class="modal-overlay">
+    <div class="modal-content rtl-modal">
+      <button class="close-modal-btn" (click)="closeProductDetails()">✖</button>
+      <h3 class="modal-title">جزئیات محصول</h3>
+
+      <div class="modal-body">
+        <p><strong>نام:</strong> {{ selectedProduct.name }}</p>
+        <p><strong>توضیحات:</strong> {{ selectedProduct.description || 'ندارد' }}</p>
+        <p><strong>قیمت:</strong> {{ formatPrice(selectedProduct.price) }}</p>
+        <p><strong>موجودی:</strong> {{ selectedProduct.stockQuantity }}</p>
+        <p><strong>دسته‌بندی:</strong> {{ selectedProduct.category?.name || 'ندارد' }}</p>
+        <p><strong>وضعیت:</strong> {{ selectedProduct.isActive ? 'فعال' : 'غیرفعال' }}</p>
+        <p><strong>نوع:</strong> {{ getProductTypeLabel(selectedProduct.type) }}</p>
+
+        <div>
+          <h5 class="images-title">تصاویر محصول:</h5>
+          <div class="images-container">
+            <div *ngFor="let img of selectedProduct.images; trackBy: trackByImage" class="image-box">
+              <img [src]="img.imageUrl || 'assets/images/no-image.png'" alt="تصویر محصول">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="action-btn edit-btn"
+                (click)="startEditProduct(selectedProduct); closeProductDetails()">
+          ویرایش
+        </button>
+        <button class="action-btn delete-btn"
+                (click)="deleteProduct(selectedProduct.id); closeProductDetails()">
+          حذف
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

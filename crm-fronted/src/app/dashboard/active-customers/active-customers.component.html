@@ -1,0 +1,25 @@
+<div class="cards-wrapper" *ngIf="!loading; else loadingTemplate">
+  <div class="card blue">
+    <div class="card-icon">
+      <i class="fas fa-user"></i> <!-- آیکون شیک -->
+    </div>
+    <div class="card-info">
+      <h3>مشتریان حقیقی</h3>
+      <p class="count">{{ individualCount }}</p>
+    </div>
+  </div>
+
+  <div class="card green">
+    <div class="card-icon">
+      <i class="fas fa-building"></i> <!-- آیکون شیک -->
+    </div>
+    <div class="card-info">
+      <h3>مشتریان حقوقی</h3>
+      <p class="count">{{ companyCount }}</p>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading">در حال بارگذاری...</div>
+</ng-template>

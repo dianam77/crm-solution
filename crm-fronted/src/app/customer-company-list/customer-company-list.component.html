@@ -1,0 +1,187 @@
+<div class="company-container">
+
+  <!-- دکمه نمایش/پنهان کردن مودال -->
+  <button type="button" (click)="toggleCompanyForm()">
+    {{ showCompanyForm ? 'بستن فرم' : 'افزودن شرکت جدید' }}
+  </button>
+
+  <!-- مودال -->
+  <div class="modal-wrapper" *ngIf="showCompanyForm">
+    <div class="modal-backdrop" (click)="toggleCompanyForm()"></div>
+
+    <div class="modal">
+
+      <!-- 🔹 هدر ثابت مودال -->
+      <div class="modal-header">
+        <h3>{{ isCompanyEditMode ? 'ویرایش شرکت' : 'افزودن شرکت جدید' }}</h3>
+        <button type="button" class="modal-close-btn" (click)="toggleCompanyForm()">✖</button>
+      </div>
+
+      <!-- 🔹 بدنه قابل اسکرول -->
+      <div class="modal-body">
+
+        <form [formGroup]="companyForm" (ngSubmit)="saveCompany()">
+
+          <!-- نام شرکت -->
+          <label>
+            نام شرکت:
+            <input formControlName="companyName" />
+          </label>
+
+          <!-- کد اقتصادی -->
+          <label>
+            کد اقتصادی:
+            <input formControlName="economicCode" />
+          </label>
+
+          <!-- شماره ثبت -->
+          <label>
+            شماره ثبت:
+            <input formControlName="registerNumber" />
+          </label>
+
+          <!-- ایمیل‌ها -->
+          <div class="customer-relations-title">ایمیل‌ها</div>
+
+          <div formArrayName="emails">
+            <div *ngFor="let email of companyEmails.controls; let i = index" [formGroupName]="i" class="email-row">
+              <input type="email" formControlName="emailAddress" placeholder="ایمیل" />
+              <select formControlName="emailType">
+                <option value="" disabled>نوع ایمیل</option>
+                <option *ngFor="let type of emailTypes" [value]="type.value">{{ type.label }}</option>
+              </select>
+              <label class="checkbox-label">
+                <input type="checkbox" formControlName="isPrimary" />
+                اصلی
+              </label>
+              <button type="button" (click)="removeCompanyEmail(i)">حذف</button>
+            </div>
+            <button type="button" (click)="addCompanyEmail()">افزودن ایمیل</button>
+          </div>
+
+          <!-- شماره‌ها -->
+          <label>تلفن‌ها:</label>
+          <div formArrayName="contactPhones">
+            <div *ngFor="let phone of companyPhones.controls; let i = index" [formGroupName]="i" class="phone-row">
+              <input formControlName="phoneNumber" placeholder="شماره" />
+              <input *ngIf="phone.get('phoneType')?.value === 'work'" formControlName="extension" placeholder="داخلی" />
+              <select formControlName="phoneType">
+                <option *ngFor="let type of phoneTypes" [value]="type.value">{{ type.label }}</option>
+              </select>
+              <button type="button" (click)="removeCompanyPhone(i)">حذف</button>
+            </div>
+            <button type="button" (click)="addCompanyPhone()">افزودن شماره</button>
+          </div>
+
+          <!-- آدرس‌ها -->
+          <label>آدرس‌ها:</label>
+          <div formArrayName="addresses">
+            <div *ngFor="let addr of companyAddresses.controls; let i = index" [formGroupName]="i" class="address-row">
+              <input formControlName="fullAddress" placeholder="آدرس کامل" />
+              <select formControlName="provinceId" (change)="onCompanyProvinceChange(i)">
+                <option value="">انتخاب استان</option>
+                <option *ngFor="let province of provinces" [value]="province.provinceId">{{ province.name }}</option>
+              </select>
+              <select formControlName="cityId" [disabled]="!addr.get('provinceId')?.value">
+                <option value="">انتخاب شهر</option>
+                <option *ngFor="let city of citiesMap[addr.get('provinceId')?.value] || []" [value]="city.cityId">{{ city.name }}</option>
+              </select>
+              <input formControlName="postalCode" placeholder="کد پستی" />
+              <select formControlName="addressType">
+                <option *ngFor="let type of addressTypes" [value]="type.value">{{ type.label }}</option>
+              </select>
+              <button type="button" (click)="removeCompanyAddress(i)">حذف</button>
+            </div>
+            <button type="button" (click)="addCompanyAddress()">افزودن آدرس</button>
+          </div>
+
+          <!-- روابط -->
+          <div formArrayName="customerCompanyRelations">
+            <div class="customer-relations-title">رابطه با مشتری حقیقی</div>
+            <div *ngFor="let rel of companyRelations.controls; let i = index" [formGroupName]="i" class="relation-row">
+              <select formControlName="individualCustomerId">
+                <option value="">انتخاب فرد</option>
+                <option *ngFor="let customer of individualCustomers" [value]="customer.customerId">
+                  {{ customer.fullName }}
+                </option>
+              </select>
+
+              <select formControlName="relationType">
+                <option value="">انتخاب نوع رابطه</option>
+                <option *ngFor="let type of relationTypes" [value]="type.value">
+                  {{ type.label }}
+                </option>
+              </select>
+
+              <button type="button" (click)="removeCompanyRelation(i)">حذف</button>
+            </div>
+            <button type="button" (click)="addCompanyRelation()">افزودن رابطه</button>
+          </div>
+
+          <!-- دکمه‌های ذخیره -->
+          <div class="modal-buttons">
+            <button type="submit">{{ isCompanyEditMode ? 'ویرایش' : 'ذخیره' }}</button>
+          </div>
+
+        </form>
+      </div> <!-- /modal-body -->
+    </div> <!-- /modal -->
+  </div> <!-- /modal-wrapper -->
+
+<!-- جدول شرکت‌ها -->
+<table class="table">
+  <thead>
+    <tr>
+      <th>ردیف</th>
+      <th>نام شرکت</th>
+      <th>کد اقتصادی</th>
+      <th>شماره ثبت</th>
+      <th>آدرس‌ها</th>
+      <th>تلفن‌ها</th>
+      <th>ایمیل‌ها</th>
+      <th *ngIf="canEdit">عملیات</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngIf="!companies || companies.length === 0">
+      <td [attr.colspan]="canEdit ? 8 : 7" class="text-center">موردی یافت نشد.</td>
+    </tr>
+    <tr *ngFor="let company of companies; let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>{{ company.companyName }}</td>
+      <td>{{ company.economicCode || '-' }}</td>
+      <td>{{ company.registerNumber || '-' }}</td>
+      <td>
+        <ul>
+          <li *ngFor="let addr of company.addresses">
+            <strong>آدرس کامل:</strong> {{ addr.fullAddress }}<br>
+            <strong>استان:</strong> {{ getProvinceName(addr.provinceId) }}<br>
+            <strong>شهر:</strong> {{ getCityName(addr.provinceId, addr.cityId) }}<br>
+            <strong>کد پستی:</strong> {{ addr.postalCode || '-' }}
+          </li>
+        </ul>
+      </td>
+
+      <td>
+        <ul>
+          <li *ngFor="let phone of company.contactPhones">
+            {{ phone.phoneNumber }} {{ phone.extension ? 'داخلی ' + phone.extension : '' }}
+          </li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li *ngFor="let email of company.emails">
+            {{ email.emailAddress }} {{ email.isPrimary ? '(اصلی)' : '' }}
+          </li>
+        </ul>
+      </td>
+      <td *ngIf="canEdit">
+        <button type="button" (click)="editCompany(company)">ویرایش</button>
+        <button type="button" (click)="deleteCompany(company.customerId!)">حذف</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+</div>

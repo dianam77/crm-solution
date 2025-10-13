@@ -1,0 +1,163 @@
+:host {
+  display: block;
+  font-family: 'Vazir', Tahoma, sans-serif;
+  background: linear-gradient(135deg, #f6f9fc, #f0f4f8);
+  padding: 20px;
+  color: #333;
+}
+
+/* تیتر صفحه */
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1a365d;
+  font-weight: 700;
+  font-size: 1.6rem;
+  letter-spacing: -0.5px;
+}
+
+/* جدول */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #d0d7de;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* هدر */
+thead tr {
+  background: linear-gradient(90deg, #bbdefb, #90caf9);
+  color: #0d47a1;
+  font-weight: 600;
+}
+
+thead th {
+  padding: 12px 10px;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* ردیف‌ها */
+tbody tr {
+  transition: background-color 0.25s ease, transform 0.15s ease;
+}
+
+  tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+
+  tbody tr:hover {
+    background-color: #e8f4fd;
+    transform: scale(1.005);
+  }
+
+/* سلول‌ها */
+tbody td {
+  padding: 10px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+/* فرم */
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+}
+
+/* ورودی‌ها */
+input, select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+  input:focus, select:focus {
+    border-color: #42a5f5;
+    box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.2);
+    outline: none;
+  }
+
+/* دکمه‌ها */
+button {
+  background: linear-gradient(90deg, #42a5f5, #1e88e5);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  margin: 0 2px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+  button:hover {
+    background: linear-gradient(90deg, #1e88e5, #1565c0);
+    box-shadow: 0 3px 6px rgba(30, 136, 229, 0.25);
+    transform: translateY(-2px);
+  }
+
+/* دکمه خاکستری */
+form button[type="button"] {
+  background: linear-gradient(90deg, #90a4ae, #78909c);
+}
+
+  form button[type="button"]:hover {
+    background: linear-gradient(90deg, #78909c, #546e7a);
+    transform: translateY(-2px);
+  }
+
+/* بخش تغییر پسورد */
+tr[style*="background: #eef"] {
+  background-color: #e3f2fd !important;
+}
+
+  tr[style*="background: #eef"] input {
+    border: 1px solid #bbb;
+  }
+
+  tr[style*="background: #eef"] button:first-child {
+    background: linear-gradient(90deg, #42a5f5, #1e88e5);
+  }
+
+    tr[style*="background: #eef"] button:first-child:hover {
+      background: linear-gradient(90deg, #1e88e5, #1565c0);
+    }
+
+/* ریسپانسیو */
+@media (max-width: 700px) {
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+    thead tr {
+      display: none;
+    }
+
+    tbody td {
+      padding: 8px;
+      text-align: right;
+      position: relative;
+      border-bottom: 1px solid #eee;
+    }
+
+      tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        position: absolute;
+        right: 10px;
+        top: 8px;
+        color: #333;
+      }
+}
+

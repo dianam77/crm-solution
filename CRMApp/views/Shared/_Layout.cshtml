@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - CRMApp</title>
+
+    <!-- CoreUI CSS from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/@@coreui/coreui@5.5.0/dist/css/coreui.min.css" rel="stylesheet" />
+    <!-- CoreUI Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/@@coreui/icons@2.1.0/css/free.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            direction: rtl; /* اگر می‌خوای راست به چپ باشه */
+        }
+    </style>
+</head>
+<body class="c-app">
+
+    <!-- Sidebar -->
+    <div class="c-sidebar c-sidebar-dark c-sidebar-fixed c-sidebar-lg-show" id="sidebar">
+        <div class="c-sidebar-brand d-lg-down-none">
+            <h4 class="text-white px-3 pt-3">CRM App</h4>
+        </div>
+        <ul class="c-sidebar-nav">
+            <li class="c-sidebar-nav-item">
+                <a class="c-sidebar-nav-link" href="@Url.Action("Dashboard", "Home")">
+                    <svg class="c-sidebar-nav-icon">
+                        <use xlink:href="https://cdn.jsdelivr.net/npm/@@coreui/icons@2.1.0/svg/free.svg#cil-speedometer"></use>
+                    </svg>
+                    داشبورد
+                </a>
+            </li>
+            <!-- لینک‌های بیشتر اینجا اضافه کن -->
+        </ul>
+        <button class="c-sidebar-minimizer c-class-toggler" type="button" data-target="_parent" data-class="c-sidebar-minimized"></button>
+    </div>
+
+    <!-- Wrapper -->
+    <div class="c-wrapper">
+        <!-- Header -->
+        <header class="c-header c-header-light c-header-fixed">
+            <button class="c-header-toggler c-class-toggler d-lg-none mfe-auto" type="button" data-target="#sidebar" data-class="c-sidebar-show">
+                <svg class="c-icon c-icon-lg">
+                    <use xlink:href="https://cdn.jsdelivr.net/npm/@@coreui/icons@2.1.0/svg/free.svg#cil-menu"></use>
+                </svg>
+            </button>
+            <a class="c-header-brand d-lg-none" href="#">CRMApp</a>
+
+            <ul class="c-header-nav ml-auto mr-4">
+                <li class="c-header-nav-item dropdown">
+                    <a class="c-header-nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                        <svg class="c-icon">
+                            <use xlink:href="https://cdn.jsdelivr.net/npm/@@coreui/icons@2.1.0/svg/free.svg#cil-user"></use>
+                        </svg>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right pt-0">
+                        <a class="dropdown-item" href="@Url.Action("Logout", "Home")"
+                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            خروج
+                        </a>
+                        <form id="logout-form" action="@Url.Action("Logout", "Home")" method="post" style="display:none;">
+                            @Html.AntiForgeryToken()
+                        </form>
+                    </div>
+                </li>
+            </ul>
+        </header>
+
+        <!-- Main content -->
+        <div class="c-body">
+            <main class="c-main">
+                <div class="container-fluid">
+                    @RenderBody()
+                </div>
+            </main>
+        </div>
+
+        <!-- Footer -->
+        <footer class="c-footer">
+            <div>© 2025 Your Company</div>
+        </footer>
+    </div>
+
+    <!-- CoreUI JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@@coreui/coreui@5.5.0/dist/js/coreui.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@coreui/icons@2.1.0/js/free.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

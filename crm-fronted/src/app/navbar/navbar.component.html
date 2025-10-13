@@ -1,0 +1,208 @@
+<!-- ========================== -->
+<!-- نوار بالایی (Navbar) -->
+<!-- ========================== -->
+<div class="navbar" [class.collapsed]="navbarCollapsed">
+  <button class="logout-btn" (click)="logout()" title="خروج">
+    <i class="fas fa-power-off"></i>
+  </button>
+
+  <!-- دکمه نمایش/پنهان کردن جستجو -->
+  <button class="toggle-btn" (click)="toggleSearch()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round"
+         [style.transform]="searchVisible ? 'rotate(180deg)' : 'rotate(0deg)'">
+      <line x1="4" y1="12" x2="20" y2="12"></line>
+      <polyline points="14,6 20,12 14,18"></polyline>
+    </svg>
+  </button>
+
+  <!-- باکس جستجو -->
+  <div class="search-box" *ngIf="searchVisible">
+    <input type="text" placeholder="Search..." />
+    <i class="fas fa-search search-icon"></i>
+  </div>
+
+  <!-- آیکون‌ها و نوتیفیکیشن‌ها -->
+  <div class="navbar-icons">
+
+    <!-- نوتیفیکیشن‌ها -->
+    <button class="icon-btn">
+      <i class="fas fa-bell"></i>
+      <span class="badge">3</span>
+    </button>
+
+    <!-- پنل ارجاعات -->
+    <button class="icon-btn" (click)="toggleReferralPanel()">
+      <i class="fas fa-list"></i>
+    </button>
+
+    <!-- Dropdown پیام‌ها -->
+    <div class="icon-dropdown">
+      <button class="icon-btn" (click)="toggleMessages()">
+        <i class="fas fa-envelope"></i>
+        <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+
+      <div class="dropdown-content" [class.open]="messagesOpen">
+        <!-- لیست پیام‌ها -->
+        <div class="section">
+          <div class="section-header">پیام‌ها</div>
+          <div *ngFor="let msg of visibleMessages" class="message-item" (click)="markAsRead(msg)">
+            <div class="message-main">
+              <div class="message-text">
+                <div class="message-sender">{{ msg.senderName }}</div>
+                <div class="message-content">{{ msg.content | slice:0:40 }}...</div>
+              </div>
+              <input type="checkbox" [(ngModel)]="msg.selected" (click)="$event.stopPropagation()" />
+            </div>
+            <div class="message-footer">
+              <small class="message-time">{{ msg.createdAt | date:'short' }}</small>
+              <span *ngIf="!msg.isReadByCurrentUser && msg.receiverIds.includes(currentUser?.id!)" class="unread-dot"></span>
+            </div>
+          </div>
+          <div *ngIf="visibleMessages.length === 0" class="empty">هیچ پیامی وجود ندارد</div>
+          <div class="clear-messages">
+            <button type="button" (click)="deleteSelectedMessages()" [disabled]="!hasSelectedMessages">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- لیست گیرنده‌ها -->
+        <div class="section">
+          <div class="toggle-header" (click)="toggleReceiverList()">
+            گیرنده‌ها
+            <span class="arrow">{{ receiversOpen ? '▲' : '▼' }}</span>
+          </div>
+          <div class="user-list" *ngIf="receiversOpen">
+            <ng-container *ngFor="let user of users">
+              <label *ngIf="user.id !== currentUser?.id">
+                <input type="checkbox"
+                       [checked]="currentReceiverIds.includes(user.id)"
+                       (change)="onCheckboxChange($event, user.id)" />
+                {{ user.userName }}
+              </label>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- ارسال پیام جدید -->
+        <div class="section send-message">
+          <input type="text" [(ngModel)]="newMessageContent" placeholder="پیام جدید..." />
+          <button type="button" (click)="sendMessage()">ارسال</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- دکمه تمام صفحه -->
+    <button class="icon-btn">
+      <i class="fas fa-expand"></i>
+    </button>
+
+    <!-- تغییر حالت تم -->
+    <button class="icon-btn" (click)="toggleTheme()">
+      <i class="fas" [ngClass]="darkMode ? 'fa-sun' : 'fa-moon'"></i>
+    </button>
+
+    <!-- پروفایل کاربر و دکمه خروج -->
+    <div class="profile">
+      <img src="" alt="user" />
+      <span class="status"></span>
+    </div>
+
+  </div>
+
+  <!-- دکمه کوچک کردن یا باز کردن نوار -->
+  <button class="collapse-btn" (click)="toggleNavbar()">
+    <i class="fas" [ngClass]="navbarCollapsed ? 'fa-arrow-right' : 'fa-arrow-left'"></i>
+  </button>
+</div>
+
+<!-- ========================== -->
+<!-- پنل ارجاعات -->
+<!-- ========================== -->
+<div class="referral-panel" [class.visible]="referralPanelVisible" dir="rtl">
+
+  <div class="panel-header">
+    <h2>ارجاعات شما</h2>
+    <button class="close-btn" (click)="referralPanelVisible = false">&times;</button>
+  </div>
+
+  <!-- دکمه ایجاد ارجاع جدید -->
+  <button class="btn-add" (click)="openCreateModal()">ایجاد ارجاع جدید</button>
+
+  <!-- فرم ایجاد/ویرایش ارجاع -->
+  <div *ngIf="showCreateForm" class="create-form">
+    <div class="form-header">
+      <h3>{{ isEditMode ? 'ویرایش ارجاع' : 'ایجاد ارجاع جدید' }}</h3>
+      <button class="close-btn" (click)="resetForm()">&times;</button>
+    </div>
+
+    <form (ngSubmit)="saveReferral()">
+      <div class="form-group">
+        <label>ارجاع دهنده</label>
+        <span class="current-user">{{ currentUser?.userName || 'در حال بارگذاری...' }}</span>
+      </div>
+
+      <div class="form-group">
+        <label>ارجاع گیرنده</label>
+        <select [(ngModel)]="newReferral.assignedToId" name="assignedToId" required>
+          <option *ngFor="let user of users" [ngValue]="user.id">{{ user.userName }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>توضیحات</label>
+        <textarea [(ngModel)]="newReferral.notes" name="notes"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>اولویت</label>
+        <select [(ngModel)]="newReferral.priority" name="priority">
+          <option [ngValue]="priorityEnum.Low">کم</option>
+          <option [ngValue]="priorityEnum.Medium">متوسط</option>
+          <option [ngValue]="priorityEnum.High">زیاد</option>
+        </select>
+      </div>
+
+
+      <button type="submit" class="btn-submit">
+        {{ isEditMode ? 'ذخیره تغییرات' : 'ارسال' }}
+      </button>
+    </form>
+  </div>
+
+  <hr>
+
+  <!-- لیست کارت‌های ارجاع -->
+  <div class="referral-cards">
+    <div class="referral-card" *ngFor="let r of referrals">
+      <div class="card-header">
+        <span><strong>ارجاع دهنده:</strong> {{ r.assignedByName }}</span>
+        <span><strong>ارجاع گیرنده:</strong> {{ r.assignedToName }}</span>
+      </div>
+
+      <div class="card-body">
+        <p><strong>اولویت:</strong> {{ priorityLabels[r.priority] }}</p>
+        <ng-container *ngIf="currentUser?.role === 'Admin'; else readOnlyStatus">
+          <select [(ngModel)]="r.status" (change)="updateReferralStatus(r)">
+            <option [ngValue]="statusEnum.Pending">در انتظار</option>
+            <option [ngValue]="statusEnum.Accepted">قبول شده</option>
+            <option [ngValue]="statusEnum.Rejected">رد شده</option>
+            <option [ngValue]="statusEnum.Completed">تکمیل شده</option>
+          </select>
+        </ng-container>
+        <ng-template #readOnlyStatus>
+          <span>{{ statusLabels[r.status] }}</span>
+        </ng-template>
+
+        <p><strong>توضیحات:</strong> {{ r.notes || '-' }}</p>
+      </div>
+
+      <div class="card-actions">
+        <button (click)="openEditModal(r)">ویرایش</button>
+        <button (click)="deleteReferral(r)">حذف</button>
+      </div>
+    </div>
+  </div>
+</div>

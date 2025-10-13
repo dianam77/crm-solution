@@ -1,0 +1,178 @@
+.invoice-form {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 30px 25px;
+  font-family: 'Vazir', sans-serif;
+  direction: rtl;
+  text-align: right;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+  .invoice-form h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 12px;
+  }
+
+  .invoice-form label {
+    display: block;
+    margin-top: 18px;
+    font-weight: 500;
+    color: #555;
+  }
+
+  .invoice-form input[type="text"],
+  .invoice-form input[type="number"],
+  .invoice-form select {
+    width: 100%;
+    padding: 12px 16px;
+    margin-top: 6px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 15px;
+    transition: all 0.25s;
+    background: #f9f9f9;
+  }
+
+    .invoice-form input:focus,
+    .invoice-form select:focus {
+      border-color: #007bff;
+      background: #fff;
+      box-shadow: 0 0 8px rgba(0,123,255,0.2);
+      outline: none;
+    }
+
+.customer-type label {
+  margin-right: 20px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.customer-type input[type="radio"] {
+  margin-left: 6px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 25px;
+}
+
+.invoice-form table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px; /* فاصله بین ردیف‌ها */
+}
+
+.invoice-form th {
+  padding: 12px;
+  background-color: #f1f3f5;
+  color: #333;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.invoice-form td {
+  background-color: #fff;
+  padding: 12px;
+  text-align: center;
+  font-size: 14px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
+
+  .invoice-form td input[type="number"] {
+    width: 80px;
+    text-align: center;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+.discount-input-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.invoice-form button {
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 15px;
+  transition: 0.25s;
+  margin-top: 18px;
+  border: none;
+}
+
+  .invoice-form button[type="button"] {
+    background-color: #17a2b8;
+    color: #fff;
+  }
+
+    .invoice-form button[type="button"]:hover {
+      background-color: #138496;
+    }
+
+  .invoice-form button[type="submit"] {
+    background-color: #28a745;
+    color: #fff;
+  }
+
+    .invoice-form button[type="submit"]:hover {
+      background-color: #218838;
+    }
+
+.invoice-form h3 {
+  margin-top: 25px;
+  font-size: 19px;
+  font-weight: 600;
+  color: #333;
+}
+
+.actions {
+  max-width: 1100px;
+  margin: 25px auto 50px auto;
+  text-align: right;
+}
+
+.btn-back {
+  background-color: #ffc107;
+  color: #212529;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: 0.25s;
+  cursor: pointer;
+}
+
+  .btn-back:hover {
+    background-color: #e0a800;
+  }
+
+.invoice-form td button {
+  background-color: #dc3545;
+  color: #fff;
+  padding: 7px 14px;
+  font-size: 13px;
+}
+
+  .invoice-form td button:hover {
+    background-color: #c82333;
+  }
+/* Chrome, Safari, Edge, Opera */
+/* برای کروم، اج و سافاری */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* برای فایرفاکس */
+input[type=number] {
+  -moz-appearance: textfield;
+}

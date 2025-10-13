@@ -1,0 +1,184 @@
+/* ================== عمومی ================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f9;
+  color: #333;
+  line-height: 1.6;
+  direction: rtl;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  direction: rtl;
+}
+
+/* ================== تیتر ================== */
+.section-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 25px;
+}
+
+/* ================== دکمه‌ها ================== */
+button {
+  cursor: pointer;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+/* دکمه اضافه */
+.add-btn {
+  background: linear-gradient(135deg, #4a90e2, #1976d2);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+  .add-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  }
+
+/* دکمه‌های ویرایش و حذف شیک و ملایم */
+.edit-btn {
+  background-color: #f0f4ff; /* رنگ پس‌زمینه ملایم */
+  color: #3f51b5; /* رنگ متن هماهنگ با آبی مودال */
+  border: 1px solid #c5cae9; /* حاشیه ملایم */
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+  .edit-btn:hover {
+    background-color: #dbe5ff; /* حالت هاور ملایم */
+    color: #303f9f;
+  }
+
+.delete-btn {
+  background-color: #fff0f0; /* پس‌زمینه ملایم قرمز */
+  color: #e53935; /* رنگ متن قرمز */
+  border: 1px solid #f5c6cb;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+  .delete-btn:hover {
+    background-color: #ffd6d6; /* حالت هاور ملایم */
+    color: #c62828;
+  }
+
+
+/* ================== کارت‌ها ================== */
+.categories-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+  .category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+
+.category-name {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* ================== مودال ================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  padding: 25px 20px;
+  border-radius: 16px;
+  width: 400px;
+  max-width: 95%;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+}
+
+.close-modal-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #e74c3c;
+  color: #fff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-weight: bold;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+  .close-modal-btn:hover {
+    background: #c0392b;
+    transform: scale(1.1);
+  }
+
+/* ================== فرم مودال ================== */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+  .modal-form input[type="text"] {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.submit-btn {
+  background: linear-gradient(135deg, #4a90e2, #1976d2);
+  color: #fff;
+}
+
+.cancel-btn {
+  background-color: #e0e0e0;
+}

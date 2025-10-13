@@ -1,0 +1,11 @@
+<div class="chart-container" *ngIf="!loading; else loadingTemplate">
+  <canvas baseChart
+          [data]="productData"
+          [options]="options"
+          [type]="chartType">
+  </canvas>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading">در حال بارگذاری...</div>
+</ng-template>

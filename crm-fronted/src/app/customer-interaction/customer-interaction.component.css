@@ -1,0 +1,281 @@
+/* ================== عمومی ================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  direction: rtl; /* راست‌چین برای همه */
+}
+
+html, body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f9;
+  color: #333;
+  line-height: 1.6;
+  direction: rtl;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  direction: rtl;
+}
+/* هدر ثابت مودال */
+.modal-fixed-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f1f5f9;
+  padding: 15px 20px;
+  border-bottom: 1px solid #ddd;
+  text-align: center; /* متن وسط */
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px; /* فاصله بین متن و دکمه */
+}
+
+  /* متن هدر */
+  .modal-fixed-header h5 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1976d2;
+    line-height: 1.5rem;
+    flex: 1; /* برای مرکز کردن متن */
+    text-align: center;
+  }
+
+/* دکمه بستن ساده سمت چپ */
+.close-button {
+  position: absolute;
+  top: 15px;
+  left: 15px; /* چپ‌چین */
+  font-size: 22px;
+  color: #555; /* خاکستری ساده */
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: color 0.2s ease;
+}
+
+  .close-button:hover {
+    color: #000; /* کمی تیره‌تر هنگام هاور */
+  }
+
+
+/* ================== بک‌دراپ و مودال ================== */
+.custom-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  justify-content: center;
+  align-items: center;
+  direction: rtl;
+}
+
+  .custom-modal.show {
+    display: flex;
+  }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(13, 71, 161, 0.3);
+  z-index: 1;
+}
+
+.custom-modal-dialog {
+  position: relative;
+  background-color: #fff;
+  border-radius: 1rem;
+  max-width: 700px;
+  width: 100%;
+  z-index: 2;
+  padding: 1.5rem;
+  box-shadow: 0 1rem 2rem rgba(0,0,0,0.3);
+  overflow-y: auto;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  direction: rtl;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.custom-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  padding: 10px 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+  direction: rtl;
+}
+
+  .custom-modal-header h5 {
+    margin: 0;
+    font-size: 1.25rem;
+    text-align: right;
+  }
+
+.close-button {
+  position: absolute;
+  margin:-15px 0 4px 8px;
+  top: 15px;
+  left: 15px;
+  font-size: 22px;
+  color: #555;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: color 0.2s ease;
+}
+
+  .close-button:hover {
+    color: #000;
+  }
+
+
+
+.custom-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  direction: rtl;
+  text-align: right;
+}
+
+/* ================== فرم داخل مودال ================== */
+.custom-modal-dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  direction: rtl;
+  text-align: right;
+}
+
+  .custom-modal-dialog form label {
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    gap: 6px;
+  }
+
+  .custom-modal-dialog form input,
+  .custom-modal-dialog form select,
+  .custom-modal-dialog form textarea {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    width: 100%;
+    direction: rtl;
+    text-align: right;
+  }
+
+
+
+/* ================== جدول ================== */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: box-shadow 0.3s ease;
+  direction: rtl;
+}
+
+  .table:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+
+  .table thead {
+    background: linear-gradient(90deg, #bbdefb 0%, #90caf9 100%);
+    color: #0d47a1;
+    font-weight: 700;
+  }
+
+  .table th,
+  .table td {
+    padding: 12px 16px;
+    text-align: right;
+    border-bottom: 1px solid #eee;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: #444;
+  }
+
+  .table tbody tr:hover {
+    background: #e3f2fd;
+    transform: translateX(-5px);
+  }
+
+/* ================== دکمه‌ها ================== */
+button {
+  margin: 4px 0 4px 8px;
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(30, 136, 229, 0.3);
+  transition: all 0.25s ease;
+  text-align: center;
+  direction: rtl;
+  float: right;
+}
+
+  button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.5);
+  }
+
+  button:hover {
+    background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+    box-shadow: 0 6px 12px rgba(21, 101, 192, 0.5);
+    transform: translateY(-2px);
+  }
+
+  button.secondary {
+    background-color: #6c757d;
+    color: #fff;
+  }
+
+    button.secondary:hover {
+      background-color: #5c636a;
+    }
+
+.btn-success {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+  .btn-success:hover {
+    background-color: #0b5ed7;
+  }

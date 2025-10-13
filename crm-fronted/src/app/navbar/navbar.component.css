@@ -1,0 +1,1243 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px; /* فاصله از دو طرف بیشتر شد */
+  height: 60px;
+  background: #4c6ef5;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1001;
+  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+  box-sizing: border-box;
+  transition: transform .25s ease, height .25s ease, padding .25s ease;
+}
+.navbar-icons .icon-btn {
+  position: relative;
+  background: linear-gradient(135deg, #4c6ef5, #3b5bdb);
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+  /* انیمیشن برای همه آیکون‌ها */
+  animation: floatShake 2s infinite ease-in-out;
+}
+
+  .navbar-icons .icon-btn:hover {
+    background: linear-gradient(135deg, #3b5bdb, #3450b3);
+    transform: translateY(-2px);
+  }
+
+  /* Badge (اعلان) */
+  .navbar-icons .icon-btn .badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #e03131;
+    color: #fff;
+    font-size: 11px;
+    padding: 3px 7px;
+    border-radius: 50%;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+.navbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* فاصله بین آیکن‌ها بیشتر شد */
+  margin-left: auto; /* فاصله از بخش چپ */
+}
+
+.navbar.collapsed {
+  transform: translateY(-48px);
+  height: 12px;
+  padding: 0 12px;
+}
+
+.collapse-btn {
+  position: fixed;
+  top: 0;
+  right: 12px;
+  transform: translateY(2px);
+  width: 28px;
+  height: 24px;
+  border: none;
+  cursor: pointer;
+  border-radius: 0 0 8px 8px;
+  background: #3d5bdb;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1002;
+}
+
+.toggle-btn {
+  width: 36px;
+  height: 36px;
+  border: 2px solid #fff; /* لاین سفید دور مربع */
+  background: transparent; /* توخالی */
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+
+
+.search-box {
+  position: relative; /* برای اینکه آیکون داخل input قرار بگیرد */
+  flex: 0 1 250px;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 6px;
+  padding: 4px 10px;
+  background-color: rgba(255,255,255,0.05);
+}
+
+  .search-box .search-icon {
+    position: absolute;
+    left: 8px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8); /* روشن‌تر برای دیدن بهتر */
+    pointer-events: none;
+  }
+
+
+  .search-box input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 14px;
+    padding-left: 26px; /* فاصله برای آیکون */
+  }
+
+    .search-box input::placeholder {
+      color: rgba(255,255,255,0.7);
+    }
+
+
+.navbar.collapsed .search-box {
+  flex: 0 0 120px;
+  padding: 2px 6px;
+}
+
+  .navbar.collapsed .search-box input {
+    font-size: 12px;
+  }
+
+.navbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-btn {
+  position: relative;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+  .icon-btn .badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #e03131;
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 50%;
+  }
+
+.profile {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+  .profile img {
+    border-radius: 50%;
+    border: 2px solid #fff;
+  }
+
+  .profile .status {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 10px;
+    height: 10px;
+    background: #00c853;
+    border-radius: 50%;
+    border: 2px solid #fff;
+  }
+
+/* دکمه خروج مینیمال سمت چپ با فاصله */
+.logout-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+}
+
+  .logout-btn:hover {
+    color: #ff4d4f; /* رنگ قرمز برای هشدار */
+    background-color: rgba(255, 77, 79, 0.2); /* پس‌زمینه کم‌رنگ */
+    transform: scale(1.1); /* کمی بزرگ‌تر شدن */
+  }
+
+/* پنل ارجاعات اکنون از سمت راست باز می‌شود */
+/* ---------- پنل ارجاعات ---------- */
+.referral-panel {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100%;
+  background-color: #fff;
+  box-shadow: -4px 0 15px rgba(0,0,0,0.2);
+  padding: 20px;
+  overflow-y: auto;
+  transition: right 0.3s ease-in-out;
+  font-family: 'Tahoma', sans-serif;
+  z-index: 1000;
+  direction: rtl;
+}
+
+  .referral-panel.visible {
+    right: 0;
+  }
+
+/* ---------- هدر پنل ---------- */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+  .panel-header h2 {
+    font-size: 20px;
+    margin: 0;
+  }
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #888;
+}
+
+  .close-btn:hover {
+    color: #000;
+  }
+
+/* ---------- دکمه‌ها ---------- */
+.btn-add {
+  display: inline-block;
+  margin-bottom: 15px;
+  padding: 8px 12px;
+  background-color: #0d6efd;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+  .btn-add:hover {
+    background-color: #0b5ed7;
+  }
+
+.btn-submit {
+  background-color: #198754;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+  .btn-submit:hover {
+    background-color: #157347;
+  }
+
+/* ---------- فرم ایجاد ارجاع ---------- */
+.create-form {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+  .create-form h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .form-group textarea {
+    min-height: 60px;
+    resize: vertical;
+  }
+
+/* ---------- کارت‌های ارجاع ---------- */
+.referral-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.referral-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.referral-panel {
+  width: 450px;
+  max-width: 100%;
+  background: #fff;
+  border-left: 1px solid #ccc;
+  padding: 15px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: -500px;
+  overflow-y: auto;
+  box-shadow: -4px 0 10px rgba(0,0,0,0.1);
+  transition: right 0.3s;
+  z-index: 1000;
+  font-family: "IRANSans", sans-serif;
+}
+
+  .referral-panel.visible {
+    right: 0;
+  }
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.btn-add {
+  display: block;
+  width: 100%;
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.create-form {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+  .create-form .form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .create-form .form-group {
+    margin-bottom: 10px;
+  }
+
+  .create-form label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: bold;
+  }
+
+  .create-form input,
+  .create-form textarea,
+  .create-form select {
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+
+.btn-submit {
+  background-color: #28a745;
+  color: #fff;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.referral-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.referral-card {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px;
+  background: #fff;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.card-actions {
+  margin-top: 5px;
+  display: flex;
+  gap: 5px;
+}
+
+.referral-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+  .referral-table th,
+  .referral-table td {
+    border: 1px solid #ddd;
+    padding: 6px 10px;
+    text-align: center;
+  }
+
+  .referral-table tr.selected {
+    background-color: #eef6ff;
+  }
+
+.status-pending {
+  color: #ffc107;
+  font-weight: bold;
+}
+
+.status-accepted {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.status-rejected {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.status-completed {
+  color: #6c757d;
+  font-weight: bold;
+}
+
+.card-body p {
+  margin: 4px 0;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+  .card-actions button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+    .card-actions button:hover {
+      opacity: 0.9;
+    }
+
+/* ---------- وضعیت‌ها ---------- */
+.status-pending {
+  color: #ffc107;
+  font-weight: bold;
+}
+
+.status-accepted {
+  color: #0d6efd;
+  font-weight: bold;
+}
+
+.status-rejected {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.status-completed {
+  color: #198754;
+  font-weight: bold;
+}
+
+/* ---------- جدول ارجاعات ---------- */
+.referral-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+  .referral-table th,
+  .referral-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .referral-table th {
+    background-color: #0d6efd;
+    color: #fff;
+  }
+
+  .referral-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+  }
+
+  .referral-table tr.selected {
+    background-color: #ffeeba;
+  }
+
+  .referral-table button {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 2px;
+  }
+
+    .referral-table button:hover {
+      opacity: 0.9;
+    }
+
+/* سایدبار پیام‌ها */
+.icon-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+  .icon-dropdown .icon-btn {
+    position: relative;
+  }
+
+  .icon-dropdown .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 50%;
+  }
+
+  .icon-dropdown .dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%; /* درست زیر آیکون */
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: #fff;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    border-radius: 6px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+  }
+
+    .icon-dropdown .dropdown-content.open {
+      display: block;
+    }
+
+.message-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  color: #000; /* متن مشکی شد */
+}
+
+  .message-item.unread {
+    background-color: #f0f8ff;
+    font-weight: bold;
+  }
+
+  .message-item small {
+    display: block;
+    color: gray;
+    font-size: 10px;
+  }
+
+.dropdown-content .empty {
+  padding: 10px;
+  text-align: center;
+  color: gray;
+  font-size: 12px;
+}
+
+
+select {
+  appearance: auto !important;
+  -webkit-appearance: auto !important;
+  -moz-appearance: auto !important;
+}
+.checkbox-list {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+  .checkbox-list label {
+    display: block;
+    margin-bottom: 4px;
+    cursor: pointer;
+  }
+/* ---------- Dropdown پیام‌ها ---------- */
+.icon-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+  .icon-dropdown .icon-btn {
+    position: relative;
+    background: #4c6ef5;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+  }
+
+  .icon-dropdown .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e03131;
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 50%;
+  }
+
+  /* محتوای dropdown */
+  .icon-dropdown .dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 110%;
+    width: 320px;
+    max-height: 450px;
+    overflow-y: auto;
+    background-color: #fff;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 10px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    color: #000; /* متن مشکی داخل dropdown */
+    font-family: "IRANSans", sans-serif;
+  }
+
+    /* باز شدن dropdown */
+    .icon-dropdown .dropdown-content.open {
+      display: block;
+    }
+
+/* ---------- پیام‌ها ---------- */
+.message-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+  .message-item:hover {
+    background-color: #f1f3f5;
+  }
+
+  .message-item.unread {
+    background-color: #e7f5ff;
+    font-weight: bold;
+  }
+
+  /* زمان پیام */
+  .message-item small {
+    display: block;
+    color: gray;
+    font-size: 10px;
+    margin-top: 2px;
+  }
+
+/* ---------- لیست کاربران با چک‌باکس ---------- */
+.dropdown-content .section {
+  margin-top: 10px;
+  border-top: 1px solid #ddd;
+  padding-top: 6px;
+}
+
+.toggle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 6px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+  .toggle-header:hover {
+    background-color: #f1f3f5;
+  }
+
+  .toggle-header .arrow {
+    font-size: 12px;
+  }
+
+.user-list {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+  .user-list label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+    .user-list label:hover {
+      background-color: #f0f0f0;
+    }
+
+  .user-list input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #4c6ef5;
+  }
+
+/* ---------- ارسال پیام جدید ---------- */
+.send-message {
+  margin-top: 10px;
+  display: flex;
+  gap: 6px;
+}
+
+  .send-message input[type="text"] {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  .send-message button {
+    padding: 6px 12px;
+    background-color: #4c6ef5;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+    .send-message button:hover {
+      background-color: #3b5bdb;
+    }
+
+/* ---------- دکمه پاک کردن پیام‌ها ---------- */
+.clear-messages {
+  margin-top: 8px;
+  text-align: center;
+}
+
+  .clear-messages button {
+    padding: 6px 12px;
+    background-color: #e03131;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+    .clear-messages button:hover {
+      background-color: #c22525;
+    }
+/* ---------- Dropdown پیام‌ها ---------- */
+.icon-dropdown {
+  position: relative;
+  display: inline-block;
+  font-family: "IRANSans", sans-serif;
+}
+
+  .icon-dropdown .icon-btn {
+    position: relative;
+    background: linear-gradient(135deg, #4c6ef5, #3b5bdb);
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+  }
+
+    .icon-dropdown .icon-btn:hover {
+      background: linear-gradient(135deg, #3b5bdb, #3450b3);
+      transform: translateY(-2px);
+    }
+
+  .icon-dropdown .badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #e03131;
+    color: #fff;
+    font-size: 11px;
+    padding: 3px 7px;
+    border-radius: 50%;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  /* محتوای dropdown */
+  .icon-dropdown .dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 130%;
+    width: 360px;
+    max-height: 520px;
+    overflow-y: auto;
+    background-color: #fefefe;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.25);
+    border-radius: 16px;
+    padding: 16px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    color: #000;
+  }
+
+    /* باز شدن dropdown */
+    .icon-dropdown .dropdown-content.open {
+      display: block;
+    }
+
+/* ---------- پیام‌ها ---------- */
+.message-item {
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+
+  .message-item:hover {
+    background-color: #f1f3f5;
+    transform: translateX(2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .message-item.unread {
+    background-color: #e7f5ff;
+    font-weight: 600;
+  }
+
+  /* زمان پیام */
+  .message-item small {
+    display: block;
+    color: #6c757d;
+    font-size: 10px;
+    margin-top: 2px;
+  }
+
+/* ---------- لیست کاربران با چک‌باکس ---------- */
+.dropdown-content .section {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background-color: #f8f9fa;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.toggle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background-color: #e9ecef;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+  .toggle-header:hover {
+    background-color: #dee2e6;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.05);
+  }
+
+  .toggle-header .arrow {
+    font-size: 14px;
+    transition: transform 0.2s;
+  }
+
+.user-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 10px;
+}
+
+  .user-list label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: background 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+
+    .user-list label:hover {
+      background-color: #f1f3f5;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+  .user-list input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #4c6ef5;
+    cursor: pointer;
+  }
+
+/* ---------- ارسال پیام جدید ---------- */
+.send-message {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 14px;
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+  .send-message input[type="text"] {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    font-size: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+    .send-message input[type="text"]:focus {
+      border-color: #4c6ef5;
+      outline: none;
+      box-shadow: 0 0 8px rgba(76,110,245,0.3);
+    }
+
+  .send-message button {
+    padding: 10px 16px;
+    background-color: #4c6ef5;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  }
+
+    .send-message button:hover {
+      background-color: #3b5bdb;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+/* ---------- دکمه پاک کردن پیام‌ها ---------- */
+.clear-messages {
+  margin-top: 14px;
+  text-align: center;
+}
+
+  .clear-messages button {
+    padding: 10px 16px;
+    background-color: #e03131;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  }
+
+    .clear-messages button:hover {
+      background-color: #c22525;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+/* پیام‌ها */
+.message-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+
+  .message-item:hover {
+    background-color: #f1f3f5;
+    transform: translateX(2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+.message-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.message-sender {
+  font-weight: 600;
+  color: #343a40;
+}
+
+.message-content {
+  color: #495057;
+}
+
+.message-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.message-time {
+  font-size: 10px;
+  color: gray;
+}
+
+.unread-dot {
+  width: 14px;
+  height: 14px;
+  background-color: #ff6b6b; /* رنگ برجسته */
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  margin-left: 6px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.message-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #4c6ef5;
+  cursor: pointer;
+}
+
+/* پیام‌ها */
+.message-item {
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+
+.message-item:hover {
+  background-color: #f1f3f5;
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.message-item.unread {
+  font-weight: 600;
+}
+
+/* بخش‌ها متمایز */
+.section {
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  background-color: #f8f9fa;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+.section-header {
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* سایر استایل‌ها */
+.user-list label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.user-list label:hover {
+  background-color: #f1f3f5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.message-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 85%;
+}
+
+.message-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #4c6ef5;
+  cursor: pointer;
+}
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* فاصله بین هر آیتم */
+}
+
+  .checkbox-list label {
+    display: flex;
+    align-items: center; /* هم‌تراز کردن چک‌باکس با متن */
+    gap: 0.5rem; /* فاصله بین چک‌باکس و متن */
+  }
+
+  .checkbox-list input[type="checkbox"] {
+    margin: 0; /* حذف margin پیش‌فرض */
+    vertical-align: middle; /* هم‌تراز کردن عمودی */
+    width: 16px; /* اندازه استاندارد چک‌باکس */
+    height: 16px;
+  }

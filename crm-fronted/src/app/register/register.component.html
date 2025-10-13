@@ -1,0 +1,57 @@
+<div class="register-container">
+  <h2>ثبت نام کاربر جدید</h2>
+
+  <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+    <!-- نام کاربری -->
+    <div class="form-group">
+      <label>نام کاربری</label>
+      <input [(ngModel)]="username" name="username" required #usernameInput="ngModel" />
+      <div *ngIf="usernameInput.invalid && usernameInput.touched" class="error">
+        نام کاربری اجباری است
+      </div>
+    </div>
+
+    <!-- رمز عبور -->
+    <div class="form-group">
+      <label>رمز عبور</label>
+      <input [(ngModel)]="password" name="password" type="password" required #passwordInput="ngModel" />
+      <div *ngIf="passwordInput.invalid && passwordInput.touched" class="error">
+        رمز عبور اجباری است
+      </div>
+    </div>
+
+    <!-- ایمیل -->
+    <div class="form-group">
+      <label>ایمیل</label>
+      <input [(ngModel)]="email" name="email" type="email" required #emailInput="ngModel" />
+      <div *ngIf="emailInput.invalid && emailInput.touched" class="error">
+        ایمیل معتبر است
+      </div>
+    </div>
+
+    <!-- انتخاب نقش -->
+    <div class="form-group">
+      <label>نقش</label>
+      <select [(ngModel)]="roleName" name="roleName" required #roleNameInput="ngModel">
+        <option value="">انتخاب نقش</option>
+        <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+      </select>
+      <div *ngIf="roleNameInput.invalid && roleNameInput.touched" class="error">
+        انتخاب نقش اجباری است
+      </div>
+    </div>
+
+    <!-- دکمه ثبت نام -->
+    <button type="submit" [disabled]="registerForm.invalid">ثبت نام</button>
+  </form>
+
+  <!-- پیام موفقیت -->
+  <div *ngIf="successMessage" class="alert alert-success mt-3">
+    {{ successMessage }}
+  </div>
+
+  <!-- پیام خطا -->
+  <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+    {{ errorMessage }}
+  </div>
+</div>
