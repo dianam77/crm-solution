@@ -115,6 +115,11 @@ export class CustomerCompanyListComponent implements OnInit {
   }
 
 
+  toPersianDigits(value: any): string {
+    if (value === null || value === undefined) return '-';
+    const str = value.toString();
+    return str.replace(/[0-9]/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+  }
 
   loadProvinces() { this.locationService.getProvinces().subscribe(d => this.provinces = d); }
 

@@ -1,19 +1,17 @@
 <div class="invoice-form">
   <h2>{{ invoice.id ? 'ویرایش فاکتور' : 'ایجاد فاکتور جدید' }}</h2>
 
-  <form (ngSubmit)="save()">
- 
+  <form dir="rtl" (ngSubmit)="save()">
+
     <label>شماره فاکتور:</label>
     <input type="text" [(ngModel)]="invoice.invoiceNumber" name="invoiceNumber" required>
 
- 
     <label>نوع فاکتور:</label>
     <select [(ngModel)]="invoice.invoiceType" name="invoiceType" (change)="onValidityDaysChange()">
       <option value="Proforma">پیش‌فاکتور</option>
       <option value="Invoice">فاکتور</option>
     </select>
 
-   
     <div *ngIf="invoice.invoiceType === 'Proforma'">
       <label>تعداد روز اعتبار:</label>
       <input type="number"
@@ -21,11 +19,11 @@
              name="validityDays"
              min="1"
              (input)="onValidityDaysChange()">
+
       <div *ngIf="dueDateShamsi">
-        <small>تاریخ اعتبار: {{ dueDateShamsi }}</small>
+        <small>تاریخ اعتبار: {{ toPersianDigits(dueDateShamsi) }}</small>
       </div>
     </div>
-
 
     <label>وضعیت فاکتور:</label>
     <select [(ngModel)]="invoice.status" name="status" required>
@@ -35,20 +33,20 @@
       <option value="Cancelled">لغو شده</option>
     </select>
 
-
     <div class="customer-type">
       <label>
         <input type="radio" name="customerType" value="individual"
                [(ngModel)]="selectedCustomerType"
-               (change)="onCustomerTypeChange('individual')"> مشتری حقیقی
+               (change)="onCustomerTypeChange('individual')">
+        مشتری حقیقی
       </label>
       <label>
         <input type="radio" name="customerType" value="company"
                [(ngModel)]="selectedCustomerType"
-               (change)="onCustomerTypeChange('company')"> مشتری حقوقی
+               (change)="onCustomerTypeChange('company')">
+        مشتری حقوقی
       </label>
     </div>
-
 
     <div *ngIf="selectedCustomerType === 'individual'">
       <label>انتخاب مشتری حقیقی:</label>
@@ -59,7 +57,6 @@
         </option>
       </select>
     </div>
-
 
     <div *ngIf="selectedCustomerType === 'company'">
       <label>انتخاب مشتری حقوقی:</label>
@@ -72,95 +69,98 @@
     </div>
 
 
-    <h3>آیتم‌های فاکتور</h3>
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>دسته‌بندی</th>
-            <th>محصول</th>
-            <th>تعداد</th>
-            <th>بهای واحد</th>
-            <th>مبلغ کل (قبل از تخفیف)</th>
-            <th>تخفیف</th>
-            <th>قیمت بعد از تخفیف</th>
-            <th>مالیات ارزش افزوده</th>
-            <th>مبلغ کل + مالیات</th>
-            <th>عملیات</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of invoice.invoiceItems; let i = index">
-     
-            <td>
-              <select [(ngModel)]="item.categoryId" name="category-{{i}}">
-                <option [ngValue]="null">انتخاب دسته</option>
-                <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.name }}</option>
-              </select>
-            </td>
-
-  
-            <td>
-              <select [(ngModel)]="item.productId" name="product-{{i}}" required
-                      (change)="onProductChange(item, item.productId)">
-                <option [ngValue]="null">انتخاب محصول</option>
-                <option *ngFor="let p of products | categoryFilter:item.categoryId" [ngValue]="p.id">
-                  {{ p.name }}
-                </option>
-              </select>
-            </td>
-
-  
-            <td>
-              <input type="number"
-                     [(ngModel)]="item.quantity"
-                     name="quantity-{{i}}"
-                     required
-                     min="1"
-                     (input)="calculateTotal()">
-            </td>
-            <td>{{ item.unitPrice | number:'1.0-0' }} ریال</td>
-            <td>{{ (item.quantity * item.unitPrice) | number:'1.0-0' }} ریال</td>
-            <td>
-              <input type="number"
-                     [(ngModel)]="item.discount"
-                     name="discount-{{i}}"
-                     min="0"
-                     step="100"
-                     (input)="calculateTotal()">
-            </td>
-            <td>{{ item.priceAfterDiscount | number:'1.0-0' }} ریال</td>
-            <td>{{ item.vatAmount | number:'1.0-0' }} ریال</td>
-            <td>{{ item.finalPrice | number:'1.0-0' }} ریال</td>
-            <td>
-              <button type="button" (click)="removeItem(i)">حذف</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-    </div>
-    <button type="button" (click)="addItem()">افزودن آیتم</button>
 
 
-    <h3>پیوست‌ها</h3>
-    <input type="file" (change)="onFileSelected($event)" multiple>
-    <ul>
-      <li *ngFor="let att of invoice.attachments; let i = index">
-        {{ att.fileName }}
-        <button type="button" (click)="removeAttachment(i)">حذف</button>
-      </li>
-    </ul>
+
+  <h3>آیتم‌های فاکتور</h3>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>دسته‌بندی</th>
+          <th>محصول</th>
+          <th>تعداد</th>
+          <th>بهای واحد</th>
+          <th>مبلغ کل (قبل از تخفیف)</th>
+          <th>تخفیف</th>
+          <th>قیمت بعد از تخفیف</th>
+          <th>مالیات ارزش افزوده</th>
+          <th>مبلغ کل + مالیات</th>
+          <th>عملیات</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of invoice.invoiceItems; let i = index">
+          <td>
+            <select [(ngModel)]="item.categoryId" name="category-{{i}}">
+              <option [ngValue]="null">انتخاب دسته</option>
+              <option *ngFor="let c of categories" [ngValue]="c.id">
+                {{ c.name }}
+              </option>
+            </select>
+          </td>
+
+          <td>
+            <select [(ngModel)]="item.productId" name="product-{{i}}" required
+                    (change)="onProductChange(item, item.productId)">
+              <option [ngValue]="null">انتخاب محصول</option>
+              <option *ngFor="let p of products | categoryFilter:item.categoryId" [ngValue]="p.id">
+                {{ p.name }}
+              </option>
+            </select>
+          </td>
+
+          <td>
+            <input type="number"
+                   [(ngModel)]="item.quantity"
+                   name="quantity-{{i}}"
+                   required
+                   min="1"
+                   (input)="calculateTotal()">
+          </td>
+
+          <td>{{ toPersianDigits(item.unitPrice | number:'1.0-0') }} ریال</td>
+          <td>{{ toPersianDigits(item.quantity * item.unitPrice | number:'1.0-0') }} ریال</td>
+          <td>
+            <input type="number"
+                   [(ngModel)]="item.discount"
+                   name="discount-{{i}}"
+                   min="0"
+                   step="100"
+                   (input)="calculateTotal()">
+          </td>
+          <td>{{ toPersianDigits(item.priceAfterDiscount | number:'1.0-0') }} ریال</td>
+          <td>{{ toPersianDigits(item.vatAmount | number:'1.0-0') }} ریال</td>
+          <td>{{ toPersianDigits(item.finalPrice | number:'1.0-0') }} ریال</td>
+          <td><button type="button" (click)="removeItem(i)">حذف</button></td>
+        </tr>
+      </tbody>
+
+    </table>
+
+  </div>
+  <button type="button" (click)="addItem()">افزودن آیتم</button>
 
 
-    <h3>جمع کل بدون مالیات: {{ getTotalWithoutVAT() | number:'1.0-0' }} ریال</h3>
-    <h3>جمع مالیات ارزش افزوده: {{ getTotalVAT() | number:'1.0-0' }} ریال</h3>
-    <h3>جمع کل با مالیات: {{ calculateTotal() | number:'1.0-0' }} ریال</h3>
+  <h3>پیوست‌ها</h3>
+  <input type="file" (change)="onFileSelected($event)" multiple>
+  <ul>
+    <li *ngFor="let att of invoice.attachments; let i = index">
+      {{ att.fileName }}
+      <button type="button" (click)="removeAttachment(i)">حذف</button>
+    </li>
+  </ul>
 
 
-    <button type="submit">
-      {{ invoice.id ? 'ویرایش فاکتور' : 'ذخیره فاکتور' }}
-    </button>
+  <h3>جمع کل بدون مالیات: {{ toPersianDigits(getTotalWithoutVAT() | number:'1.0-0') }} ریال</h3>
+  <h3>جمع مالیات ارزش افزوده: {{ toPersianDigits(getTotalVAT() | number:'1.0-0') }} ریال</h3>
+  <h3>جمع کل با مالیات: {{ toPersianDigits(calculateTotal() | number:'1.0-0') }} ریال</h3>
+
+
+
+  <button type="submit">
+    {{ invoice.id ? 'ویرایش فاکتور' : 'ذخیره فاکتور' }}
+  </button>
   </form>
 
   <div class="actions">

@@ -15,9 +15,9 @@
     </thead>
     <tbody>
       <tr *ngFor="let role of roles; let i = index">
-        <td>{{ i + 1 }}</td>
+        <td>{{ toPersianDigits(i + 1) }}</td>
         <td>{{ role.name }}</td>
-        <td>{{ role.permissions.length || 0 }} دسترسی</td>
+        <td>{{ toPersianDigits(role.permissions.length || 0) }} دسترسی</td>
         <td *ngIf="isAdmin() && !isAdminRole(role.id)">
           <button class="btn-edit" (click)="openModal(role)">ویرایش</button>
           <button class="btn-delete" (click)="deleteRole(role.id)">حذف</button>

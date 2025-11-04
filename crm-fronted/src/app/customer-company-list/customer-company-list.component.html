@@ -138,27 +138,31 @@
         </td>
       </tr>
       <tr *ngFor="let company of companies; let i = index">
-        <td>{{ i + 1 }}</td>
+        <td>{{ toPersianDigits(i + 1) }}</td>
         <td>{{ company.companyName }}</td>
-        <td>{{ company.economicCode || '-' }}</td>
-        <td>{{ company.registerNumber || '-' }}</td>
+        <td>{{ toPersianDigits(company.economicCode) || '-' }}</td>
+        <td>{{ toPersianDigits(company.registerNumber) || '-' }}</td>
         <td>
           <ul>
             <li *ngFor="let addr of company.addresses">
-              <strong>آدرس کامل:</strong> {{ addr.fullAddress }}<br>
-              <strong>استان:</strong> {{ getProvinceName(addr.provinceId) }}<br>
-              <strong>شهر:</strong> {{ getCityName(addr.provinceId, addr.cityId) }}<br>
-              <strong>کد پستی:</strong> {{ addr.postalCode || '-' }}
+              <strong>آدرس کامل:</strong> {{ toPersianDigits(addr.fullAddress) }}<br>
+              <strong>استان:</strong> {{ toPersianDigits(getProvinceName(addr.provinceId)) }}<br>
+              <strong>شهر:</strong> {{ toPersianDigits(getCityName(addr.provinceId, addr.cityId)) }}<br>
+              <strong>کد پستی:</strong> {{ toPersianDigits(addr.postalCode) || '-' }}
             </li>
           </ul>
+
         </td>
+
         <td>
           <ul>
             <li *ngFor="let phone of company.contactPhones">
-              {{ phone.phoneNumber }} {{ phone.extension ? 'داخلی ' + phone.extension : '' }}
+              {{ toPersianDigits(phone.phoneNumber) }}
+              {{ phone.extension ? ' داخلی ' + toPersianDigits(phone.extension) : '' }}
             </li>
           </ul>
         </td>
+
         <td>
           <ul>
             <li *ngFor="let email of company.emails">
@@ -166,11 +170,13 @@
             </li>
           </ul>
         </td>
-   
+
         <td *ngIf="hasPermission('customercompanyapi.updatecompany') || hasPermission('customercompanyapi.deletecompany')">
           <button *ngIf="hasPermission('customercompanyapi.updatecompany')" type="button" (click)="editCompany(company)">ویرایش</button>
           <button *ngIf="hasPermission('customercompanyapi.deletecompany')" type="button" (click)="deleteCompany(company.customerId!)">حذف</button>
         </td>
+
+
 
       </tr>
     </tbody>

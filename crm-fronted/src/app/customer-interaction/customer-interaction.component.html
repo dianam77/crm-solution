@@ -183,21 +183,20 @@
       </thead>
       <tbody>
         <tr *ngFor="let i of interactions; let idx = index">
-          <td>{{ idx + 1 }}</td>
+          <td>{{ toPersianDigits(idx + 1) }}</td>
           <td>{{ getInteractionLabel(i.interactionType ?? undefined) }}</td>
           <td>{{ toJalali(i.startDateTime) }}</td>
-          <td>{{ i.durationMinutes ?? '-' }}</td>
+          <td>{{ toPersianDigits(i.durationMinutes ?? '-') }}</td>
           <td>{{ toJalali(i.endDateTime ?? undefined) }}</td>
           <td>{{ i.subject || '-' }}</td>
           <td>{{ getCustomerDisplayName(i.customer) }}</td>
           <td>{{ i.performedBy || '-' }}</td>
+
           <td>
             <ng-container *ngIf="i.categoryName?.length || i.productName?.length; else noCategoryProduct">
               <a href="#" class="category-icon" (click)="openCategoryModal(i, $event)">
                 <i class="fas fa-box-open"></i>
               </a>
-
-
             </ng-container>
             <ng-template #noCategoryProduct>-</ng-template>
           </td>
@@ -207,23 +206,26 @@
               <a href="#" class="attachment-icon" (click)="openAttachmentsModal(i, $event)">
                 <i class="fas fa-paperclip"></i>
               </a>
-
             </ng-container>
             <ng-template #noFile>-</ng-template>
           </td>
 
           <td *ngIf="hasPermission('customerinteraction.update') || hasPermission('customerinteraction.delete')">
-            <button (click)="editInteraction(i)" class="btn btn-sm btn-primary"
+            <button (click)="editInteraction(i)"
+                    class="btn btn-sm btn-primary"
                     *ngIf="hasPermission('customerinteraction.update')">
               ویرایش
             </button>
-            <button (click)="deleteInteraction(i.id!)" class="btn btn-sm btn-danger ms-2"
+
+            <button (click)="deleteInteraction(i.id!)"
+                    class="btn btn-sm btn-danger ms-2"
                     *ngIf="hasPermission('customerinteraction.delete')">
               حذف
             </button>
           </td>
         </tr>
       </tbody>
+
     </table>
   </div>
   <div class="custom-modal" [class.show]="showAttachmentsModal">

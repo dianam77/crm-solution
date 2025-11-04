@@ -1,5 +1,5 @@
 <div style="text-align: right;">
- 
+
   <button type="button" (click)="toggleForm()" *ngIf="hasPermission('customerindividualapi.create')">
     {{ isEditMode ? 'ویرایش مشتری' : 'ثبت مشتری جدید' }}
   </button>
@@ -18,7 +18,7 @@
 
       <div class="modal-body">
         <form [formGroup]="customerForm" (ngSubmit)="addCustomer()" class="add-customer-form">
- 
+
           <div class="field-row">
             <label for="firstName">نام:</label>
             <input id="firstName" type="text" formControlName="firstName" />
@@ -31,7 +31,7 @@
           </div>
           <div *ngIf="customerForm.get('lastName')?.invalid && customerForm.get('lastName')?.touched" class="error">نام خانوادگی لازم است.</div>
 
-         
+
           <div class="field-row">
             <label for="nationalCode">کد ملی:</label>
             <input id="nationalCode" type="text" formControlName="nationalCode" maxlength="10" />
@@ -42,7 +42,7 @@
 
           <hr />
 
-  
+
           <div formArrayName="emails">
             <label>ایمیل‌ها:</label>
             <div *ngFor="let email of emails.controls; let i = index" [formGroupName]="i" class="email-block field-row">
@@ -147,37 +147,51 @@
         <th *ngIf="hasPermission('customerindividualapi.edit') || hasPermission('customerindividualapi.delete')">عملیات</th>
       </tr>
     </thead>
+
     <tbody>
       <tr *ngIf="!customers || customers.length === 0">
-        <td [attr.colspan]="hasPermission('edit_customer') || hasPermission('delete_customer') ? 8 : 7" class="text-center">موردی یافت نشد.</td>
+        <td [attr.colspan]="hasPermission('edit_customer') || hasPermission('delete_customer') ? 8 : 7" class="text-center">
+          موردی یافت نشد.
+        </td>
       </tr>
+
       <tr *ngFor="let customer of customers; let i = index">
-        <td>{{ i + 1 }}</td>
+        <td>{{ toPersianDigits(i + 1) }}</td>
         <td>{{ customer.firstName }}</td>
         <td>{{ customer.lastName }}</td>
-        <td>{{ customer.nationalCode }}</td>
+        <td>{{ toPersianDigits(customer.nationalCode) }}</td>
+
         <td>
           <ul style="padding-right: 0; list-style-type: none;">
-            <li *ngFor="let e of customer.emails">{{ e.emailAddress }} ({{ getEmailTypeLabel(e.emailType) }})</li>
+            <li *ngFor="let e of customer.emails">
+              {{ e.emailAddress }} ({{ getEmailTypeLabel(e.emailType) }})
+            </li>
           </ul>
         </td>
+
         <td>
           <ul style="padding-right: 0; list-style-type: none;">
-            <li *ngFor="let p of customer.contactPhones">{{ p.phoneNumber }} ({{ getPhoneTypeLabel(p.phoneType) }})</li>
+            <li *ngFor="let p of customer.contactPhones">
+              {{ toPersianDigits(p.phoneNumber) }} ({{ getPhoneTypeLabel(p.phoneType) }})
+            </li>
           </ul>
         </td>
+
         <td>
           <ul style="padding-right: 0; list-style-type: none;">
             <li *ngFor="let addr of customer.addresses">
               <div>
-                <strong>آدرس کامل:</strong> {{ addr.fullAddress }}<br>
-                <strong>استان:</strong> {{ getProvinceName(addr.provinceId) }}<br>
-                <strong>شهر:</strong> {{ getCityName(addr.provinceId, addr.cityId) }}<br>
-                <strong>کد پستی:</strong> {{ addr.postalCode }}
+                <strong>آدرس کامل:</strong> {{ toPersianDigits(addr.fullAddress) }}<br>
+                <strong>استان:</strong> {{ toPersianDigits(getProvinceName(addr.provinceId)) }}<br>
+                <strong>شهر:</strong> {{ toPersianDigits(getCityName(addr.provinceId, addr.cityId)) }}<br>
+                <strong>کد پستی:</strong> {{ toPersianDigits(addr.postalCode) }}
               </div>
             </li>
           </ul>
         </td>
+
+
+
         <td *ngIf="hasPermission('customerindividualapi.edit') || hasPermission('customerindividualapi.delete')">
           <button *ngIf="hasPermission('customerindividualapi.edit')" (click)="editCustomer(customer)">ویرایش</button>
           <button *ngIf="hasPermission('customerindividualapi.delete')" (click)="deleteCustomer(customer.customerId)">حذف</button>
@@ -185,3 +199,4 @@
       </tr>
     </tbody>
   </table>
+

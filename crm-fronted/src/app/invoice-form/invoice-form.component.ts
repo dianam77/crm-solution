@@ -58,7 +58,7 @@ export class InvoiceFormComponent implements OnInit {
 
   ngOnInit(): void {
  
-
+    moment.loadPersian({ usePersianDigits: true });
     const id = this.route.snapshot.paramMap.get('id');
 
    
@@ -107,6 +107,11 @@ export class InvoiceFormComponent implements OnInit {
     this.customerCompanyService.getAll().subscribe(res => this.customersCompany = res);
   }
 
+  toPersianDigits(value: any): string {
+    if (value === null || value === undefined) return '-';
+    const str = value.toString();
+    return str.replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[parseInt(d, 10)]);
+  }
 
 
   addItem(): void {

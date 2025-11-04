@@ -14,14 +14,14 @@
 
   <div class="modal">
     <div class="modal-fixed-header">
-      <span class="close-modal-btn"(click)="toggleForm()">×</span>
+      <span class="close-modal-btn" (click)="toggleForm()">×</span>
       <h3>{{ isEditMode ? 'ویرایش شرکت' : 'فرم ساخت شرکت جدید' }}</h3>
     </div>
 
     <div class="modal-body">
       <form [formGroup]="companyForm" (ngSubmit)="saveCompany()" class="add-customer-form" novalidate>
 
-   
+
         <div class="field-row">
           <label for="companyName">نام شرکت:</label>
           <input id="companyName" type="text" formControlName="companyName" />
@@ -35,7 +35,7 @@
           <input id="economicCode" type="text" maxlength="12" formControlName="economicCode" />
         </div>
 
-       
+
         <div class="field-row">
           <label for="registrationNumber">شماره ثبت:</label>
           <input id="registrationNumber" type="text" formControlName="registrationNumber" />
@@ -43,7 +43,7 @@
 
         <hr />
 
-      
+
         <div formArrayName="emails">
           <label>ایمیل‌ها:</label>
           <div *ngFor="let email of companyEmails.controls; let i = index" [formGroupName]="i" class="email-block field-row">
@@ -79,7 +79,7 @@
 
         <hr />
 
-       
+
         <div formArrayName="addresses">
           <label>آدرس‌ها:</label>
           <div *ngFor="let address of companyAddresses.controls; let i = index" [formGroupName]="i">
@@ -124,35 +124,65 @@
 
 
 
-<div *ngFor="let company of companies" class="company-card">
+<div *ngFor="let company of companies" class="company-card" dir="rtl">
   <h3>{{ company.companyName }}</h3>
 
   <ul class="info-list">
-    <li><strong>کد اقتصادی:</strong> {{ company.economicCode || '-' }}</li>
-    <li><strong>شماره ثبت:</strong> {{ company.registrationNumber || '-' }}</li>
+    <li>
+      <strong>کد اقتصادی:</strong>
+      {{ toPersianDigits(company.economicCode || '-') }}
+    </li>
+    <li>
+      <strong>شماره ثبت:</strong>
+      {{ toPersianDigits(company.registrationNumber || '-') }}
+    </li>
   </ul>
 
   <h4>آدرس‌ها</h4>
   <ul>
     <li *ngFor="let address of company.addresses || []">
-      <div><span class="field-label">آدرس:</span> <span class="field-value">{{ address.fullAddress || '-' }}</span></div>
-      <div><span class="field-label">استان:</span> <span class="field-value">{{ address.provinceId ? getProvinceName(address.provinceId) : '-' }}</span></div>
-      <div><span class="field-label">شهر:</span> <span class="field-value">{{ address.cityId ? getCityName(address.provinceId, address.cityId) : '-' }}</span></div>
-      <div><span class="field-label">کد پستی:</span> <span class="field-value">{{ address.postalCode || '-' }}</span></div>
+      <div>
+        <span class="field-label">آدرس:</span>
+        <span class="field-value">{{ toPersianDigits(address.fullAddress || '-') }}</span>
+      </div>
+      <div>
+        <span class="field-label">استان:</span>
+        <span class="field-value">
+          {{ address.provinceId ? getProvinceName(address.provinceId || undefined) : '-' }}
+        </span>
+      </div>
+      <div>
+        <span class="field-label">شهر:</span>
+        <span class="field-value">
+          {{ address.cityId ? getCityName(address.provinceId || undefined, address.cityId || undefined) : '-' }}
+        </span>
+      </div>
+      <div>
+        <span class="field-label">کد پستی:</span>
+        <span class="field-value">{{ toPersianDigits(address.postalCode || '-') }}</span>
+      </div>
     </li>
   </ul>
+
+
 
   <h4>تلفن‌ها</h4>
   <ul class="info-list">
     <li *ngFor="let phone of company.contactPhones || []">
-      {{ phone.phoneNumber || '-' }} {{ phone.extension ? '(داخلی ' + phone.extension + ')' : '' }} - {{ getPhoneTypeLabel(phone.phoneType) }}
+      {{ toPersianDigits(phone.phoneNumber || '-') }}
+      {{ phone.extension ? '(داخلی ' + toPersianDigits(phone.extension) + ')' : '' }}
+      -
+      {{ getPhoneTypeLabel(phone.phoneType) }}
     </li>
   </ul>
 
   <h4>ایمیل‌ها</h4>
   <ul class="info-list">
     <li *ngFor="let email of company.emails || []">
-      {{ email.emailAddress || '-' }} {{ email.isPrimary ? '(اصلی)' : '' }} - {{ getEmailTypeLabel(email.emailType) }}
+      {{ email.emailAddress || '-' }}
+      {{ email.isPrimary ? '(اصلی)' : '' }}
+      -
+      {{ getEmailTypeLabel(email.emailType) }}
     </li>
   </ul>
 

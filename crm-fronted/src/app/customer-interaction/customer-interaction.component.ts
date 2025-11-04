@@ -569,7 +569,10 @@ export class CustomerInteractionComponent implements OnInit {
     }
   }
 
-
+  toPersianDigits(value: any): string {
+    if (value === null || value === undefined) return '-';
+    return value.toString().replace(/[0-9]/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+  }
 
   removeNewAttachment(index: number): void {
     if (index >= 0 && index < this.currentAttachmentFiles.length) {

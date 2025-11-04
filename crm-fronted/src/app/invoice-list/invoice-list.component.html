@@ -28,7 +28,7 @@
   </div>
 
 
-  <div class="table-wrapper">
+  <div class="table-wrapper" dir="rtl">
     <table class="invoice-table">
       <thead>
         <tr>
@@ -42,27 +42,22 @@
           <th>مالیات ارزش افزوده (ریال)</th>
           <th>مبلغ کل با مالیات ارزش افزوده (ریال)</th>
           <th>پیوست‌ها</th>
-
-       
-          <th *ngIf="hasPermission('invoice.update') || hasPermission('invoice.delete')">
-            عملیات
-          </th>
-
+          <th *ngIf="hasPermission('invoice.update') || hasPermission('invoice.delete')">عملیات</th>
           <th>چاپ</th>
         </tr>
       </thead>
 
       <tbody>
         <tr *ngFor="let invoice of filteredInvoices">
-          <td>{{ invoice.invoiceNumber }}</td>
+          <td>{{ toPersianDigits(invoice.invoiceNumber) }}</td>
           <td>{{ getCustomerName(invoice) }}</td>
           <td>{{ getInvoiceTypeLabel(invoice.invoiceType) }}</td>
           <td>{{ getStatusLabel(invoice.status) }}</td>
           <td>{{ toJalali(invoice.issueDate) }}</td>
-          <td>{{ getValidityDays(invoice) }}</td>
-          <td>{{ getInvoiceTotalAfterDiscount(invoice) | number:'1.0-0' }}</td>
-          <td>{{ getInvoiceTotalVAT(invoice) | number:'1.0-0' }}</td>
-          <td>{{ getInvoiceFinalTotal(invoice) | number:'1.0-0' }}</td>
+          <td>{{ toPersianDigits(getValidityDays(invoice)) }}</td>
+          <td>{{ toPersianDigits(getInvoiceTotalAfterDiscount(invoice) | number:'1.0-0') }}</td>
+          <td>{{ toPersianDigits(getInvoiceTotalVAT(invoice) | number:'1.0-0') }}</td>
+          <td>{{ toPersianDigits(getInvoiceFinalTotal(invoice) | number:'1.0-0') }}</td>
 
           <td>
             <a class="attachment-icon" (click)="openAttachmentsModal(invoice)">
@@ -70,16 +65,9 @@
             </a>
           </td>
 
-
-
-       
           <td *ngIf="hasPermission('invoice.update') || hasPermission('invoice.delete')">
-            <button *ngIf="hasPermission('invoice.update')" (click)="goToEdit(invoice.id!)">
-              ویرایش
-            </button>
-            <button *ngIf="hasPermission('invoice.delete')" (click)="onDelete(invoice.id!)">
-              حذف
-            </button>
+            <button *ngIf="hasPermission('invoice.update')" (click)="goToEdit(invoice.id!)">ویرایش</button>
+            <button *ngIf="hasPermission('invoice.delete')" (click)="onDelete(invoice.id!)">حذف</button>
           </td>
 
           <td>
@@ -93,6 +81,7 @@
       </tbody>
     </table>
   </div>
+
 
 
   <div class="custom-modal" [class.show]="showAttachmentsModal">

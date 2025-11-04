@@ -29,6 +29,7 @@ export class InvoiceListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    moment.loadPersian({ usePersianDigits: true });
     this.loadInvoices();
   }
   selectedInvoiceAttachments: any[] = [];
@@ -46,8 +47,13 @@ export class InvoiceListComponent implements OnInit {
     if (!filePath) return '#';
 
 
-    const baseUrl = 'https://localhost:5001'; 
+    const baseUrl = 'https://localhost:44386'; 
     return filePath.startsWith('http') ? filePath : `${baseUrl}/${filePath}`;
+  }
+  toPersianDigits(value: any): string {
+    if (value === null || value === undefined) return '-';
+    const str = value.toString();
+    return str.replace(/\d/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[parseInt(d, 10)]);
   }
 
   loadInvoices(): void {

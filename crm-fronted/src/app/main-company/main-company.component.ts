@@ -86,7 +86,11 @@ export class MainCompanyComponent implements OnInit {
     });
   }
 
- 
+  toPersianDigits(value: any): string {
+    if (value === null || value === undefined) return '-';
+    return value.toString().replace(/[0-9]/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+  }
+
   createEmail(): FormGroup {
     return this.fb.group({
       emailId: [0],

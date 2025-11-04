@@ -38,6 +38,10 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
+  toPersianDigits(value: any): string {
+    if (value === null || value === undefined) return '-';
+    return value.toString().replace(/[0-9]/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+  }
 
   hasPermission(permission: string): boolean {
     const token = localStorage.getItem('jwtToken');
