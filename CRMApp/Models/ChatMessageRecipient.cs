@@ -12,8 +12,8 @@ namespace CRMApp.Models
         public Guid UserId { get; set; }
         public ApplicationUser User { get; set; }
 
-        public bool IsRead { get; set; } = false; // وضعیت خوانده شدن برای کاربر
+        public bool IsRead { get; set; } = false; 
 
-        public bool IsHidden { get; set; } = false; // پیام فقط برای این کاربر مخفی می‌شود
+        public bool IsHidden { get; set; } = false; 
     }
 }

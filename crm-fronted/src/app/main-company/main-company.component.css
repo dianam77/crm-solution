@@ -1,4 +1,4 @@
-/* ================== عمومی ================== */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -20,7 +20,7 @@ html, body {
   direction: rtl;
 }
 
-/* ================== دکمه‌ها ================== */
+
 .btn {
   display: inline-block;
   padding: 8px 18px;
@@ -55,7 +55,7 @@ button.secondary {
     color: #333;
   }
 
-/* ================== جدول ================== */
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -94,7 +94,6 @@ button.secondary {
     list-style: none;
   }
 
-/* ================== فرم ================== */
 .add-customer-form {
   margin-top: 20px;
   padding: 18px;
@@ -154,7 +153,7 @@ button.secondary {
   font-weight: 600;
 }
 
-/* ================== مودال ================== */
+
 .modal-wrapper {
   position: fixed;
   inset: 0;
@@ -206,20 +205,31 @@ button.secondary {
     color: #1976d2;
   }
 
-.close-button {
+.close-modal-btn {
   position: absolute;
-  top: 12px;
-  right: 16px;
-  font-size: 22px;
-  cursor: pointer;
-  color: #e74c3c;
+  top: 15px;
+  left: 15px;
+  background: #e74c3c !important; 
+  color: #fff;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
   font-weight: bold;
-  transition: color 0.2s ease;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  z-index: 20;
 }
 
-  .close-button:hover {
-    color: #c0392b;
+  .close-modal-btn:hover {
+    background: #c0392b !important; 
+    transform: scale(1.1);
   }
+
 
 .modal-body {
   padding: 20px;
@@ -227,7 +237,7 @@ button.secondary {
   max-height: calc(90vh - 70px);
 }
 
-/* فرم داخل مودال */
+
 .modal form {
   display: flex;
   flex-direction: column;
@@ -245,7 +255,6 @@ button.secondary {
     direction: rtl;
   }
 
-/* دکمه‌های مودال */
 .modal button {
   align-self: flex-start;
   padding: 10px 18px;
@@ -262,7 +271,7 @@ button.secondary {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
   }
-/* ====================== General ====================== */
+
 body {
   font-family: 'Tahoma', sans-serif;
   direction: rtl;
@@ -272,7 +281,7 @@ body {
   padding: 0;
 }
 
-/* ====================== Buttons ====================== */
+
 button {
   cursor: pointer;
   border: none;
@@ -330,7 +339,6 @@ button {
 
 
 
-/* ====================== Responsive ====================== */
 .cards-container {
   display: flex;
   flex-wrap: wrap;
@@ -341,15 +349,15 @@ button {
 
 .company-card {
   direction: rtl;
-  width: 650px; /* کارت پهن‌تر */
-  max-width: 95%; /* روی موبایل جمع شود */
+  width: 650px; 
+  max-width: 95%; 
   background-color: #fff;
   border-radius: 12px;
   padding: 25px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   font-family: "Tahoma", sans-serif;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  margin: auto; /* کارت وسط صفحه قرار می‌گیرد */
+  margin: auto; 
 }
 
   .company-card:hover {
@@ -431,26 +439,25 @@ a {
     text-decoration: underline;
   }
 
-/* ریسپانسیو برای موبایل */
+
 @media (max-width: 768px) {
   .company-card {
     width: 95%;
-    margin: 10px auto; /* وسط صفحه */
+    margin: 10px auto; 
     padding: 16px;
   }
 }
 
-/* لینک‌ها */
 a {
   color: #1a73e8;
-  text-decoration: none; /* زیرخط حذف شد */
+  text-decoration: none; 
   font-size: 14px;
 }
 
-  /* هنگام هاور */
+
   a:hover {
-    color: #1565c0; /* رنگ هاور شیک */
-    text-decoration: none; /* باز هم زیرخط ندارد */
+    color: #1565c0; 
+    text-decoration: none; 
   }
 .company-card ul,
 .modal ul {
@@ -458,3 +465,29 @@ a {
   padding: 0;
   margin: 0;
 }
+[formArrayName="addresses"] label {
+  display: block;
+  margin-bottom: 8px; 
+}
+
+[formArrayName="addresses"] div[formGroupName] {
+  margin-bottom: 12px; 
+}
+
+.company-card {
+  background-color: #f8f9fa; 
+  color: #000; 
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+ 
+  .company-card .field-label {
+    font-weight: 600;
+    color: #333; 
+  }
+
+  .company-card .field-value {
+    color: #555; 
+  }

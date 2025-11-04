@@ -16,11 +16,9 @@ export interface CustomerIndividual {
   contactPhones: Phone[];
   addresses: Address[];
 
-  // اضافه شده برای نمایش در HTML
+
   fullName?: string;
 }
-
-// مدل برای ایجاد مشتری جدید (بدون customerId)
 export interface CreateCustomerIndividual {
   firstName: string;
   lastName: string;

@@ -47,19 +47,19 @@ public class InvoicePdfGenerator
         {
             container.Page(page =>
             {
-                page.Margin(10); // حاشیه کمتر
+                page.Margin(10); 
 
                 page.DefaultTextStyle(x => x
-                    .FontSize(7.5f) // کاهش اندازه عمومی
+                    .FontSize(7.5f) 
                     .FontFamily("B Titr")
                     .Fallback(TextStyle.Default.FontFamily("Arial"))
                 );
 
                 page.Content().Column(col =>
                 {
-                    col.Spacing(2.5f); // فاصله بین بخش‌ها کمتر
+                    col.Spacing(2.5f); 
 
-                    // عنوان فاکتور
+             
                     col.Item()
                        .AlignCenter()
                        .Text(GetInvoiceTypeText(_invoice.InvoiceType))
@@ -75,7 +75,6 @@ public class InvoicePdfGenerator
                         left.Item().Text($"وضعیت فاکتور: {GetInvoiceStatusText(_invoice.Status)}").FontSize(7);
                     });
 
-                    // محتوای اصلی
                     col.Item()
                        .Border(0.5f)
                        .BorderColor(Colors.Black)
@@ -95,7 +94,7 @@ public class InvoicePdfGenerator
                                return "\u200F" + result.ToString();
                            }
 
-                           // فروشنده
+                      
                            outerCol.Item().Column(sellerCol =>
                            {
                                sellerCol.Item().AlignCenter().Text("مشخصات فروشنده").FontSize(8).SemiBold();
@@ -124,7 +123,7 @@ public class InvoicePdfGenerator
                                sellerCol.Item().LineHorizontal(0.5f).LineColor(Colors.Black);
                            });
 
-                           // مشتری
+                     
                            outerCol.Item().AlignCenter().Text("مشخصات مشتری").FontSize(8).SemiBold();
                            outerCol.Item().LineHorizontal(0.5f).LineColor(Colors.Black);
                            outerCol.Item().Grid(grid =>
@@ -148,12 +147,12 @@ public class InvoicePdfGenerator
                                    });
                                });
                            });
-                           // خط بالای جدول با فاصله مناسب
+                         
                            outerCol.Item()
-                               .PaddingBottom(5) // فاصله بین خط و جدول
+                               .PaddingBottom(5) 
                                .LineHorizontal(0.5f)
                                .LineColor(Colors.Black);
-                           // جدول
+                  
                            outerCol.Item().AlignRight().Table(table =>
                            {
                                table.ColumnsDefinition(columns =>
@@ -163,7 +162,7 @@ public class InvoicePdfGenerator
                                    columns.ConstantColumn(25); columns.RelativeColumn(); columns.ConstantColumn(40);
                                });
 
-                               string[] titles = { "مبلغ کل + مالیات", "مالیات ارزش افزوده", "قیمت بعد از تخفیف", "تخفیف", "مبلغ کل (قبل از تخفیف)", "بهای واحد", "تعداد", "محصول", "ردیف" };
+                               string[] titles = { "مبلغ کل + مالیات", "مالیات ارزش افزوده", "مبلغ کل بعد از تخفیف", "تخفیف", "مبلغ کل (قبل از تخفیف)", "بهای واحد", "تعداد", "محصول", "ردیف" };
                                foreach (var t in titles)
                                    table.Cell().Border(0.5f).Padding(1).AlignCenter().Text(t).SemiBold().FontSize(7);
 
@@ -196,7 +195,7 @@ public class InvoicePdfGenerator
                                });
                            });
 
-                           // جمع‌بندی
+                      
                            outerCol.Item().Grid(grid =>
                            {
                                grid.Columns(3);
@@ -224,7 +223,7 @@ public class InvoicePdfGenerator
                                {
                                    col.Item().Padding(1).Row(row =>
                                    {
-                                       // مربع غیرنقدی
+                                       
                                        row.ConstantItem(6)
                                            .AlignMiddle()
                                            .Element(e => e
@@ -232,16 +231,16 @@ public class InvoicePdfGenerator
                                                .Width(6)
                                                .Border(0.5f));
 
-                                       // متن غیرنقدی
+                                   
                                        row.AutoItem()
                                            .AlignMiddle()
                                            .Text("غیرنقدی")
                                            .FontSize(7);
 
-                                       // فاصله بین دو گزینه
+                                     
                                        row.ConstantItem(5);
 
-                                       // مربع نقدی
+                                    
                                        row.ConstantItem(6)
                                            .AlignMiddle()
                                            .Element(e => e
@@ -249,13 +248,12 @@ public class InvoicePdfGenerator
                                                .Width(6)
                                                .Border(0.5f));
 
-                                       // متن نقدی
+                                  
                                        row.AutoItem()
                                            .AlignMiddle()
                                            .Text("نقدی")
                                            .FontSize(7);
 
-                                       // متن شرایط فروش
                                        row.AutoItem()
                                            .AlignMiddle()
                                            .Text("شرایط فروش:")
@@ -289,7 +287,6 @@ public class InvoicePdfGenerator
         return ms.ToArray();
     }
 
-    // ======== متدهای کمکی (بدون تغییر عملکرد) ========
 
     string FixNumberOrder(string input) => string.IsNullOrEmpty(input) ? input : new string(input.Reverse().ToArray());
 
@@ -332,12 +329,13 @@ public class InvoicePdfGenerator
     }
 
     private string GetInvoiceTypeText(InvoiceType? type) =>
-        type switch
-        {
-            InvoiceType.Proforma => "پیش‌فاکتور",
-            InvoiceType.Invoice => "فاکتور",
-            _ => "-"
-        };
+       type switch
+       {
+           InvoiceType.Proforma => "پیش‌فاکتور",
+           InvoiceType.Invoice => "فاکتور فروش کالا و خدمات",
+           _ => "-"
+       };
+
 
     private string GetInvoiceStatusText(InvoiceStatus? status) =>
         status switch
@@ -377,7 +375,7 @@ public class InvoicePdfGenerator
         return string.Concat(input.Select(c => char.IsDigit(c) ? persianDigits[c - '0'] : c));
     }
 
-    // ===== فروشنده =====
+
     private string GetSellerName() => _sellerInfo.CompanyName;
     private string GetSellerRegisterOrNationalId() => _sellerInfo.RegistrationNumber;
     private string GetSellerEconomicCode() => _sellerInfo.EconomicCode;
@@ -386,7 +384,7 @@ public class InvoicePdfGenerator
     private string GetSellerPostalCode() => _sellerInfo.PostalCode;
     private string GetSellerFullAddress() => _sellerInfo.FullAddress;
 
-    // ===== مشتری =====
+  
     private string GetRegisterOrNationalId() => _invoice.CustomerIndividual?.NationalCode ?? _invoice.CustomerIndividual?.IdentityNumber ?? _invoice.CustomerCompany?.RegisterNumber ?? _invoice.CustomerCompany?.NationalId ?? "-";
     private string GetEconomicCode() => _invoice.CustomerCompany?.EconomicCode ?? "-";
     private string GetProvince() => _invoice.CustomerIndividual?.Addresses.FirstOrDefault()?.Province?.Name ?? _invoice.CustomerCompany?.Addresses.FirstOrDefault()?.Province?.Name ?? "-";

@@ -1,4 +1,4 @@
-// role.guard.ts
+
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
@@ -22,10 +22,10 @@ export class RoleGuard implements CanActivate {
       const roles = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
       const userRole = Array.isArray(roles) ? roles[0] : roles;
 
-      // Admin اجازه همه مسیرها را دارد
+ 
       if (userRole === 'Admin') return true;
 
-      // Manager فقط مسیرهای مشخص
+    
       const allowedForManager = [
         '/users/manage',
         '/customer-individual',

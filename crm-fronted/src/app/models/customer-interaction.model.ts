@@ -1,25 +1,52 @@
 import { CustomerCompany } from "./customer-company.model";
 import { CustomerIndividual } from "./customer-individual.model";
 
+
 export interface CustomerInteractionAttachment {
   id?: number;
-  filePath: string;
+  filePath: string;       
+  originalName?: string;  
   createdAt?: string;
 }
 
+
+
+
 export interface CustomerInteraction {
   id?: number;
-  individualCustomerId?: number | null;
-  companyCustomerId?: number | null;
-  interactionType: number | string | null; // ← اضافه شد
-  startDateTime: string;
-  endDateTime?: string | null;        // ← null اضافه شد
-  durationMinutes?: number | null;    // ← null اضافه شد
-  subject?: string | null;
-  notes?: string | null;
-  performedBy?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
+  interactionType?: number | string;
+  startDateTime?: string;
+  endDateTime?: string;
+  durationMinutes?: number;
+  subject?: string;
+  notes?: string;
+
+  individualCustomerId?: number;
+  companyCustomerId?: number;
+
+  productIds?: string[];   
+  categoryIds?: string[];  
+
   attachments?: CustomerInteractionAttachment[];
+
+
   customer?: CustomerIndividual | CustomerCompany;
+  productName?: string[];
+  categoryName?: string[];
+  performedBy?: string;  
+}
+
+
+export interface CustomerInteractionUpdateDto {
+  individualCustomerId?: number;
+  companyCustomerId?: number;
+  interactionType: number;
+  startDateTime: string;
+  endDateTime?: string;
+  durationMinutes?: number;
+  subject?: string;
+  notes?: string;
+  categoryIds?: string[];
+  productIds?: string[];
+  existingAttachmentPaths?: string;  
 }

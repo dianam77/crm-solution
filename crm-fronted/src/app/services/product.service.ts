@@ -1,42 +1,53 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Product } from '../models/product.model';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class ProductService {
   private apiUrl = 'https://localhost:44386/api/products';
 
   constructor(private http: HttpClient) { }
 
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('jwtToken');
-    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+    const token = localStorage.getItem('jwtToken') || '';
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
   }
 
-  // دریافت همه محصولات
+ 
   getProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.apiUrl, { headers: this.getAuthHeaders() });
   }
 
-  // دریافت محصول خاص
-  getProductById(id: string): Observable<Product> {
+  
+  getProductById(id: string | number): Observable<Product> {
     return this.http.get<Product>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
 
-  // ایجاد محصول یا خدمت جدید
+
+  getByCategory(categoryId: string | number): Observable<Product[]> {
+    return this.http.get<{ products: Product[] }>(`${this.apiUrl}?categoryId=${categoryId}`, { headers: this.getAuthHeaders() })
+      .pipe(map(res => res.products));
+  }
+
+
   createProduct(formData: FormData): Observable<Product> {
-    // توجه: Content-Type خودکار توسط مرورگر تنظیم می‌شود
+  
     return this.http.post<Product>(this.apiUrl, formData, { headers: this.getAuthHeaders() });
   }
 
-  // بروزرسانی محصول یا خدمت
-  updateProduct(id: string, formData: FormData): Observable<Product> {
+
+  updateProduct(id: string | number, formData: FormData): Observable<Product> {
     return this.http.put<Product>(`${this.apiUrl}/${id}`, formData, { headers: this.getAuthHeaders() });
   }
 
-  // حذف محصول یا خدمت
-  deleteProduct(id: string): Observable<void> {
+
+  deleteProduct(id: string | number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
 }

@@ -7,7 +7,7 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   direction: rtl;
   text-align: right;
-  color: #000; /* متن کلی سیاه */
+  color: #000; 
 }
 
 h2 {
@@ -27,15 +27,15 @@ input, select {
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 16px;
-  color: #000 !important; /* متن سیاه */
-  background-color: #fff !important; /* پس‌زمینه سفید */
+  color: #000 !important;
+  background-color: #fff !important; 
   direction: rtl;
-  -webkit-appearance: none; /* برای حذف استایل پیش‌فرض مرورگر (اختیاری) */
+  -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
 }
 
-  /* استایل گزینه‌ها */
+
   select option {
     color: #000 !important;
     background-color: #fff !important;
@@ -43,13 +43,12 @@ input, select {
     font-size: 16px;
   }
 
-  /* برای اینکه وقتی select باز میشه، پس‌زمینه‌اش هم سفید بمونه */
   select:focus, select:hover {
     background-color: #fff !important;
     color: #000 !important;
   }
 
-/* دکمه */
+
 button {
   width: 100%;
   padding: 0.75rem;
@@ -91,7 +90,7 @@ button {
 
 .register-container, .form-group {
   position: relative;
-  z-index: 1000; /* عدد بزرگ برای نمایش بالاتر */
+  z-index: 1000;
 }
 
 select {
@@ -99,7 +98,7 @@ select {
   z-index: 1100;
 }
 select[_ngcontent-ng-c4287996305]:focus, select[_ngcontent-ng-c4287996305]:hover {
-  color: #1111 !important;   /* این کد رنگ اشتباهه! */
+  color: #1111 !important;  
   color: beige;
 }
 .register-container, .form-group {

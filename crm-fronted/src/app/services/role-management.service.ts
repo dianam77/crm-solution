@@ -18,13 +18,13 @@ export class RoleManagementService {
     });
   }
   updateStatus(id: number, status: string) {
-    // backend رشته می‌خواهد
+
     return this.http.put(`${this.apiUrl}/${id}/status`, { status }, { headers: this.getHeaders() });
   }
 
 
   getPermissions(): Observable<Permission[]> {
-    // JWT optional for testing, can remove { headers: this.getHeaders() } if necessary
+   
     return this.http.get<Permission[]>(`${this.apiUrl}/permissions`, { headers: this.getHeaders() });
   }
 

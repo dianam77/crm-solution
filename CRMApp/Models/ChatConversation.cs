@@ -6,7 +6,7 @@ namespace CRMApp.Models
     public class ChatConversation
     {
         public int Id { get; set; }
-        public string Name { get; set; } // Optional
+        public string Name { get; set; } 
 
         public ICollection<ChatConversationParticipant> Participants { get; set; } = new List<ChatConversationParticipant>();
         public ICollection<ChatMessage> Messages { get; set; } = new List<ChatMessage>();
@@ -20,6 +20,6 @@ namespace CRMApp.Models
         public ChatConversation Conversation { get; set; }
 
         public Guid UserId { get; set; }
-        public ApplicationUser User { get; set; }  // فقط ApplicationUser
+        public ApplicationUser User { get; set; }  
     }
 }

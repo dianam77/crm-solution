@@ -3,7 +3,7 @@ using System;
 
 namespace CRMApp.DTOs
 {
-    // DTO برای ساخت ارجاع جدید
+  
     public class CreateUserReferralDto
     {
         public string AssignedById { get; set; }

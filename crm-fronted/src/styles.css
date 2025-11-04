@@ -1,18 +1,18 @@
-/* تمام جداول راست به چپ */
+
 table {
   direction: rtl;
-  text-align: right; /* محتوای سلول‌ها راست چین شود */
+  text-align: right; 
   border-collapse: collapse;
   width: 100%;
 }
 
-/* استایل برای سلول‌ها */
+
 th, td {
   padding: 8px;
   border: 1px solid #ccc;
 }
 
-/* Optional: زیباتر کردن سطرها */
+
 tr:nth-child(even) {
   background-color: #f2f2f2;
 }

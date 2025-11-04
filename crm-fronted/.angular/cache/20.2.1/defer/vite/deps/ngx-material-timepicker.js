@@ -290,7 +290,7 @@ function isAnimationRenderer(renderer) {
   return type === 0 || type === 1;
 }
 
-// node_modules/luxon/src/errors.js
+// node_modules/luxon/build/es6/luxon.mjs
 var LuxonError = class extends Error {
 };
 var InvalidDateTimeError = class extends LuxonError {
@@ -322,8 +322,6 @@ var ZoneIsAbstractError = class extends LuxonError {
     super("Zone is an abstract class");
   }
 };
-
-// node_modules/luxon/src/impl/formats.js
 var n = "numeric";
 var s = "short";
 var l = "long";
@@ -474,8 +472,6 @@ var DATETIME_HUGE_WITH_SECONDS = {
   second: n,
   timeZoneName: l
 };
-
-// node_modules/luxon/src/zone.js
 var Zone = class {
   /**
    * The type of zone
@@ -560,19 +556,17 @@ var Zone = class {
     throw new ZoneIsAbstractError();
   }
 };
-
-// node_modules/luxon/src/zones/systemZone.js
-var singleton = null;
+var singleton$1 = null;
 var SystemZone = class _SystemZone extends Zone {
   /**
    * Get a singleton instance of the local zone
    * @return {SystemZone}
    */
   static get instance() {
-    if (singleton === null) {
-      singleton = new _SystemZone();
+    if (singleton$1 === null) {
+      singleton$1 = new _SystemZone();
     }
-    return singleton;
+    return singleton$1;
   }
   /** @override **/
   get type() {
@@ -607,8 +601,6 @@ var SystemZone = class _SystemZone extends Zone {
     return true;
   }
 };
-
-// node_modules/luxon/src/zones/IANAZone.js
 var dtfCache = /* @__PURE__ */ new Map();
 function makeDTF(zoneName) {
   let dtf = dtfCache.get(zoneName);
@@ -807,8 +799,6 @@ var IANAZone = class _IANAZone extends Zone {
     return this.valid;
   }
 };
-
-// node_modules/luxon/src/impl/locale.js
 var intlLFCache = {};
 function getCachedLF(locString, opts = {}) {
   const key = JSON.stringify([locString, opts]);
@@ -1229,19 +1219,17 @@ var Locale = class _Locale {
     return `Locale(${this.locale}, ${this.numberingSystem}, ${this.outputCalendar})`;
   }
 };
-
-// node_modules/luxon/src/zones/fixedOffsetZone.js
-var singleton2 = null;
+var singleton = null;
 var FixedOffsetZone = class _FixedOffsetZone extends Zone {
   /**
    * Get a singleton instance of UTC
    * @return {FixedOffsetZone}
    */
   static get utcInstance() {
-    if (singleton2 === null) {
-      singleton2 = new _FixedOffsetZone(0);
+    if (singleton === null) {
+      singleton = new _FixedOffsetZone(0);
     }
-    return singleton2;
+    return singleton;
   }
   /**
    * Get an instance with a specified offset
@@ -1360,8 +1348,6 @@ var FixedOffsetZone = class _FixedOffsetZone extends Zone {
     return true;
   }
 };
-
-// node_modules/luxon/src/zones/invalidZone.js
 var InvalidZone = class extends Zone {
   constructor(zoneName) {
     super();
@@ -1400,10 +1386,7 @@ var InvalidZone = class extends Zone {
     return false;
   }
 };
-
-// node_modules/luxon/src/impl/zoneUtil.js
 function normalizeZone(input, defaultZone2) {
-  let offset2;
   if (isUndefined(input) || input === null) {
     return defaultZone2;
   } else if (input instanceof Zone) {
@@ -1422,8 +1405,6 @@ function normalizeZone(input, defaultZone2) {
     return new InvalidZone(input);
   }
 }
-
-// node_modules/luxon/src/impl/digits.js
 var numberingSystems = {
   arab: "[٠-٩]",
   arabext: "[۰-۹]",
@@ -1509,8 +1490,6 @@ function digitRegex({ numberingSystem }, append = "") {
   }
   return regex;
 }
-
-// node_modules/luxon/src/settings.js
 var now = () => Date.now();
 var defaultZone = "system";
 var defaultLocale = null;
@@ -1661,8 +1640,6 @@ var Settings = class {
     resetDigitRegexCache();
   }
 };
-
-// node_modules/luxon/src/impl/invalid.js
 var Invalid = class {
   constructor(reason, explanation) {
     this.reason = reason;
@@ -1676,8 +1653,6 @@ var Invalid = class {
     }
   }
 };
-
-// node_modules/luxon/src/impl/conversions.js
 var nonLeapLadder = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
 var leapLadder = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
 function unitOutOfRange(unit, value) {
@@ -1811,8 +1786,6 @@ function hasInvalidTimeData(obj) {
     return unitOutOfRange("millisecond", millisecond);
   } else return false;
 }
-
-// node_modules/luxon/src/impl/util.js
 function isUndefined(o) {
   return typeof o === "undefined";
 }
@@ -2041,8 +2014,6 @@ function formatOffset(offset2, format) {
 function timeObject(obj) {
   return pick(obj, ["hour", "minute", "second", "millisecond"]);
 }
-
-// node_modules/luxon/src/impl/english.js
 var monthsLong = [
   "January",
   "February",
@@ -2162,14 +2133,11 @@ function formatRelativeTime(unit, count, numeric = "always", narrow = false) {
         return isDay ? "yesterday" : `last ${units[unit][0]}`;
       case 0:
         return isDay ? "today" : `this ${units[unit][0]}`;
-      default:
     }
   }
   const isInPast = Object.is(count, -0) || count < 0, fmtValue = Math.abs(count), singular = fmtValue === 1, lilUnits = units[unit], fmtUnit = narrow ? singular ? lilUnits[1] : lilUnits[2] || lilUnits[1] : singular ? units[unit][0] : unit;
   return isInPast ? `${fmtValue} ${fmtUnit} ago` : `in ${fmtValue} ${fmtUnit}`;
 }
-
-// node_modules/luxon/src/impl/formatter.js
 function stringifyTokens(splits, tokenToString) {
   let s2 = "";
   for (const token of splits) {
@@ -2495,8 +2463,6 @@ var Formatter = class _Formatter {
     return stringifyTokens(tokens, tokenToString(collapsed, durationInfo));
   }
 };
-
-// node_modules/luxon/src/impl/regexParser.js
 var ianaRegex = /[A-Za-z_+-]{1,256}(?::?\/[A-Za-z0-9_+-]{1,256}(?:\/[A-Za-z0-9_+-]{1,256})?)?/;
 function combineRegexes(...regexes) {
   const full = regexes.reduce((f, r) => f + r.source, "");
@@ -2730,9 +2696,7 @@ function parseSQL(s2) {
     [sqlTimeCombinedRegex, extractISOTimeOffsetAndIANAZone]
   );
 }
-
-// node_modules/luxon/src/duration.js
-var INVALID = "Invalid Duration";
+var INVALID$2 = "Invalid Duration";
 var lowOrderMatrix = {
   weeks: {
     days: 7,
@@ -2811,7 +2775,7 @@ var accurateMatrix = __spreadValues({
     milliseconds: daysInMonthAccurate * 24 * 60 * 60 * 1e3
   }
 }, lowOrderMatrix);
-var orderedUnits = [
+var orderedUnits$1 = [
   "years",
   "quarters",
   "months",
@@ -2822,8 +2786,8 @@ var orderedUnits = [
   "seconds",
   "milliseconds"
 ];
-var reverseUnits = orderedUnits.slice(0).reverse();
-function clone(dur, alts, clear = false) {
+var reverseUnits = orderedUnits$1.slice(0).reverse();
+function clone$1(dur, alts, clear = false) {
   const conf = {
     values: clear ? alts.values : __spreadValues(__spreadValues({}, dur.values), alts.values || {}),
     loc: dur.loc.clone(alts.loc),
@@ -2843,7 +2807,7 @@ function durationToMillis(matrix, vals) {
 }
 function normalizeValues(matrix, vals) {
   const factor = durationToMillis(matrix, vals) < 0 ? -1 : 1;
-  orderedUnits.reduceRight((previous, current) => {
+  orderedUnits$1.reduceRight((previous, current) => {
     if (!isUndefined(vals[current])) {
       if (previous) {
         const previousVal = vals[previous] * factor;
@@ -2857,7 +2821,7 @@ function normalizeValues(matrix, vals) {
       return previous;
     }
   }, null);
-  orderedUnits.reduce((previous, current) => {
+  orderedUnits$1.reduce((previous, current) => {
     if (!isUndefined(vals[current])) {
       if (previous) {
         const fraction = vals[previous] % 1;
@@ -3107,7 +3071,7 @@ var Duration = class _Duration {
     const fmtOpts = __spreadProps(__spreadValues({}, opts), {
       floor: opts.round !== false && opts.floor !== false
     });
-    return this.isValid ? Formatter.create(this.loc, fmtOpts).formatDurationFromString(this, fmt) : INVALID;
+    return this.isValid ? Formatter.create(this.loc, fmtOpts).formatDurationFromString(this, fmt) : INVALID$2;
   }
   /**
    * Returns a string representation of a Duration with all units included.
@@ -3126,9 +3090,9 @@ var Duration = class _Duration {
    * ```
    */
   toHuman(opts = {}) {
-    if (!this.isValid) return INVALID;
+    if (!this.isValid) return INVALID$2;
     const showZeros = opts.showZeros !== false;
-    const l2 = orderedUnits.map((unit) => {
+    const l2 = orderedUnits$1.map((unit) => {
       const val = this.values[unit];
       if (isUndefined(val) || val === 0 && !showZeros) {
         return null;
@@ -3251,12 +3215,12 @@ var Duration = class _Duration {
   plus(duration) {
     if (!this.isValid) return this;
     const dur = _Duration.fromDurationLike(duration), result = {};
-    for (const k of orderedUnits) {
+    for (const k of orderedUnits$1) {
       if (hasOwnProperty(dur.values, k) || hasOwnProperty(this.values, k)) {
         result[k] = dur.get(k) + this.get(k);
       }
     }
-    return clone(this, { values: result }, true);
+    return clone$1(this, { values: result }, true);
   }
   /**
    * Make this Duration shorter by the specified amount. Return a newly-constructed Duration.
@@ -3281,7 +3245,7 @@ var Duration = class _Duration {
     for (const k of Object.keys(this.values)) {
       result[k] = asNumber(fn(this.values[k], k));
     }
-    return clone(this, { values: result }, true);
+    return clone$1(this, { values: result }, true);
   }
   /**
    * Get the value of unit.
@@ -3304,7 +3268,7 @@ var Duration = class _Duration {
   set(values) {
     if (!this.isValid) return this;
     const mixed = __spreadValues(__spreadValues({}, this.values), normalizeObject(values, _Duration.normalizeUnit));
-    return clone(this, { values: mixed });
+    return clone$1(this, { values: mixed });
   }
   /**
    * "Set" the locale and/or numberingSystem.  Returns a newly-constructed Duration.
@@ -3314,7 +3278,7 @@ var Duration = class _Duration {
   reconfigure({ locale, numberingSystem, conversionAccuracy, matrix } = {}) {
     const loc = this.loc.clone({ locale, numberingSystem });
     const opts = { loc, matrix, conversionAccuracy };
-    return clone(this, opts);
+    return clone$1(this, opts);
   }
   /**
    * Return the length of the duration in the specified unit.
@@ -3346,7 +3310,7 @@ var Duration = class _Duration {
     if (!this.isValid) return this;
     const vals = this.toObject();
     normalizeValues(this.matrix, vals);
-    return clone(this, { values: vals }, true);
+    return clone$1(this, { values: vals }, true);
   }
   /**
    * Rescale units to its largest representation
@@ -3356,7 +3320,7 @@ var Duration = class _Duration {
   rescale() {
     if (!this.isValid) return this;
     const vals = removeZeroes(this.normalize().shiftToAll().toObject());
-    return clone(this, { values: vals }, true);
+    return clone$1(this, { values: vals }, true);
   }
   /**
    * Convert this Duration into its representation in a different set of units.
@@ -3371,7 +3335,7 @@ var Duration = class _Duration {
     units = units.map((u) => _Duration.normalizeUnit(u));
     const built = {}, accumulated = {}, vals = this.toObject();
     let lastUnit;
-    for (const k of orderedUnits) {
+    for (const k of orderedUnits$1) {
       if (units.indexOf(k) >= 0) {
         lastUnit = k;
         let own = 0;
@@ -3395,7 +3359,7 @@ var Duration = class _Duration {
       }
     }
     normalizeValues(this.matrix, built);
-    return clone(this, { values: built }, true);
+    return clone$1(this, { values: built }, true);
   }
   /**
    * Shift this Duration to all available units.
@@ -3426,7 +3390,7 @@ var Duration = class _Duration {
     for (const k of Object.keys(this.values)) {
       negated[k] = this.values[k] === 0 ? 0 : -this.values[k];
     }
-    return clone(this, { values: negated }, true);
+    return clone$1(this, { values: negated }, true);
   }
   /**
    * Removes all units with values equal to 0 from this Duration.
@@ -3436,7 +3400,7 @@ var Duration = class _Duration {
   removeZeros() {
     if (!this.isValid) return this;
     const vals = removeZeroes(this.values);
-    return clone(this, { values: vals }, true);
+    return clone$1(this, { values: vals }, true);
   }
   /**
    * Get the years.
@@ -3540,7 +3504,7 @@ var Duration = class _Duration {
       if (v1 === void 0 || v1 === 0) return v2 === void 0 || v2 === 0;
       return v1 === v2;
     }
-    for (const u of orderedUnits) {
+    for (const u of orderedUnits$1) {
       if (!eq(this.values[u], other.values[u])) {
         return false;
       }
@@ -3548,9 +3512,7 @@ var Duration = class _Duration {
     return true;
   }
 };
-
-// node_modules/luxon/src/interval.js
-var INVALID2 = "Invalid Interval";
+var INVALID$1 = "Invalid Interval";
 function validateStartEnd(start, end) {
   if (!start || !start.isValid) {
     return Interval.invalid("missing or invalid start");
@@ -3990,7 +3952,7 @@ var Interval = class _Interval {
    * @return {string}
    */
   toString() {
-    if (!this.isValid) return INVALID2;
+    if (!this.isValid) return INVALID$1;
     return `[${this.s.toISO()} – ${this.e.toISO()})`;
   }
   /**
@@ -4023,7 +3985,7 @@ var Interval = class _Interval {
    * @return {string}
    */
   toLocaleString(formatOpts = DATE_SHORT, opts = {}) {
-    return this.isValid ? Formatter.create(this.s.loc.clone(opts), formatOpts).formatInterval(this) : INVALID2;
+    return this.isValid ? Formatter.create(this.s.loc.clone(opts), formatOpts).formatInterval(this) : INVALID$1;
   }
   /**
    * Returns an ISO 8601-compliant string representation of this Interval.
@@ -4032,7 +3994,7 @@ var Interval = class _Interval {
    * @return {string}
    */
   toISO(opts) {
-    if (!this.isValid) return INVALID2;
+    if (!this.isValid) return INVALID$1;
     return `${this.s.toISO(opts)}/${this.e.toISO(opts)}`;
   }
   /**
@@ -4042,7 +4004,7 @@ var Interval = class _Interval {
    * @return {string}
    */
   toISODate() {
-    if (!this.isValid) return INVALID2;
+    if (!this.isValid) return INVALID$1;
     return `${this.s.toISODate()}/${this.e.toISODate()}`;
   }
   /**
@@ -4053,7 +4015,7 @@ var Interval = class _Interval {
    * @return {string}
    */
   toISOTime(opts) {
-    if (!this.isValid) return INVALID2;
+    if (!this.isValid) return INVALID$1;
     return `${this.s.toISOTime(opts)}/${this.e.toISOTime(opts)}`;
   }
   /**
@@ -4068,7 +4030,7 @@ var Interval = class _Interval {
    * @return {string}
    */
   toFormat(dateFormat, { separator = " – " } = {}) {
-    if (!this.isValid) return INVALID2;
+    if (!this.isValid) return INVALID$1;
     return `${this.s.toFormat(dateFormat)}${separator}${this.e.toFormat(dateFormat)}`;
   }
   /**
@@ -4100,8 +4062,6 @@ var Interval = class _Interval {
     return _Interval.fromDateTimes(mapFn(this.s), mapFn(this.e));
   }
 };
-
-// node_modules/luxon/src/info.js
 var Info = class {
   /**
    * Return whether the specified zone contains a DST.
@@ -4273,8 +4233,6 @@ var Info = class {
     return { relative: hasRelative(), localeWeek: hasLocaleWeekInfo() };
   }
 };
-
-// node_modules/luxon/src/impl/diff.js
 function dayDiff(earlier, later) {
   const utcDayStart = (dt) => dt.toUTC(0, { keepLocalTime: true }).startOf("day").valueOf(), ms = utcDayStart(later) - utcDayStart(earlier);
   return Math.floor(Duration.fromMillis(ms).as("days"));
@@ -4316,7 +4274,7 @@ function highOrderDiffs(cursor, later, units) {
   }
   return [cursor, results, highWater, lowestOrder];
 }
-function diff_default(earlier, later, units, opts) {
+function diff(earlier, later, units, opts) {
   let [cursor, results, highWater, lowestOrder] = highOrderDiffs(earlier, later, units);
   const remainingMillis = later - cursor;
   const lowerOrderUnits = units.filter(
@@ -4337,8 +4295,6 @@ function diff_default(earlier, later, units, opts) {
     return duration;
   }
 }
-
-// node_modules/luxon/src/impl/tokenParser.js
 var MISSING_FTP = "missing Intl.DateTimeFormat.formatToParts support";
 function intUnit(regex, post = (i) => i) {
   return { regex, deser: ([s2]) => post(parseDigits(s2)) };
@@ -4752,9 +4708,7 @@ function formatOptsToTokens(formatOpts, locale) {
   const resolvedOpts = df.resolvedOptions();
   return parts.map((p) => tokenForPart(p, formatOpts, resolvedOpts));
 }
-
-// node_modules/luxon/src/datetime.js
-var INVALID3 = "Invalid DateTime";
+var INVALID = "Invalid DateTime";
 var MAX_DATE = 864e13;
 function unsupportedZone(zone) {
   return new Invalid("unsupported zone", `the zone "${zone.name}" is not supported`);
@@ -4775,7 +4729,7 @@ function possiblyCachedLocalWeekData(dt) {
   }
   return dt.localWeekData;
 }
-function clone2(inst, alts) {
+function clone(inst, alts) {
   const current = {
     ts: inst.ts,
     zone: inst.zone,
@@ -4950,7 +4904,7 @@ var defaultOrdinalUnitValues = {
   second: 0,
   millisecond: 0
 };
-var orderedUnits2 = ["year", "month", "day", "hour", "minute", "second", "millisecond"];
+var orderedUnits = ["year", "month", "day", "hour", "minute", "second", "millisecond"];
 var orderedWeekUnits = [
   "weekYear",
   "weekNumber",
@@ -5029,7 +4983,7 @@ function quickDT(obj, opts) {
   const loc = Locale.fromObject(opts);
   let ts, o;
   if (!isUndefined(obj.year)) {
-    for (const u of orderedUnits2) {
+    for (const u of orderedUnits) {
       if (isUndefined(obj[u])) {
         obj[u] = defaultUnitValues[u];
       }
@@ -5310,7 +5264,7 @@ var DateTime = class _DateTime {
       defaultValues = defaultOrdinalUnitValues;
       objNow = gregorianToOrdinal(objNow);
     } else {
-      units = orderedUnits2;
+      units = orderedUnits;
       defaultValues = defaultUnitValues;
     }
     let foundFirst = false;
@@ -5839,7 +5793,7 @@ var DateTime = class _DateTime {
     const c1 = tsToObj(ts1, o1);
     const c2 = tsToObj(ts2, o2);
     if (c1.hour === c2.hour && c1.minute === c2.minute && c1.second === c2.second && c1.millisecond === c2.millisecond) {
-      return [clone2(this, { ts: ts1 }), clone2(this, { ts: ts2 })];
+      return [clone(this, { ts: ts1 }), clone(this, { ts: ts2 })];
     }
     return [this];
   }
@@ -5949,7 +5903,7 @@ var DateTime = class _DateTime {
         const asObj = this.toObject();
         [newTS] = objToTS(asObj, offsetGuess, zone);
       }
-      return clone2(this, { ts: newTS, zone });
+      return clone(this, { ts: newTS, zone });
     }
   }
   /**
@@ -5960,7 +5914,7 @@ var DateTime = class _DateTime {
    */
   reconfigure({ locale, numberingSystem, outputCalendar } = {}) {
     const loc = this.loc.clone({ locale, numberingSystem, outputCalendar });
-    return clone2(this, { loc });
+    return clone(this, { loc });
   }
   /**
    * "Set" the locale. Returns a newly-constructed DateTime.
@@ -6013,7 +5967,7 @@ var DateTime = class _DateTime {
       }
     }
     const [ts, o] = objToTS(mixed, this.o, this.zone);
-    return clone2(this, { ts, o });
+    return clone(this, { ts, o });
   }
   /**
    * Add a period of time to this DateTime and return the resulting DateTime
@@ -6031,7 +5985,7 @@ var DateTime = class _DateTime {
   plus(duration) {
     if (!this.isValid) return this;
     const dur = Duration.fromDurationLike(duration);
-    return clone2(this, adjustTime(this, dur));
+    return clone(this, adjustTime(this, dur));
   }
   /**
    * Subtract a period of time to this DateTime and return the resulting DateTime
@@ -6042,7 +5996,7 @@ var DateTime = class _DateTime {
   minus(duration) {
     if (!this.isValid) return this;
     const dur = Duration.fromDurationLike(duration).negate();
-    return clone2(this, adjustTime(this, dur));
+    return clone(this, adjustTime(this, dur));
   }
   /**
    * "Set" this DateTime to the beginning of a unit of time.
@@ -6079,8 +6033,6 @@ var DateTime = class _DateTime {
       // falls through
       case "seconds":
         o.millisecond = 0;
-        break;
-      case "milliseconds":
         break;
     }
     if (normalizedUnit === "weeks") {
@@ -6130,7 +6082,7 @@ var DateTime = class _DateTime {
    * @return {string}
    */
   toFormat(fmt, opts = {}) {
-    return this.isValid ? Formatter.create(this.loc.redefaultToEN(opts)).formatDateTimeFromString(this, fmt) : INVALID3;
+    return this.isValid ? Formatter.create(this.loc.redefaultToEN(opts)).formatDateTimeFromString(this, fmt) : INVALID;
   }
   /**
    * Returns a localized string representing this date. Accepts the same options as the Intl.DateTimeFormat constructor and any presets defined by Luxon, such as `DateTime.DATE_FULL` or `DateTime.TIME_SIMPLE`.
@@ -6152,7 +6104,7 @@ var DateTime = class _DateTime {
    * @return {string}
    */
   toLocaleString(formatOpts = DATE_SHORT, opts = {}) {
-    return this.isValid ? Formatter.create(this.loc.clone(opts), formatOpts).formatDateTime(this) : INVALID3;
+    return this.isValid ? Formatter.create(this.loc.clone(opts), formatOpts).formatDateTime(this) : INVALID;
   }
   /**
    * Returns an array of format "parts", meaning individual tokens along with metadata. This is allows callers to post-process individual sections of the formatted output.
@@ -6201,7 +6153,7 @@ var DateTime = class _DateTime {
     precision = normalizeUnit(precision);
     const ext = format === "extended";
     let c = toISODate(this, ext, precision);
-    if (orderedUnits2.indexOf(precision) >= 3) c += "T";
+    if (orderedUnits.indexOf(precision) >= 3) c += "T";
     c += toISOTime(
       this,
       ext,
@@ -6267,7 +6219,7 @@ var DateTime = class _DateTime {
       return null;
     }
     precision = normalizeUnit(precision);
-    let c = includePrefix && orderedUnits2.indexOf(precision) >= 3 ? "T" : "";
+    let c = includePrefix && orderedUnits.indexOf(precision) >= 3 ? "T" : "";
     return c + toISOTime(
       this,
       format === "extended",
@@ -6358,7 +6310,7 @@ var DateTime = class _DateTime {
    * @return {string}
    */
   toString() {
-    return this.isValid ? this.toISO() : INVALID3;
+    return this.isValid ? this.toISO() : INVALID;
   }
   /**
    * Returns a string representation of this DateTime appropriate for the REPL.
@@ -6458,7 +6410,7 @@ var DateTime = class _DateTime {
       return Duration.invalid("created by diffing an invalid DateTime");
     }
     const durOpts = __spreadValues({ locale: this.locale, numberingSystem: this.numberingSystem }, opts);
-    const units = maybeArray(unit).map(Duration.normalizeUnit), otherIsLater = otherDateTime.valueOf() > this.valueOf(), earlier = otherIsLater ? this : otherDateTime, later = otherIsLater ? otherDateTime : this, diffed = diff_default(earlier, later, units, durOpts);
+    const units = maybeArray(unit).map(Duration.normalizeUnit), otherIsLater = otherDateTime.valueOf() > this.valueOf(), earlier = otherIsLater ? this : otherDateTime, later = otherIsLater ? otherDateTime : this, diffed = diff(earlier, later, units, durOpts);
     return otherIsLater ? diffed.negate() : diffed;
   }
   /**

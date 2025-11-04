@@ -1,9 +1,9 @@
-/* ================== عمومی ================== */
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  direction: rtl; /* راست‌چین برای همه */
+  direction: rtl;
 }
 
 html, body {
@@ -14,13 +14,17 @@ html, body {
   direction: rtl;
 }
 
+.table td {
+  vertical-align: middle;
+  text-align: center; 
+}
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 30px 20px;
   direction: rtl;
 }
-/* هدر ثابت مودال */
+
 .modal-fixed-header {
   position: sticky;
   top: 0;
@@ -28,45 +32,52 @@ html, body {
   background: #f1f5f9;
   padding: 15px 20px;
   border-bottom: 1px solid #ddd;
-  text-align: center; /* متن وسط */
+  text-align: center; 
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px; /* فاصله بین متن و دکمه */
+  gap: 20px; 
 }
 
-  /* متن هدر */
+
   .modal-fixed-header h5 {
     margin: 0;
     font-size: 1.25rem;
     color: #1976d2;
     line-height: 1.5rem;
-    flex: 1; /* برای مرکز کردن متن */
+    flex: 1; 
     text-align: center;
   }
 
-/* دکمه بستن ساده سمت چپ */
-.close-button {
+
+.close-modal-btn {
   position: absolute;
   top: 15px;
-  left: 15px; /* چپ‌چین */
-  font-size: 22px;
-  color: #555; /* خاکستری ساده */
-  background: none;
-  border: none;
-  cursor: pointer;
+  left: 15px;
+  background: #e74c3c;
+  color: #fff;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
   font-weight: bold;
-  transition: color 0.2s ease;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  z-index: 20;
 }
 
-  .close-button:hover {
-    color: #000; /* کمی تیره‌تر هنگام هاور */
+  .close-modal-btn:hover {
+    background: #c0392b;
+    transform: scale(1.1);
   }
 
 
-/* ================== بک‌دراپ و مودال ================== */
 .custom-modal {
   display: none;
   position: fixed;
@@ -163,7 +174,6 @@ html, body {
   text-align: right;
 }
 
-/* ================== فرم داخل مودال ================== */
 .custom-modal-dialog form {
   display: flex;
   flex-direction: column;
@@ -194,7 +204,6 @@ html, body {
 
 
 
-/* ================== جدول ================== */
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -233,7 +242,7 @@ html, body {
     transform: translateX(-5px);
   }
 
-/* ================== دکمه‌ها ================== */
+
 button {
   margin: 4px 0 4px 8px;
   padding: 8px 18px;
@@ -279,3 +288,156 @@ button {
   .btn-success:hover {
     background-color: #0b5ed7;
   }
+
+
+
+.attachment-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f7f8fa;
+  border: 1px solid #dee2e6;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+  .attachment-icon i {
+    font-size: 14px;
+    color: #6c757d;
+    transition: all 0.3s ease;
+  }
+
+  .attachment-icon:hover {
+    background: #007bff;
+    border-color: #007bff;
+    transform: scale(1.1);
+  }
+
+    .attachment-icon:hover i {
+      color: #fff;
+      transform: rotate(-15deg);
+    }
+.category-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f4f6f9; 
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+  .category-icon i {
+    font-size: 18px;
+    color: #000;
+    transition: all 0.3s ease;
+  }
+
+  .category-icon:hover {
+    background: #007bff; 
+    border-color: #007bff;
+    transform: translateY(-2px) scale(1.05);
+  }
+
+    .category-icon:hover i {
+      color: #fff; 
+    }
+
+
+.table-scroll-wrapper {
+  scrollbar-width: thin;
+  scrollbar-color: #546e7a #cfd8dc;
+}
+.attachment-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #f7f8fa;
+  border: 1px solid #dee2e6;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+  .attachment-icon i {
+    font-size: 18px;
+    color: #6c757d;
+    transition: all 0.3s ease;
+  }
+
+  .attachment-icon:hover {
+    background: #007bff;
+    border-color: #007bff;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  }
+
+    .attachment-icon:hover i {
+      color: #fff;
+      transform: rotate(-15deg);
+    }
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  padding: 12px;
+}
+
+.category-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+  .category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  }
+
+.category-title {
+  display: block;
+  font-weight: 700;
+  color: #1f2937; 
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 4px;
+}
+
+.products-list {
+  list-style: none; 
+  padding-left: 0;
+  margin: 0;
+  text-decoration: none !important;
+}
+
+.products-list {
+  list-style: none; 
+  padding-left: 0;
+  margin: 0;
+  text-decoration: none !important;
+}
+
+  .products-list li {
+    font-size: 0.85rem;
+    color: #4b5563; 
+    margin-bottom: 4px;
+    padding-left: 0; 
+    text-decoration: none !important;
+  }
+
+    .products-list li::before {
+      content: none; 
+    }

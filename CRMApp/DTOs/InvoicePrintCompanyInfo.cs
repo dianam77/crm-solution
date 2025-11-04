@@ -21,7 +21,7 @@
         public string Addresses { get; set; } = "-";
         public string Websites { get; set; } = "-";
 
-        // اضافه کردن اطلاعات آدرس
+
         public string Province { get; set; } = "-";
         public string City { get; set; } = "-";
         public string PostalCode { get; set; } = "-";

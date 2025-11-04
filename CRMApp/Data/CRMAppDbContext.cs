@@ -12,7 +12,7 @@ namespace CRMApp.Data
     {
         public CRMAppDbContext(DbContextOptions<CRMAppDbContext> options) : base(options) { }
 
-        // ---------- مشتریان ----------
+    
         public DbSet<CustomerIndividual> CustomerIndividuals { get; set; }
         public DbSet<CustomerCompany> CustomerCompanies { get; set; }
         public DbSet<Address> Addresses { get; set; }
@@ -24,36 +24,40 @@ namespace CRMApp.Data
         public DbSet<CustomerInteraction> CustomerInteractions { get; set; }
         public DbSet<CustomerInteractionAttachment> CustomerInteractionAttachments { get; set; }
 
-        // ---------- ارجاعات ----------
+
+        public DbSet<CustomerInteractionCategory> CustomerInteractionCategories { get; set; }
+        public DbSet<CustomerInteractionProduct> CustomerInteractionProducts { get; set; } 
+
         public DbSet<UserReferral> UserReferrals { get; set; }
 
-        // ---------- پیام‌رسان ----------
+
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<ChatConversation> ChatConversations { get; set; }
         public DbSet<ChatConversationParticipant> ChatConversationParticipants { get; set; }
         public DbSet<ChatMessageRecipient> ChatMessageRecipients { get; set; }
 
-        // ---------- محصولات ----------
+
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
 
-        // ---------- فاکتور و پیش فاکتور ----------
+
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceItem> InvoiceItems { get; set; }
         public DbSet<InvoiceAttachment> InvoiceAttachments { get; set; }
 
 
-        // ---------- شرکت اصلی ----------
         public DbSet<MainCompany> MainCompanies { get; set; }
         public DbSet<CompanyWebsite> CompanyWebsites { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
 
+        public DbSet<SmtpSettings> SmtpSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // ---------- UserRole ----------
             modelBuilder.Entity<UserRole>()
                 .HasKey(ur => new { ur.UserId, ur.RoleId });
 
@@ -69,7 +73,6 @@ namespace CRMApp.Data
                 .HasForeignKey(ur => ur.RoleId)
                 .IsRequired();
 
-            // ---------- مشتریان ----------
             modelBuilder.Entity<CustomerIndividual>().HasKey(ci => ci.CustomerId);
             modelBuilder.Entity<CustomerCompany>().HasKey(cc => cc.CustomerId);
             modelBuilder.Entity<Address>().HasKey(a => a.AddressId);
@@ -78,6 +81,8 @@ namespace CRMApp.Data
             modelBuilder.Entity<CustomerCompanyRelation>().HasKey(r => r.RelationId);
             modelBuilder.Entity<CustomerInteraction>().HasKey(ci => ci.Id);
             modelBuilder.Entity<CustomerInteractionAttachment>().HasKey(a => a.Id);
+            modelBuilder.Entity<CustomerInteractionCategory>().HasKey(c => c.Id);
+            modelBuilder.Entity<CustomerInteractionProduct>().HasKey(cp => cp.Id); 
 
             modelBuilder.Entity<CustomerCompanyRelation>()
                 .HasOne(r => r.IndividualCustomer)
@@ -91,6 +96,7 @@ namespace CRMApp.Data
                 .HasForeignKey(r => r.CompanyCustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+          
             modelBuilder.Entity<Address>()
                 .HasOne(a => a.IndividualCustomer)
                 .WithMany(i => i.Addresses)
@@ -127,6 +133,7 @@ namespace CRMApp.Data
                 .HasForeignKey(cp => cp.CompanyCustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+         
             modelBuilder.Entity<Email>()
                 .HasOne(e => e.IndividualCustomer)
                 .WithMany(i => i.Emails)
@@ -139,18 +146,58 @@ namespace CRMApp.Data
                 .HasForeignKey(e => e.CompanyCustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            
             modelBuilder.Entity<CustomerInteractionAttachment>()
                 .HasOne(a => a.CustomerInteraction)
                 .WithMany(c => c.Attachments)
                 .HasForeignKey(a => a.CustomerInteractionId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+     
+            modelBuilder.Entity<CustomerInteractionCategory>()
+                .HasOne(c => c.CustomerInteraction)
+                .WithMany(ci => ci.InteractionCategories)
+                .HasForeignKey(c => c.CustomerInteractionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+           
+            modelBuilder.Entity<CustomerInteractionCategory>()
+                .HasOne(c => c.Category)
+                .WithMany()
+                .HasForeignKey(c => c.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+    
+            modelBuilder.Entity<CustomerInteractionProduct>()
+                .HasOne(cp => cp.CustomerInteraction)
+                .WithMany(ci => ci.InteractionProducts)
+                .HasForeignKey(cp => cp.CustomerInteractionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CustomerInteractionProduct>()
+                .HasOne(cp => cp.Product)
+                .WithMany()
+                .HasForeignKey(cp => cp.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+  
+            modelBuilder.Entity<CustomerInteractionCategory>()
+                .HasIndex(c => new { c.CustomerInteractionId, c.CategoryId })
+                .IsUnique();
+
+ 
+            modelBuilder.Entity<CustomerInteractionProduct>()
+                .HasIndex(c => new { c.CustomerInteractionId, c.ProductId })
+                .IsUnique();
+
+
+ 
             modelBuilder.Entity<CustomerIndividual>()
                 .HasIndex(c => c.NationalCode)
                 .IsUnique()
                 .HasFilter("[NationalCode] IS NOT NULL");
 
-            // ---------- ارجاعات ----------
+            
             modelBuilder.Entity<UserReferral>()
                 .HasOne(r => r.AssignedBy)
                 .WithMany()
@@ -163,7 +210,7 @@ namespace CRMApp.Data
                 .HasForeignKey(r => r.AssignedToId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // ---------- پیام‌رسان ----------
+
             modelBuilder.Entity<ChatMessage>()
                 .HasOne(m => m.Sender)
                 .WithMany(u => u.SentMessages)
@@ -200,7 +247,7 @@ namespace CRMApp.Data
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // ---------- Category & Product ----------
+      
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)
                 .WithMany(c => c.Products)
@@ -226,7 +273,19 @@ namespace CRMApp.Data
                 .HasIndex(pi => new { pi.ProductId, pi.ImageUrl })
                 .IsUnique();
 
-            // ---------- Invoice ----------
+           
+            modelBuilder.Entity<Product>()
+                .Property(p => p.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            modelBuilder.Entity<CustomerInteraction>()
+                .Property(ci => ci.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            modelBuilder.Entity<Invoice>()
+                .Property(i => i.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
             modelBuilder.Entity<Invoice>(entity =>
             {
                 entity.HasKey(i => i.Id);
@@ -250,7 +309,7 @@ namespace CRMApp.Data
                       .IsUnique();
             });
 
-            // ---------- InvoiceItem ----------
+
             modelBuilder.Entity<InvoiceItem>(entity =>
             {
                 entity.HasKey(ii => ii.Id);
@@ -266,7 +325,7 @@ namespace CRMApp.Data
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // ---------- InvoiceAttachment ----------
+
             modelBuilder.Entity<InvoiceAttachment>(entity =>
             {
                 entity.HasKey(a => a.Id);
@@ -285,13 +344,13 @@ namespace CRMApp.Data
                       .HasMaxLength(500);
             });
 
-            // ---------- CompanyWebsite ----------
+    
             modelBuilder.Entity<CompanyWebsite>()
-                .HasKey(w => w.WebsiteId);   // ← کلید اصلی
+                .HasKey(w => w.WebsiteId);
 
-            // ---------- MainCompany ----------
+     
             modelBuilder.Entity<MainCompany>()
-     .HasKey(mc => mc.MainCompanyId);
+                .HasKey(mc => mc.MainCompanyId);
 
             modelBuilder.Entity<MainCompany>()
                 .HasMany(mc => mc.Emails)
@@ -300,7 +359,7 @@ namespace CRMApp.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<MainCompany>()
-                .HasMany(mc => mc.ContactPhones) // ← اصلاح شد
+                .HasMany(mc => mc.ContactPhones)
                 .WithOne(p => p.MainCompany)
                 .HasForeignKey(p => p.MainCompanyId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -317,7 +376,59 @@ namespace CRMApp.Data
                 .HasForeignKey(w => w.MainCompanyId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+  
+            modelBuilder.Entity<RolePermission>()
+                .HasKey(rp => new { rp.RoleId, rp.PermissionId });
 
+            modelBuilder.Entity<RolePermission>()
+                .HasOne(rp => rp.Role)
+                .WithMany(r => r.RolePermissions)
+                .HasForeignKey(rp => rp.RoleId);
+
+            modelBuilder.Entity<RolePermission>()
+                .HasOne(rp => rp.Permission)
+                .WithMany(p => p.RolePermissions)
+                .HasForeignKey(rp => rp.PermissionId);
+
+     
+            modelBuilder.Entity<SmtpSettings>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+
+                entity.Property(s => s.SenderEmail)
+                      .IsRequired()
+                      .HasMaxLength(150);
+
+                entity.Property(s => s.SenderPassword)
+                      .IsRequired()
+                      .HasMaxLength(200);
+
+                entity.Property(s => s.DisplayName)
+                      .HasMaxLength(100);
+
+                entity.Property(s => s.SmtpServer)
+                      .IsRequired()
+                      .HasMaxLength(150);
+
+                entity.Property(s => s.SmtpPort)
+                      .IsRequired();
+
+                entity.Property(s => s.EnableSsl)
+                      .IsRequired();
+
+                entity.Property(s => s.IsActive)
+                      .IsRequired();
+
+                entity.Property(s => s.Description)
+                      .HasMaxLength(300);
+
+                entity.Property(s => s.CreatedAt)
+                      .IsRequired()
+                      .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.Property(s => s.UpdatedAt)
+                      .IsRequired(false);
+            });
         }
     }
 }

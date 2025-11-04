@@ -24,7 +24,6 @@ namespace CRMApp.Controllers
         #region GET
 
         [HttpGet]
-        [Authorize(Roles = "Admin,Manager,User")]
         public async Task<ActionResult<List<CustomerIndividual>>> GetAll()
         {
             var individuals = await _context.CustomerIndividuals
@@ -36,12 +35,12 @@ namespace CRMApp.Controllers
                     .ThenInclude(a => a.City)
                 .ToListAsync();
 
-            // همیشه JSON معتبر برگردان
+    
             return Ok(individuals ?? new List<CustomerIndividual>());
         }
 
         [HttpGet("provinces")]
-        [Authorize(Roles = "Admin,Manager,User")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<Province>>> GetProvinces()
         {
             var provinces = await _context.Provinces
@@ -52,19 +51,18 @@ namespace CRMApp.Controllers
         }
 
         [HttpGet("cities/{provinceId}")]
-        [Authorize(Roles = "Admin,Manager,User")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<City>>> GetCities(int provinceId)
         {
             var cities = await _context.Cities
                 .Where(c => c.ProvinceId == provinceId)
                 .ToListAsync();
 
-            // همیشه JSON برگردان حتی اگر خالی باشد
             return Ok(cities ?? new List<City>());
         }
 
+
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin,Manager,User")]
         public async Task<ActionResult<CustomerIndividualViewModel>> Get(int id)
         {
             var individual = await _context.CustomerIndividuals
@@ -88,7 +86,6 @@ namespace CRMApp.Controllers
         #region POST
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Create([FromBody] CustomerIndividualViewModel vm)
         {
             if (!ModelState.IsValid)
@@ -130,7 +127,6 @@ namespace CRMApp.Controllers
         #region PUT
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Edit(int id, [FromBody] CustomerIndividualViewModel vm)
         {
             if (id != vm.CustomerId)
@@ -176,7 +172,6 @@ namespace CRMApp.Controllers
         #region DELETE
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var individual = await _context.CustomerIndividuals

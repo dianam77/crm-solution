@@ -273,9 +273,18 @@ export class CustomerIndividualListComponent implements OnInit {
   }
 
   addCustomer() {
-    if (!this.canEdit) {
-      alert('شما اجازه ویرایش ندارید!');
-      return;
+    if (this.isEditMode) {
+      
+      if (!this.hasPermission('customerindividualapi.edit')) {
+        alert('شما اجازه ویرایش ندارید!');
+        return;
+      }
+    } else {
+   
+      if (!this.hasPermission('customerindividualapi.create')) {
+        alert('شما اجازه ثبت مشتری جدید را ندارید!');
+        return;
+      }
     }
 
     if (this.customerForm.invalid) {
@@ -287,6 +296,7 @@ export class CustomerIndividualListComponent implements OnInit {
     if (this.hasIncompleteContacts()) {
       return;
     }
+
     for (let i = 0; i < this.emails.length; i++) {
       const emailGroup = this.emails.at(i);
       const emailAddress = emailGroup.get('emailAddress')?.value?.trim();
@@ -297,6 +307,7 @@ export class CustomerIndividualListComponent implements OnInit {
         return;
       }
     }
+
 
     for (let i = 0; i < this.contactPhones.length; i++) {
       const phoneGroup = this.contactPhones.at(i);
@@ -632,6 +643,20 @@ export class CustomerIndividualListComponent implements OnInit {
       });
     } else {
       this.addresses.push(this.createAddressGroup());
+    }
+  }
+  hasPermission(permission: string): boolean {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) return false;
+
+    try {
+      const decoded: any = jwtDecode(token);
+      const permsRaw = decoded['permissions'] || '[]';
+      const userPermissions: string[] = JSON.parse(permsRaw).map((p: string) => p.toLowerCase());
+      return userPermissions.includes(permission.toLowerCase());
+    } catch (err) {
+      console.error('JWT decode error:', err);
+      return false;
     }
   }
 

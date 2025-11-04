@@ -14,9 +14,7 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class UserManagementComponent implements OnInit {
   users: User[] = [];
-  roles: string[] = []; // نقش‌ها از API گرفته می‌شود
-  currentRole = '';
-
+  roles: string[] = []; 
   editingUserId: string | null = null;
   passwordEditUserId: string | null = null;
   passwordVisible = false;
@@ -25,27 +23,10 @@ export class UserManagementComponent implements OnInit {
   constructor(private userService: UserService) { }
 
   ngOnInit(): void {
-    this.setCurrentRole();
     this.loadRoles();
     this.loadUsers();
   }
 
-  // گرفتن نقش کاربر لاگین شده از JWT
-  setCurrentRole() {
-    const token = localStorage.getItem('jwtToken');
-    if (!token) return;
-
-    try {
-      const decoded: any = jwtDecode(token);
-      const roles = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-      this.currentRole = Array.isArray(roles) ? roles[0] : roles;
-    } catch (err) {
-      console.error('Invalid token', err);
-      this.currentRole = '';
-    }
-  }
-
-  // بارگذاری لیست نقش‌ها برای dropdown
   loadRoles() {
     this.userService.getRoles().subscribe({
       next: (response) => {
@@ -57,13 +38,30 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  // بارگذاری کاربران
-  loadUsers() {
-    const loadMethod = this.currentRole === 'User'
-      ? this.userService.getUserNames()
-      : this.userService.getUsers();
 
-    loadMethod.subscribe({
+  hasPermission(permission: string): boolean {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) return false;
+
+    try {
+      const decoded: any = jwtDecode(token);
+      const permsRaw = decoded['permissions'] || '[]';
+      const userPermissions: string[] = JSON.parse(permsRaw).map((p: string) => p.toLowerCase());
+      return userPermissions.includes(permission.toLowerCase());
+    } catch (err) {
+      console.error('JWT decode error:', err);
+      return false;
+    }
+  }
+
+  loadUsers() {
+    if (!this.hasPermission('users.getusers')) {
+      console.warn('⛔ کاربر دسترسی مشاهده کاربران را ندارد.');
+      this.users = [];
+      return;
+    }
+
+    this.userService.getUsers().subscribe({
       next: (response) => {
         this.users = Array.isArray(response) ? response : [];
       },
@@ -74,9 +72,8 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  // شروع حالت ویرایش اطلاعات کاربر
   startEdit(user: User) {
-    if (this.currentRole === 'User') return;
+    if (!this.hasPermission('users.edituser')) return;
 
     this.editingUserId = user.id;
     this.passwordEditUserId = null;
@@ -90,14 +87,14 @@ export class UserManagementComponent implements OnInit {
   }
 
   saveEdit(id: string) {
-    if (this.currentRole === 'User') return;
+    if (!this.hasPermission('users.edituser')) return;
 
     const updatedUser = {
       id,
       userName: this.editCache.userName,
       email: this.editCache.email,
       role: this.editCache.role,
-      password: '' // بدون تغییر رمز
+      password: '' 
     };
 
     this.userService.updateUser(updatedUser).subscribe({
@@ -109,9 +106,9 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  // حذف کاربر
+
   deleteUser(id: string) {
-    if (!['Admin', 'Manager'].includes(this.currentRole)) return;
+    if (!this.hasPermission('users.deleteuser')) return;
     if (!confirm('آیا مطمئن هستید که می‌خواهید این کاربر را حذف کنید؟')) return;
 
     this.userService.deleteUser(id).subscribe({
@@ -120,9 +117,9 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  // شروع حالت تغییر رمز عبور
+
   startPasswordEdit(user: User) {
-    if (this.currentRole === 'User') return;
+    if (!this.hasPermission('users.edituser')) return;
 
     this.passwordEditUserId = user.id;
     this.editingUserId = null;
@@ -136,9 +133,8 @@ export class UserManagementComponent implements OnInit {
     this.editCache = {};
   }
 
-  // ارسال تغییر رمز عبور
   submitPasswordChange(userId: string) {
-    if (this.currentRole === 'User') return;
+    if (!this.hasPermission('users.edituser')) return;
 
     if (!this.isPasswordValid()) {
       alert('رمز عبور باید حداقل یک حرف بزرگ و یک حرف کوچک داشته باشد.');
@@ -165,7 +161,7 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  // اعتبارسنجی رمز عبور
+
   passwordHasNoUppercase() {
     return this.editCache.password && !/[A-Z]/.test(this.editCache.password);
   }

@@ -6,6 +6,7 @@ import { City } from '../models/City.model';
 import { LocationService } from '../services/location.service';
 import { MainCompanyService } from '../services/main-company.service';
 import { MainCompany } from '../models/main-company.model';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-main-company',
@@ -18,10 +19,30 @@ export class MainCompanyComponent implements OnInit {
   companyForm!: FormGroup;
   showForm = false;
   isEditMode = false;
-  canEdit = true; // ← این خط حتماً باید باشد
+  canEdit = true; 
   provinces: Province[] = [];
   citiesMap: { [provinceId: number]: City[] } = {};
   companies: MainCompany[] = [];
+  permissions: string[] = []; 
+
+  hasPermission(permission: string): boolean {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) return false; 
+
+    try {
+      
+      const decoded: any = jwtDecode(token);
+
+      const permsRaw = decoded['permissions'] || '[]';
+      const userPermissions: string[] = JSON.parse(permsRaw).map((p: string) => p.toLowerCase());
+
+      
+      return userPermissions.includes(permission.toLowerCase());
+    } catch (err) {
+      console.error('JWT decode error:', err);
+      return false;
+    }
+  }
 
   phoneTypes = [
     { value: 'mobile', label: 'موبایل' },
@@ -51,7 +72,7 @@ export class MainCompanyComponent implements OnInit {
     this.loadCompaniesFromServer();
   }
 
-  // ================== Form Init ==================
+
   initForm() {
     this.companyForm = this.fb.group({
       mainCompanyId: [null],
@@ -65,7 +86,7 @@ export class MainCompanyComponent implements OnInit {
     });
   }
 
-  // ================== FormArray Creators ==================
+ 
   createEmail(): FormGroup {
     return this.fb.group({
       emailId: [0],
@@ -102,13 +123,12 @@ export class MainCompanyComponent implements OnInit {
     });
   }
 
-  // ================== Getters ==================
+
   get companyEmails() { return this.companyForm.get('emails') as FormArray; }
   get companyPhones() { return this.companyForm.get('contactPhones') as FormArray; }
   get companyAddresses() { return this.companyForm.get('addresses') as FormArray; }
   get companyWebsites() { return this.companyForm.get('websites') as FormArray; }
 
-  // ================== Add / Remove ==================
   addEmail() { this.companyEmails.push(this.createEmail()); }
   removeEmail(index: number) { if (this.companyEmails.length > 1) this.companyEmails.removeAt(index); }
 
@@ -121,7 +141,6 @@ export class MainCompanyComponent implements OnInit {
   addWebsite() { this.companyWebsites.push(this.createWebsite()); }
   removeWebsite(index: number) { if (this.companyWebsites.length > 1) this.companyWebsites.removeAt(index); }
 
-  // ================== Province / City ==================
   onProvinceChange(index: number) {
     const address = this.companyAddresses.at(index);
     const provinceId = Number(address.get('provinceId')?.value);
@@ -137,7 +156,7 @@ export class MainCompanyComponent implements OnInit {
     }
   }
 
-  // ================== Toggle Form ==================
+
   toggleForm() {
     this.showForm = !this.showForm;
     if (!this.showForm) this.resetForm();
@@ -152,7 +171,7 @@ export class MainCompanyComponent implements OnInit {
     while (this.companyWebsites.length > 1) this.companyWebsites.removeAt(1);
   }
 
-  // ================== Save Company ==================
+
   saveCompany() {
     if (this.companyForm.invalid) {
       this.companyForm.markAllAsTouched();
@@ -161,7 +180,7 @@ export class MainCompanyComponent implements OnInit {
 
     const payload: any = { ...this.companyForm.value };
 
-    // تبدیل id ها به number
+
     payload.mainCompanyId = payload.mainCompanyId != null ? Number(payload.mainCompanyId) : undefined;
     payload.addresses = payload.addresses.map((a: any) => ({
       ...a,
@@ -185,7 +204,6 @@ export class MainCompanyComponent implements OnInit {
     });
   }
 
-  // ================== Load Companies ==================
   loadCompaniesFromServer() {
     this.mainCompanyService.getAll().subscribe((companies) => {
       this.companies = companies.map(c => ({
@@ -213,17 +231,17 @@ export class MainCompanyComponent implements OnInit {
     });
   }
 
-  // ================== Load Provinces ==================
+
   loadProvinces() {
     this.locationService.getProvinces().subscribe((data: Province[]) => this.provinces = data);
   }
 
-  // ================== Edit / Delete ==================
+  
   editCompany(company: MainCompany) {
     this.showForm = true;
     this.isEditMode = true;
 
-    // Emails
+
     this.companyEmails.clear();
     (company.emails || []).forEach(e => {
       const emailGroup = this.createEmail();
@@ -232,7 +250,6 @@ export class MainCompanyComponent implements OnInit {
     });
     if (!company.emails?.length) this.companyEmails.push(this.createEmail());
 
-    // Phones
     this.companyPhones.clear();
     (company.contactPhones || []).forEach(p => {
       const phoneGroup = this.createPhone();
@@ -241,7 +258,6 @@ export class MainCompanyComponent implements OnInit {
     });
     if (!company.contactPhones?.length) this.companyPhones.push(this.createPhone());
 
-    // Addresses
     this.companyAddresses.clear();
     (company.addresses || []).forEach(a => {
       const provinceId = Number(a.provinceId);
@@ -265,7 +281,7 @@ export class MainCompanyComponent implements OnInit {
     });
     if (!company.addresses?.length) this.companyAddresses.push(this.createAddress());
 
-    // Websites
+
     this.companyWebsites.clear();
     (company.websites || []).forEach(w => {
       const siteGroup = this.createWebsite();
@@ -274,7 +290,7 @@ export class MainCompanyComponent implements OnInit {
     });
     if (!company.websites?.length) this.companyWebsites.push(this.createWebsite());
 
-    // Patch other main company values
+
     this.companyForm.patchValue({
       mainCompanyId: company.mainCompanyId,
       companyName: company.companyName,
@@ -290,7 +306,7 @@ export class MainCompanyComponent implements OnInit {
     }
   }
 
-  // ================== Helper Methods ==================
+
   getProvinceName(provinceId?: number): string {
     if (!provinceId) return '-';
     const province = this.provinces.find(p => p.provinceId === provinceId);

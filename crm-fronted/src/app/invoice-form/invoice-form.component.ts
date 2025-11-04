@@ -13,11 +13,14 @@ import { InvoiceService } from '../services/invoice.service';
 import { CustomerIndividualService } from '../services/customer-individual.service';
 import { CustomerCompanyService } from '../services/customer-company.service';
 import { ProductService } from '../services/product.service';
+import { Category } from '../models/category.model';
+import { CategoryService } from '../services/category.service';
+import { CategoryFilterPipe } from '../pipe/category-filter.pipe';
 
 @Component({
   selector: 'app-invoice-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, CategoryFilterPipe],
   templateUrl: './invoice-form.component.html',
   styleUrls: ['./invoice-form.component.css']
 })
@@ -33,7 +36,7 @@ export class InvoiceFormComponent implements OnInit {
     totalAmount: 0,
     status: 'Draft'
   };
-
+  categories: Category[] = [];
   deletedAttachments: InvoiceAttachment[] = [];
   validityDays: number | null = null;
   dueDateShamsi: string = '';
@@ -48,60 +51,64 @@ export class InvoiceFormComponent implements OnInit {
     private customerIndividualService: CustomerIndividualService,
     private customerCompanyService: CustomerCompanyService,
     private productService: ProductService,
+    private categoryService: CategoryService, 
     private route: ActivatedRoute,
     private router: Router
   ) { }
 
   ngOnInit(): void {
-    const token = localStorage.getItem('jwtToken');
-    if (!token) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      this.invoice.createdByUserId =
-        payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
-    } catch {
-      this.router.navigate(['/login']);
-      return;
-    }
+ 
 
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.invoiceService.getInvoice(+id).subscribe(res => {
-        this.invoice = res;
 
-        // بارگذاری فایل‌های موجود
-        this.invoice.attachments = res.attachments?.map(a => ({
-          id: a.id,
-          fileName: a.fileName,
-          fileUrl: a.fileUrl,
-          description: ''
-        })) ?? [];
+   
+    this.productService.getProducts().subscribe(productsRes => {
+      this.products = productsRes;
 
-        if (res.customerIndividualId) this.selectedCustomerType = 'individual';
-        else if (res.customerCompanyId) this.selectedCustomerType = 'company';
+     
+      if (id) {
+        this.invoiceService.getInvoice(+id).subscribe(invoiceRes => {
+          this.invoice = invoiceRes;
 
-        // محاسبه تعداد روز اعتبار
-        if (res.dueDate && res.issueDate) {
-          const issue = new Date(res.issueDate);
-          const due = new Date(res.dueDate);
-          this.validityDays = Math.ceil((due.getTime() - issue.getTime()) / (1000 * 60 * 60 * 24));
-          this.dueDateShamsi = moment(due).format('jYYYY/jMM/jDD');
-        }
+         
+          this.invoice.attachments = invoiceRes.attachments?.map(a => ({
+            id: a.id,
+            fileName: a.fileName,
+            fileUrl: a.fileUrl,
+            description: ''
+          })) ?? [];
 
-        this.calculateTotal();
-      });
-    }
+        
+          if (invoiceRes.customerIndividualId) this.selectedCustomerType = 'individual';
+          else if (invoiceRes.customerCompanyId) this.selectedCustomerType = 'company';
 
-    this.customerIndividualService.getAll().subscribe(res => (this.customersIndividual = res));
-    this.customerCompanyService.getAll().subscribe(res => (this.customersCompany = res));
-    this.productService.getProducts().subscribe(res => (this.products = res));
+ 
+          if (invoiceRes.dueDate && invoiceRes.issueDate) {
+            const issue = new Date(invoiceRes.issueDate);
+            const due = new Date(invoiceRes.dueDate);
+            this.validityDays = Math.ceil((due.getTime() - issue.getTime()) / (1000 * 60 * 60 * 24));
+            this.dueDateShamsi = moment(due).format('jYYYY/jMM/jDD');
+          }
+
+      
+          this.invoice.invoiceItems.forEach(item => {
+            const product = this.products.find(p => p.id === item.productId);
+            if (product) item.categoryId = product.categoryId ?? null;
+          });
+
+          this.calculateTotal();
+        });
+      }
+    });
+
+ 
+    this.categoryService.getCategories().subscribe(res => this.categories = res);
+    this.customerIndividualService.getAll().subscribe(res => this.customersIndividual = res);
+    this.customerCompanyService.getAll().subscribe(res => this.customersCompany = res);
   }
 
-  /** افزودن آیتم جدید به فاکتور */
+
+
   addItem(): void {
     const lastItem = this.invoice.invoiceItems[this.invoice.invoiceItems.length - 1];
     if (lastItem && (!lastItem.productId || lastItem.quantity <= 0 || lastItem.unitPrice <= 0)) {
@@ -119,13 +126,13 @@ export class InvoiceFormComponent implements OnInit {
     });
   }
 
-  /** حذف آیتم */
+
   removeItem(index: number): void {
     this.invoice.invoiceItems.splice(index, 1);
     this.calculateTotal();
   }
 
-  /** تغییر محصول آیتم */
+
   onProductChange(item: InvoiceItem, productId: string | null): void {
     const product = this.products.find(p => p.id === productId);
     if (product) {
@@ -138,7 +145,7 @@ export class InvoiceFormComponent implements OnInit {
     this.calculateTotal();
   }
 
-  /** محاسبه جمع کل */
+
   calculateTotal(): number {
     let total = 0;
     this.invoice.invoiceItems.forEach(i => {
@@ -153,24 +160,23 @@ export class InvoiceFormComponent implements OnInit {
     return total;
   }
 
-  /** جمع بدون مالیات */
+
   getTotalWithoutVAT(): number {
     return this.invoice.invoiceItems.reduce((sum, i) => sum + (i.priceAfterDiscount ?? 0), 0);
   }
 
-  /** جمع کل مالیات */
+
   getTotalVAT(): number {
     return this.invoice.invoiceItems.reduce((sum, i) => sum + (i.vatAmount ?? 0), 0);
   }
 
-  /** تغییر نوع مشتری */
   onCustomerTypeChange(type: 'individual' | 'company'): void {
     this.selectedCustomerType = type;
     if (type === 'individual') this.invoice.customerCompanyId = undefined;
     else this.invoice.customerIndividualId = undefined;
   }
 
-  /** محاسبه تاریخ سررسید */
+
   onValidityDaysChange(): void {
     if (this.invoice.invoiceType === 'Proforma' && this.validityDays && this.validityDays > 0) {
       const issue = new Date(this.invoice.issueDate);
@@ -183,12 +189,36 @@ export class InvoiceFormComponent implements OnInit {
     }
   }
 
-  /** انتخاب فایل ضمیمه */
+
+
   onFileSelected(event: any): void {
     const files: FileList = event.target.files;
     if (!files) return;
+
+    const MAX_SIZE_MB = 5; 
+    const MAX_SIZE = MAX_SIZE_MB * 1024 * 1024;
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
+
+      if (file.size > MAX_SIZE) {
+        alert(`حجم فایل "${file.name}" بیش از ${MAX_SIZE_MB} مگابایت است.`);
+        continue;
+      }
+
+    
+      const duplicate = this.invoice.attachments?.some(
+        (att) =>
+          att.fileName === file.name &&
+          (att.file ? att.file.size === file.size : true)
+      );
+
+      if (duplicate) {
+        alert(`فایل "${file.name}" قبلاً اضافه شده است.`);
+        continue;
+      }
+
+   
       this.invoice.attachments?.push({
         file,
         fileName: file.name,
@@ -196,10 +226,10 @@ export class InvoiceFormComponent implements OnInit {
         description: ''
       });
     }
+
     event.target.value = '';
   }
 
-  /** حذف فایل ضمیمه */
   removeAttachment(index: number): void {
     const att = this.invoice.attachments?.[index];
     if (att && att.id) {
@@ -208,12 +238,12 @@ export class InvoiceFormComponent implements OnInit {
     this.invoice.attachments?.splice(index, 1);
   }
 
-  /** بازگشت به لیست فاکتورها */
+
   goToList(): void {
     this.router.navigate(['/invoices']);
   }
 
-  /** ذخیره یا ویرایش فاکتور */
+
   save(): void {
     if (!this.selectedCustomerType) {
       alert('نوع مشتری را انتخاب کنید.');
@@ -261,17 +291,17 @@ export class InvoiceFormComponent implements OnInit {
     );
     formData.append('ItemsJson', itemsJson);
 
-    // فایل‌های جدید
+
     this.invoice.attachments?.forEach(att => {
       if (att.file instanceof File)
         formData.append('attachments', att.file, att.file.name);
     });
 
-    // فایل‌های موجود
+
     const existingIds = this.invoice.attachments?.filter(att => att.id).map(att => att.id).join(',');
     formData.append('ExistingAttachmentIds', existingIds ?? '');
 
-    // فایل‌های حذف شده
+
     const deletedIds = this.deletedAttachments.map(a => a.id).join(',');
     formData.append('DeletedAttachmentIds', deletedIds);
 

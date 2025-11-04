@@ -29,7 +29,7 @@ namespace CRMApp.Models
         [Range(0, double.MaxValue)]
         public decimal VATAmount { get; set; } = 0;
 
-        // ستون‌های واقعی در دیتابیس
+
         [Range(0, double.MaxValue)]
         public decimal PriceAfterDiscount { get; set; } = 0;
 

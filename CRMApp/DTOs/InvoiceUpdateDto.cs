@@ -24,14 +24,14 @@ namespace CRMApp.DTOs
         public int? ValidityDays { get; set; }
         public string? Notes { get; set; }
 
-        // آیتم‌های فاکتور به صورت JSON در فرانت‌اند ارسال می‌شوند
+     
         [Required]
         public string ItemsJson { get; set; } = string.Empty;
 
-        // مسیر فایل‌هایی که باید حفظ شوند (برای هماهنگی با Angular)
+       
         public string? ExistingAttachmentPaths { get; set; }
 
-        // **اضافه کردن فیلد Id فایل‌های قدیمی برای حذف دقیق**
-        public string? ExistingAttachmentIds { get; set; } // JSON: [1,2,3]
+      
+        public string? ExistingAttachmentIds { get; set; } 
     }
 }

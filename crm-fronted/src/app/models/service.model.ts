@@ -3,5 +3,5 @@ export interface Service {
   name: string;
   description?: string;
   price: number;
-  productId?: string; // مرتبط با محصول (اختیاری)
+  productId?: string; 
 }

@@ -1,4 +1,4 @@
-// referral.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -12,8 +12,12 @@ export class ReferralService {
 
   constructor(private http: HttpClient) { }
 
-  getAll(): Observable<UserReferral[]> {
-    return this.http.get<UserReferral[]>(this.apiUrl);
+  getMyReferrals(): Observable<UserReferral[]> {
+    return this.http.get<UserReferral[]>(`${this.apiUrl}/mine`);
+  }
+
+  getAllReferrals(): Observable<UserReferral[]> {
+    return this.http.get<UserReferral[]>(`${this.apiUrl}/all`);
   }
 
   getById(id: number): Observable<UserReferral> {

@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px; /* فاصله از دو طرف بیشتر شد */
+  padding: 0 32px; 
   height: 60px;
   background: #4c6ef5;
   color: #fff;
@@ -26,7 +26,7 @@
   cursor: pointer;
   box-shadow: 0 6px 14px rgba(0,0,0,0.2);
   transition: all 0.2s ease;
-  /* انیمیشن برای همه آیکون‌ها */
+
   animation: floatShake 2s infinite ease-in-out;
 }
 
@@ -35,7 +35,7 @@
     transform: translateY(-2px);
   }
 
-  /* Badge (اعلان) */
+ 
   .navbar-icons .icon-btn .badge {
     position: absolute;
     top: -8px;
@@ -51,8 +51,8 @@
 .navbar-icons {
   display: flex;
   align-items: center;
-  gap: 10px; /* فاصله بین آیکن‌ها بیشتر شد */
-  margin-left: auto; /* فاصله از بخش چپ */
+  gap: 10px; 
+  margin-left: auto; 
 }
 
 .navbar.collapsed {
@@ -83,8 +83,8 @@
 .toggle-btn {
   width: 36px;
   height: 36px;
-  border: 2px solid #fff; /* لاین سفید دور مربع */
-  background: transparent; /* توخالی */
+  border: 2px solid #fff; 
+  background: transparent;
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -96,7 +96,7 @@
 
 
 .search-box {
-  position: relative; /* برای اینکه آیکون داخل input قرار بگیرد */
+  position: relative; 
   flex: 0 1 250px;
   display: flex;
   align-items: center;
@@ -110,7 +110,7 @@
     position: absolute;
     left: 8px;
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.8); /* روشن‌تر برای دیدن بهتر */
+    color: rgba(255, 255, 255, 0.8); 
     pointer-events: none;
   }
 
@@ -122,7 +122,7 @@
     outline: none;
     color: #fff;
     font-size: 14px;
-    padding-left: 26px; /* فاصله برای آیکون */
+    padding-left: 26px; 
   }
 
     .search-box input::placeholder {
@@ -187,7 +187,6 @@
     border: 2px solid #fff;
   }
 
-/* دکمه خروج مینیمال سمت چپ با فاصله */
 .logout-btn {
   background: none;
   border: none;
@@ -203,13 +202,12 @@
 }
 
   .logout-btn:hover {
-    color: #ff4d4f; /* رنگ قرمز برای هشدار */
-    background-color: rgba(255, 77, 79, 0.2); /* پس‌زمینه کم‌رنگ */
-    transform: scale(1.1); /* کمی بزرگ‌تر شدن */
+    color: #ff4d4f; 
+    background-color: rgba(255, 77, 79, 0.2); 
+    transform: scale(1.1);
   }
 
-/* پنل ارجاعات اکنون از سمت راست باز می‌شود */
-/* ---------- پنل ارجاعات ---------- */
+
 .referral-panel {
   position: fixed;
   top: 0;
@@ -230,7 +228,7 @@
     right: 0;
   }
 
-/* ---------- هدر پنل ---------- */
+
 .panel-header {
   display: flex;
   justify-content: space-between;
@@ -255,7 +253,7 @@
     color: #000;
   }
 
-/* ---------- دکمه‌ها ---------- */
+
 .btn-add {
   display: inline-block;
   margin-bottom: 15px;
@@ -285,7 +283,7 @@
     background-color: #157347;
   }
 
-/* ---------- فرم ایجاد ارجاع ---------- */
+
 .create-form {
   background-color: #f8f9fa;
   padding: 15px;
@@ -325,27 +323,6 @@
     resize: vertical;
   }
 
-/* ---------- کارت‌های ارجاع ---------- */
-.referral-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.referral-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 12px;
-  background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
 
 .referral-panel {
   width: 450px;
@@ -362,25 +339,35 @@
   transition: right 0.3s;
   z-index: 1000;
   font-family: "IRANSans", sans-serif;
+  color: #000; 
 }
 
   .referral-panel.visible {
     right: 0;
   }
 
+
 .panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
+
+  .panel-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #000;
+  }
 
 .close-btn {
   background: transparent;
   border: none;
   font-size: 24px;
   cursor: pointer;
+  color: #000;
 }
+
 
 .btn-add {
   display: block;
@@ -396,6 +383,11 @@
   font-weight: bold;
 }
 
+  .btn-add:hover {
+    background-color: #0056b3;
+  }
+
+
 .create-form {
   background: #f9f9f9;
   padding: 15px;
@@ -410,14 +402,17 @@
     margin-bottom: 10px;
   }
 
-  .create-form .form-group {
-    margin-bottom: 10px;
+  .create-form h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #000;
   }
 
   .create-form label {
     display: block;
     margin-bottom: 4px;
     font-weight: bold;
+    color: #000;
   }
 
   .create-form input,
@@ -428,6 +423,9 @@
     border-radius: 4px;
     border: 1px solid #ccc;
     box-sizing: border-box;
+    font-size: 14px;
+    color: #000;
+    background: #fff;
   }
 
 .btn-submit {
@@ -441,6 +439,11 @@
   margin-top: 5px;
 }
 
+  .btn-submit:hover {
+    background-color: #1e7e34;
+  }
+
+
 .referral-cards {
   display: flex;
   flex-direction: column;
@@ -449,40 +452,45 @@
 
 .referral-card {
   border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 10px;
-  background: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  color: #000;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  color: #000;
+}
+
+.card-body p {
+  margin: 4px 0;
+  color: #000;
 }
 
 .card-actions {
-  margin-top: 5px;
   display: flex;
-  gap: 5px;
+  gap: 10px;
+  margin-top: 8px;
 }
 
-.referral-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-  .referral-table th,
-  .referral-table td {
-    border: 1px solid #ddd;
-    padding: 6px 10px;
-    text-align: center;
+  .card-actions button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: #007bff;
+    color: #fff;
   }
 
-  .referral-table tr.selected {
-    background-color: #eef6ff;
-  }
+    .card-actions button:hover {
+      background: #0056b3;
+    }
+
 
 .status-pending {
   color: #ffc107;
@@ -504,49 +512,7 @@
   font-weight: bold;
 }
 
-.card-body p {
-  margin: 4px 0;
-}
 
-.card-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-  .card-actions button {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-
-    .card-actions button:hover {
-      opacity: 0.9;
-    }
-
-/* ---------- وضعیت‌ها ---------- */
-.status-pending {
-  color: #ffc107;
-  font-weight: bold;
-}
-
-.status-accepted {
-  color: #0d6efd;
-  font-weight: bold;
-}
-
-.status-rejected {
-  color: #dc3545;
-  font-weight: bold;
-}
-
-.status-completed {
-  color: #198754;
-  font-weight: bold;
-}
-
-/* ---------- جدول ارجاعات ---------- */
 .referral-table {
   width: 100%;
   border-collapse: collapse;
@@ -559,6 +525,7 @@
     padding: 8px;
     text-align: center;
     font-size: 14px;
+    color: #000;
   }
 
   .referral-table th {
@@ -579,14 +546,15 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    margin: 2px;
+    background: #007bff;
+    color: #fff;
   }
 
     .referral-table button:hover {
-      opacity: 0.9;
+      background: #0056b3;
     }
 
-/* سایدبار پیام‌ها */
+
 .icon-dropdown {
   position: relative;
   display: inline-block;
@@ -611,7 +579,7 @@
     display: none;
     position: absolute;
     right: 0;
-    top: 100%; /* درست زیر آیکون */
+    top: 100%;
     width: 300px;
     max-height: 400px;
     overflow-y: auto;
@@ -629,7 +597,7 @@
 .message-item {
   padding: 10px;
   border-bottom: 1px solid #eee;
-  color: #000; /* متن مشکی شد */
+  color: #000; 
 }
 
   .message-item.unread {
@@ -669,7 +637,7 @@ select {
     margin-bottom: 4px;
     cursor: pointer;
   }
-/* ---------- Dropdown پیام‌ها ---------- */
+
 .icon-dropdown {
   position: relative;
   display: inline-block;
@@ -698,7 +666,6 @@ select {
     border-radius: 50%;
   }
 
-  /* محتوای dropdown */
   .icon-dropdown .dropdown-content {
     display: none;
     position: absolute;
@@ -713,16 +680,14 @@ select {
     padding: 10px;
     z-index: 1000;
     transition: all 0.3s ease;
-    color: #000; /* متن مشکی داخل dropdown */
+    color: #000; 
     font-family: "IRANSans", sans-serif;
   }
 
-    /* باز شدن dropdown */
     .icon-dropdown .dropdown-content.open {
       display: block;
     }
 
-/* ---------- پیام‌ها ---------- */
 .message-item {
   padding: 10px;
   border-bottom: 1px solid #eee;
@@ -740,7 +705,7 @@ select {
     font-weight: bold;
   }
 
-  /* زمان پیام */
+ 
   .message-item small {
     display: block;
     color: gray;
@@ -748,7 +713,7 @@ select {
     margin-top: 2px;
   }
 
-/* ---------- لیست کاربران با چک‌باکس ---------- */
+
 .dropdown-content .section {
   margin-top: 10px;
   border-top: 1px solid #ddd;
@@ -801,7 +766,7 @@ select {
     accent-color: #4c6ef5;
   }
 
-/* ---------- ارسال پیام جدید ---------- */
+
 .send-message {
   margin-top: 10px;
   display: flex;
@@ -830,7 +795,6 @@ select {
       background-color: #3b5bdb;
     }
 
-/* ---------- دکمه پاک کردن پیام‌ها ---------- */
 .clear-messages {
   margin-top: 8px;
   text-align: center;
@@ -849,7 +813,7 @@ select {
     .clear-messages button:hover {
       background-color: #c22525;
     }
-/* ---------- Dropdown پیام‌ها ---------- */
+
 .icon-dropdown {
   position: relative;
   display: inline-block;
@@ -887,7 +851,7 @@ select {
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   }
 
-  /* محتوای dropdown */
+
   .icon-dropdown .dropdown-content {
     display: none;
     position: absolute;
@@ -905,12 +869,12 @@ select {
     color: #000;
   }
 
-    /* باز شدن dropdown */
+   
     .icon-dropdown .dropdown-content.open {
       display: block;
     }
 
-/* ---------- پیام‌ها ---------- */
+
 .message-item {
   padding: 12px 14px;
   margin-bottom: 8px;
@@ -932,7 +896,7 @@ select {
     font-weight: 600;
   }
 
-  /* زمان پیام */
+
   .message-item small {
     display: block;
     color: #6c757d;
@@ -940,7 +904,7 @@ select {
     margin-top: 2px;
   }
 
-/* ---------- لیست کاربران با چک‌باکس ---------- */
+
 .dropdown-content .section {
   margin-top: 16px;
   padding: 10px 12px;
@@ -1003,7 +967,7 @@ select {
     cursor: pointer;
   }
 
-/* ---------- ارسال پیام جدید ---------- */
+
 .send-message {
   margin-top: 16px;
   display: flex;
@@ -1046,7 +1010,7 @@ select {
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-/* ---------- دکمه پاک کردن پیام‌ها ---------- */
+
 .clear-messages {
   margin-top: 14px;
   text-align: center;
@@ -1068,7 +1032,7 @@ select {
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-/* پیام‌ها */
+
 .message-item {
   display: flex;
   flex-direction: column;
@@ -1123,7 +1087,7 @@ select {
 .unread-dot {
   width: 14px;
   height: 14px;
-  background-color: #ff6b6b; /* رنگ برجسته */
+  background-color: #ff6b6b;
   border-radius: 50%;
   border: 2px solid #fff;
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
@@ -1152,7 +1116,7 @@ select {
   cursor: pointer;
 }
 
-/* پیام‌ها */
+
 .message-item {
   padding: 12px 14px;
   margin-bottom: 8px;
@@ -1173,7 +1137,7 @@ select {
   font-weight: 600;
 }
 
-/* بخش‌ها متمایز */
+
 .section {
   margin-bottom: 12px;
   padding: 10px;
@@ -1187,7 +1151,7 @@ select {
   font-size: 14px;
 }
 
-/* سایر استایل‌ها */
+
 .user-list label {
   display: flex;
   align-items: center;
@@ -1226,18 +1190,138 @@ select {
 .checkbox-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem; /* فاصله بین هر آیتم */
+  gap: 0.5rem; 
 }
 
   .checkbox-list label {
     display: flex;
-    align-items: center; /* هم‌تراز کردن چک‌باکس با متن */
-    gap: 0.5rem; /* فاصله بین چک‌باکس و متن */
+    align-items: center; 
+    gap: 0.5rem; 
   }
 
   .checkbox-list input[type="checkbox"] {
-    margin: 0; /* حذف margin پیش‌فرض */
-    vertical-align: middle; /* هم‌تراز کردن عمودی */
-    width: 16px; /* اندازه استاندارد چک‌باکس */
+    margin: 0; 
+    vertical-align: middle; 
+    width: 16px; 
     height: 16px;
+  }
+
+.profile-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  color: #000;
+  transition: color 0.2s;
+}
+
+  .profile-btn:hover {
+    color: #007bff;
+  }
+
+
+.caret {
+  margin-left: 5px;
+  font-size: 12px;
+}
+
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: #fff;
+  min-width: 220px;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15); 
+  z-index: 1000;
+  color: #000;
+  transition: all 0.2s ease-in-out;
+}
+
+
+  .dropdown-content.show {
+    display: block;
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  
+  .dropdown-content p {
+    margin: 5px 0;
+    font-size: 14px;
+  }
+
+
+
+.profile-info button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 8px;
+  font-size: 14px;
+  color: #000;
+  transition: color 0.2s, transform 0.15s;
+}
+
+  .profile-info button:hover {
+    color: #007bff;
+    transform: scale(1.05);
+  }
+
+
+.profile-info input {
+  padding: 6px 10px;
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+
+.password-actions {
+  display: flex;
+  gap: 6px;
+}
+
+  .password-actions button {
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background: none;
+    transition: all 0.2s;
+  }
+
+    .password-actions button.save {
+      color: green;
+    }
+
+    .password-actions button.cancel {
+      color: red;
+    }
+
+    .password-actions button:hover {
+      transform: scale(1.1);
+    }
+
+.profile-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  color: #fff; 
+  transition: color 0.2s;
+}
+
+  .profile-btn:hover {
+    color: #000; 
   }

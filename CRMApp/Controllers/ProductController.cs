@@ -1,6 +1,5 @@
 ﻿using CRMApp.Data;
 using CRMApp.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +13,6 @@ namespace CRMApp.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin,Manager")]
     public class ProductsController : ControllerBase
     {
         private readonly CRMAppDbContext _context;
@@ -27,18 +25,22 @@ namespace CRMApp.Controllers.Api
             return path;
         }
 
-        // -------------------- GET همه محصولات --------------------
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts([FromQuery] Guid? categoryId)
         {
-            var products = await _context.Products
+            var query = _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Images)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (categoryId.HasValue && categoryId != Guid.Empty)
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+
+            var products = await query.ToListAsync();
             return Ok(products);
         }
 
-        // -------------------- GET محصول خاص --------------------
+      
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(Guid id)
         {
@@ -51,7 +53,7 @@ namespace CRMApp.Controllers.Api
             return product;
         }
 
-        // -------------------- ایجاد محصول --------------------
+  
         [HttpPost]
         public async Task<ActionResult<Product>> CreateProduct([FromForm] ProductCreateDto dto)
         {
@@ -96,7 +98,7 @@ namespace CRMApp.Controllers.Api
             return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
         }
 
-        // -------------------- بروزرسانی محصول --------------------
+       
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(Guid id)
         {
@@ -112,7 +114,7 @@ namespace CRMApp.Controllers.Api
 
                 product.Name = form["Name"];
                 product.Description = form["Description"];
-                product.Price = decimal.TryParse(form["Price"], out var price) ? price : null;
+                product.Price = decimal.TryParse(form["Price"], out var price) ? price : product.Price;
                 product.StockQuantity = int.TryParse(form["StockQuantity"], out var stock) ? stock : product.StockQuantity;
                 product.IsActive = form["IsActive"] == "true";
 
@@ -120,7 +122,7 @@ namespace CRMApp.Controllers.Api
                 if (Guid.TryParse(form["CategoryId"], out Guid categoryId) && categoryId != Guid.Empty)
                     product.CategoryId = categoryId;
 
-                // مدیریت تصاویر موجود
+         
                 var existingImagesToKeep = form.ContainsKey("ExistingImagesToKeep")
                     ? form["ExistingImagesToKeep"].ToList()
                     : new List<string>();
@@ -141,7 +143,7 @@ namespace CRMApp.Controllers.Api
                     _context.ProductImages.Remove(img);
                 }
 
-                // اضافه کردن تصاویر جدید
+        
                 var files = form.Files;
                 if (files != null && files.Count > 0)
                 {
@@ -176,7 +178,7 @@ namespace CRMApp.Controllers.Api
             }
         }
 
-        // -------------------- حذف محصول --------------------
+    
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
@@ -185,6 +187,10 @@ namespace CRMApp.Controllers.Api
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null) return NotFound();
+
+            var usedInInvoices = await _context.InvoiceItems.AnyAsync(i => i.ProductId == id);
+            if (usedInInvoices)
+                return BadRequest("این محصول در فاکتور استفاده شده و نمی‌تواند حذف شود.");
 
             foreach (var img in product.Images)
             {
@@ -202,10 +208,10 @@ namespace CRMApp.Controllers.Api
     {
         public string Name { get; set; } = "";
         public string Description { get; set; } = "";
-        public decimal? Price { get; set; } = null;  // قیمت اختیاری
+        public decimal? Price { get; set; } = null;
         public int StockQuantity { get; set; }
         public bool IsActive { get; set; }
-        public ProductType Type { get; set; } = ProductType.Product; // نوع محصول/خدمت
+        public ProductType Type { get; set; } = ProductType.Product;
         public Guid CategoryId { get; set; }
         public List<IFormFile>? Images { get; set; }
     }

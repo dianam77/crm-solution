@@ -7,7 +7,7 @@ import { CompanyProfile } from '../models/CompanyProfile';
   providedIn: 'root'
 })
 export class CompanyProfileService {
-  private apiUrl = 'https://localhost:44386/api/companyprofile'; // تغییر بده به URL درست
+  private apiUrl = 'https://localhost:44386/api/companyprofile'; 
 
   constructor(private http: HttpClient) { }
 

@@ -30,5 +30,9 @@ export class CustomerInteractionService {
   delete(id: number | string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${encodeURIComponent(String(id))}`);
   }
-}
 
+
+  getProductsByCategory(categoryId: string): Observable<{ id: string, name: string }[]> {
+    return this.http.get<{ id: string, name: string }[]>(`${this.apiUrl}/by-category?categoryId=${categoryId}`);
+  }
+}

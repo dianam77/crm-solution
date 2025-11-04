@@ -30,8 +30,7 @@ export class CustomerCompanyListComponent implements OnInit {
   companies: CustomerCompany[] = [];
   individualCustomers: CustomerIndividual[] = [];
 
-  canEdit = false;
-  userRole: string | null = null;
+  permissions: string[] = [];
 
   showCompanyForm = false;
   isCompanyEditMode = false;
@@ -75,14 +74,14 @@ export class CustomerCompanyListComponent implements OnInit {
   constructor(
     private locationService: LocationService,
     private customerService: CustomerCompanyService,
-    private userService: UserService,
+    public userService: UserService,
     private individualCustomerService: CustomerIndividualService,
     private fb: FormBuilder
   ) {
     this.companyForm = this.fb.group({
       companyName: ['', Validators.required],
-      economicCode: [''], // ولیدیتور برداشته شد
-      registerNumber: [''], // ولیدیتور برداشته شد
+      economicCode: [''],
+      registerNumber: [''],
       emails: this.fb.array([this.createEmailGroup()]),
       contactPhones: this.fb.array([this.createPhoneGroup()]),
       addresses: this.fb.array([this.createAddressGroup()]),
@@ -91,38 +90,42 @@ export class CustomerCompanyListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.setUserRole();
+    this.loadPermissions();
     this.loadProvinces();
     this.loadCompanies();
     this.loadIndividualCustomers();
   }
 
-  private setUserRole() {
+  private loadPermissions() {
     const token = localStorage.getItem('jwtToken');
-    if (token) {
-      try {
-        const decoded: any = jwtDecode(token);
-        const roles = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-        this.userRole = Array.isArray(roles) ? roles[0] : roles;
-        this.canEdit = this.userRole === 'Admin' || this.userRole === 'Manager';
-      } catch {
-        this.canEdit = false;
-      }
+    if (!token) return;
+
+    try {
+      const decoded: any = jwtDecode(token);
+      const permsRaw = decoded['permissions'] || '[]';
+      this.permissions = JSON.parse(permsRaw).map((p: string) => p.toLowerCase());
+    } catch (err) {
+      console.error('JWT decode error:', err);
+      this.permissions = [];
     }
   }
 
-  // ======= Load Data =======
+  hasPermission(permission: string): boolean {
+    return this.permissions.includes(permission.toLowerCase());
+  }
+
+
+
   loadProvinces() { this.locationService.getProvinces().subscribe(d => this.provinces = d); }
+
   loadCompanies() {
     this.customerService.getAll().subscribe(companies => {
       this.companies = companies;
 
-      // جمع‌آوری تمام provinceId هایی که در آدرس‌ها هستند
       const provinceIds = Array.from(new Set(
         companies.flatMap(c => c.addresses?.map(a => a.provinceId).filter(pid => pid != null) || [])
       ));
 
-      // بارگذاری شهرهای هر استان
       provinceIds.forEach(provinceId => {
         if (provinceId != null && !this.citiesMap[provinceId]) {
           this.locationService.getCities(provinceId).subscribe(cities => {
@@ -135,7 +138,7 @@ export class CustomerCompanyListComponent implements OnInit {
 
   loadIndividualCustomers() { this.individualCustomerService.getAll().subscribe(d => this.individualCustomers = d); }
 
-  // ======= Form Arrays =======
+
   get companyEmails() { return this.companyForm.get('emails') as FormArray; }
   get companyPhones() { return this.companyForm.get('contactPhones') as FormArray; }
   get companyAddresses() { return this.companyForm.get('addresses') as FormArray; }
@@ -170,7 +173,7 @@ export class CustomerCompanyListComponent implements OnInit {
     relationType: [relation?.relationType || '', Validators.required]
   });
 
-  // ======= Province / City =======
+
   onCompanyProvinceChange(index: number) {
     const addressGroup = this.companyAddresses.at(index) as FormGroup;
     const provinceId = addressGroup.get('provinceId')?.value;
@@ -188,7 +191,7 @@ export class CustomerCompanyListComponent implements OnInit {
     }
   }
 
-  // ======= Add / Remove =======
+
   addCompanyEmail() { this.companyEmails.push(this.createEmailGroup()); }
   removeCompanyEmail(i: number) { if (this.companyEmails.length > 1) this.companyEmails.removeAt(i); }
 
@@ -201,7 +204,7 @@ export class CustomerCompanyListComponent implements OnInit {
   addCompanyRelation() { this.companyRelations.push(this.createRelationGroup()); }
   removeCompanyRelation(i: number) { if (this.companyRelations.length > 1) this.companyRelations.removeAt(i); }
 
-  // ======= Reset / Toggle Form =======
+
   resetForm() {
     this.companyForm.reset();
     this.companyEmails.clear();
@@ -219,8 +222,12 @@ export class CustomerCompanyListComponent implements OnInit {
     if (!this.showCompanyForm) this.resetForm();
   }
 
-  // ======= Edit =======
   editCompany(company: CustomerCompany) {
+    if (!this.hasPermission('customercompanyapi.updatecompany')) {
+      alert('شما اجازه ویرایش ندارید!');
+      return;
+    }
+
     this.isCompanyEditMode = true;
     this.editingCompanyId = company.customerId ?? null;
 
@@ -261,8 +268,17 @@ export class CustomerCompanyListComponent implements OnInit {
     this.showCompanyForm = true;
   }
 
-  // ======= Save =======
+
   saveCompany() {
+    if (!this.isCompanyEditMode && !this.hasPermission('customercompanyapi.createcompany')) {
+      alert('شما اجازه ایجاد شرکت ندارید!');
+      return;
+    }
+    if (this.isCompanyEditMode && !this.hasPermission('customercompanyapi.updatecompany')) {
+      alert('شما اجازه ویرایش شرکت ندارید!');
+      return;
+    }
+
     for (let addr of this.companyAddresses.controls) {
       const postalCode = addr.get('postalCode')?.value || '';
       if (postalCode.length > 10) {
@@ -310,8 +326,11 @@ export class CustomerCompanyListComponent implements OnInit {
     });
   }
 
-  // ======= Delete =======
   deleteCompany(companyId: number) {
+    if (!this.hasPermission('customercompanyapi.deletecompany')) {
+      alert('شما اجازه حذف شرکت ندارید!');
+      return;
+    }
     if (!confirm('آیا مطمئن هستید؟')) return;
     this.customerService.delete(companyId).subscribe(() => this.loadCompanies());
   }
@@ -328,5 +347,4 @@ export class CustomerCompanyListComponent implements OnInit {
     const city = cities.find(c => c.cityId === cityId);
     return city ? city.name : '-';
   }
-
 }

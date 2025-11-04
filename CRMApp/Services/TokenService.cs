@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace CRMApp.Services
 {
@@ -30,11 +31,16 @@ namespace CRMApp.Services
         {
             var finalRoles = roles.ToList();
 
-            // اگر نقش Admin هست، همه نقش‌ها را به توکن اضافه کن
             if (finalRoles.Contains("Admin"))
-            {
                 finalRoles = _context.Roles.Select(r => r.Name).ToList();
-            }
+
+            var permissions = _context.RolePermissions
+                                      .Where(rp => finalRoles.Contains(rp.Role.Name))
+                                      .Select(rp => rp.Permission.Name.ToLower())
+                                      .Distinct()
+                                      .ToList();
+
+            Console.WriteLine($"User: {user.UserName}, Permissions: {string.Join(",", permissions)}");
 
             var claims = new List<Claim>
             {
@@ -42,8 +48,9 @@ namespace CRMApp.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
 
-            // افزودن نقش‌ها به کلایم‌ها
             claims.AddRange(finalRoles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+            claims.Add(new Claim("permissions", JsonSerializer.Serialize(permissions)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

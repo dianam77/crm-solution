@@ -479,7 +479,9 @@ namespace CRMApp.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<int?>("DurationMinutes")
                         .HasColumnType("int");
@@ -517,7 +519,7 @@ namespace CRMApp.Migrations
                     b.ToTable("CustomerInteractions");
                 });
 
-            modelBuilder.Entity("CRMApp.Models.CustomerInteractionAttachment", b =>
+            modelBuilder.Entity("CRMApp.Models.CustomerInteractionCategory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -525,21 +527,44 @@ namespace CRMApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("CustomerInteractionId")
                         .HasColumnType("int");
 
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("CustomerInteractionId", "CategoryId")
+                        .IsUnique();
+
+                    b.ToTable("CustomerInteractionCategories");
+                });
+
+            modelBuilder.Entity("CRMApp.Models.CustomerInteractionProduct", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CustomerInteractionId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomerInteractionId");
+                    b.HasIndex("ProductId");
 
-                    b.ToTable("CustomerInteractionAttachments");
+                    b.HasIndex("CustomerInteractionId", "ProductId")
+                        .IsUnique();
+
+                    b.ToTable("CustomerInteractionProducts");
                 });
 
             modelBuilder.Entity("CRMApp.Models.Email", b =>
@@ -590,7 +615,9 @@ namespace CRMApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
@@ -738,6 +765,25 @@ namespace CRMApp.Migrations
                     b.ToTable("MainCompanies");
                 });
 
+            modelBuilder.Entity("CRMApp.Models.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions");
+                });
+
             modelBuilder.Entity("CRMApp.Models.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -748,7 +794,9 @@ namespace CRMApp.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -825,6 +873,75 @@ namespace CRMApp.Migrations
                     b.ToTable("Provinces");
                 });
 
+            modelBuilder.Entity("CRMApp.Models.RolePermission", b =>
+                {
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions");
+                });
+
+            modelBuilder.Entity("CRMApp.Models.SmtpSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("EnableSsl")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SenderEmail")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("SenderPassword")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("SmtpPort")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SmtpServer")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SmtpSettings");
+                });
+
             modelBuilder.Entity("CRMApp.Models.UserReferral", b =>
                 {
                     b.Property<int>("Id")
@@ -898,6 +1015,35 @@ namespace CRMApp.Migrations
                     b.HasIndex("MainCompanyId");
 
                     b.ToTable("CompanyWebsites");
+                });
+
+            modelBuilder.Entity("CustomerInteractionAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerInteractionId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OriginalName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerInteractionId");
+
+                    b.ToTable("CustomerInteractionAttachments");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -1152,15 +1298,42 @@ namespace CRMApp.Migrations
                     b.Navigation("IndividualCustomer");
                 });
 
-            modelBuilder.Entity("CRMApp.Models.CustomerInteractionAttachment", b =>
+            modelBuilder.Entity("CRMApp.Models.CustomerInteractionCategory", b =>
                 {
+                    b.HasOne("CRMApp.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("CRMApp.Models.CustomerInteraction", "CustomerInteraction")
-                        .WithMany("Attachments")
+                        .WithMany("InteractionCategories")
                         .HasForeignKey("CustomerInteractionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Category");
+
                     b.Navigation("CustomerInteraction");
+                });
+
+            modelBuilder.Entity("CRMApp.Models.CustomerInteractionProduct", b =>
+                {
+                    b.HasOne("CRMApp.Models.CustomerInteraction", "CustomerInteraction")
+                        .WithMany("InteractionProducts")
+                        .HasForeignKey("CustomerInteractionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CRMApp.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CustomerInteraction");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("CRMApp.Models.Email", b =>
@@ -1263,6 +1436,25 @@ namespace CRMApp.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("CRMApp.Models.RolePermission", b =>
+                {
+                    b.HasOne("CRMApp.Models.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CRMApp.Models.ApplicationRole", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("CRMApp.Models.UserReferral", b =>
                 {
                     b.HasOne("CRMApp.Models.ApplicationUser", "AssignedBy")
@@ -1312,6 +1504,17 @@ namespace CRMApp.Migrations
                     b.Navigation("MainCompany");
                 });
 
+            modelBuilder.Entity("CustomerInteractionAttachment", b =>
+                {
+                    b.HasOne("CRMApp.Models.CustomerInteraction", "CustomerInteraction")
+                        .WithMany("Attachments")
+                        .HasForeignKey("CustomerInteractionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CustomerInteraction");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("CRMApp.Models.ApplicationRole", null)
@@ -1350,6 +1553,8 @@ namespace CRMApp.Migrations
 
             modelBuilder.Entity("CRMApp.Models.ApplicationRole", b =>
                 {
+                    b.Navigation("RolePermissions");
+
                     b.Navigation("UserRoles");
                 });
 
@@ -1406,6 +1611,10 @@ namespace CRMApp.Migrations
             modelBuilder.Entity("CRMApp.Models.CustomerInteraction", b =>
                 {
                     b.Navigation("Attachments");
+
+                    b.Navigation("InteractionCategories");
+
+                    b.Navigation("InteractionProducts");
                 });
 
             modelBuilder.Entity("CRMApp.Models.Invoice", b =>
@@ -1424,6 +1633,11 @@ namespace CRMApp.Migrations
                     b.Navigation("Emails");
 
                     b.Navigation("Websites");
+                });
+
+            modelBuilder.Entity("CRMApp.Models.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("CRMApp.Models.Product", b =>

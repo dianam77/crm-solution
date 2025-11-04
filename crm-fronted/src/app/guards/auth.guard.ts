@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router, ActivatedRouteSnapshot } from '@angular/router';
-import { jwtDecode } from 'jwt-decode';
+import { AuthService } from '../services/auth.service';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminGuard implements CanActivate {
-  constructor(private router: Router) { }
+  constructor(private router: Router, private authService: AuthService) { }
 
   canActivate(route: ActivatedRouteSnapshot): boolean {
     const token = localStorage.getItem('jwtToken');
@@ -15,47 +16,34 @@ export class AdminGuard implements CanActivate {
       return false;
     }
 
-    try {
-      const decoded: any = jwtDecode(token);
-      const roles = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-      let userRole = '';
-      if (roles) {
-        userRole = Array.isArray(roles) ? roles[0] : roles;
-      }
+    const role = this.authService.getRole();
+    const permissions = this.authService.getPermissions(); 
 
-      const path = route.routeConfig?.path;
-
-      // مسیرهای مجاز برای مشاهده (view) و ویرایش (edit)
-      const rolePaths: { [key: string]: { view: string[], edit: string[] } } = {
-        'Admin': { view: ['*'], edit: ['*'] }, // Admin همه مسیرها
-        'Manager': {
-          view: ['users/manage', 'customer-individual', 'customer-company'],
-          edit: ['users/manage', 'customer-individual', 'customer-company']
-        },
-        'User': {
-          view: ['customer-individual', 'customer-company'],
-          edit: [] // User نمی‌تواند ویرایش یا حذف کند
-        }
-      };
-
-      const paths = rolePaths[userRole];
-      if (!paths) {
-        this.router.navigate(['/login']);
-        return false;
-      }
-
-      // فقط مسیرهای view اجازه داده شده
-      if (paths.view.includes('*') || (path && paths.view.includes(path))) {
-        return true;
-      }
-
-      // مسیر غیرمجاز
-      this.router.navigate(['/not-authorized']);
-      return false;
-
-    } catch (error) {
+    if (!role) {
       this.router.navigate(['/login']);
       return false;
     }
+
+    const path = route.routeConfig?.path || '';
+    const requiredPermission: string | null = route.data?.['permission'] || null;
+
+  
+    if (role === 'Admin') return true;
+
+
+    if (requiredPermission) {
+      if (!permissions.includes(requiredPermission.toLowerCase())) {
+        this.router.navigate(['/not-authorized']);
+        return false;
+      }
+    } else {
+
+      if (!permissions.includes(path.toLowerCase())) {
+        this.router.navigate(['/not-authorized']);
+        return false;
+      }
+    }
+
+    return true;
   }
 }

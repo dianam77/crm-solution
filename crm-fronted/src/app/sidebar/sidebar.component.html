@@ -1,29 +1,27 @@
-<ul>
-  <li *ngFor="let link of navLinks" class="nav-item">
+<nav class="sidebar">
 
-    <!-- فقط لینک بدون children -->
-    <a *ngIf="!link.children" [routerLink]="link.path" class="nav-link">
-      {{ link.label }}
-    </a>
+  <ul>
+    <li *ngFor="let link of navLinks">
+      <a *ngIf="!link.children" [routerLink]="link.path">
+        <i *ngIf="link.icon" class="icon-{{link.icon}}"></i>
+        {{ link.label }}
+      </a>
 
-    <!-- لینک با children -->
-    <div *ngIf="link.children" class="dropdown-label"
-         (click)="toggleDropdown(link)"
-         tabindex="0"
-         (keydown.enter)="toggleDropdown(link)"
-         (keydown.space)="$event.preventDefault(); toggleDropdown(link)"
-         [attr.aria-expanded]="link.showChildren"
-         role="button">
-      {{ link.label }}
-      <span class="arrow" [class.open]="link.showChildren">▼</span>
-    </div>
-
-    <!-- زیرمنو فقط اگر children وجود دارد -->
-    <ul *ngIf="link.children && link.showChildren" class="dropdown-menu">
-      <li *ngFor="let child of link.children">
-        <a [routerLink]="child.path">{{ child.label }}</a>
-      </li>
-    </ul>
-
-  </li>
-</ul>
+      <div *ngIf="link.children">
+        <div class="menu-header" (click)="toggleDropdown(link)">
+          <i *ngIf="link.icon" class="icon-{{link.icon}}"></i>
+          {{ link.label }}
+          <span class="arrow">{{ link.showChildren ? '▼' : '▶' }}</span>
+        </div>
+        <ul *ngIf="link.showChildren">
+          <li *ngFor="let child of link.children">
+            <a [routerLink]="child.path">
+              <i *ngIf="child.icon" class="icon-{{child.icon}}"></i>
+              {{ child.label }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+  </ul>
+</nav>

@@ -1,4 +1,4 @@
-// navbar.component.ts
+
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -31,12 +31,15 @@ export class NavbarComponent implements OnInit {
 
   currentUser?: User;
   users: User[] = [];
+  passwordEditMode = false;
+  passwordVisible = false;
+  newPassword = '';
 
   messages: ChatMessage[] = [];
   unreadCount = 0;
   newMessageContent = '';
   currentReceiverIds: string[] = [];
-
+  currentUserPermissions: string[] = []; 
   referrals: UserReferral[] = [];
   newReferral: CreateUserReferralDto & { status?: ReferralStatus } = {
     assignedById: '',
@@ -74,6 +77,7 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit(): void {
     this.setCurrentUser();
+    this.loadUserPermissions(); 
     this.loadUsers();
   }
 
@@ -82,12 +86,132 @@ export class NavbarComponent implements OnInit {
       ? this.userService.getUserNames()
       : this.userService.getUsers();
 
-    loader.subscribe(users => {
-      this.users = users.map(u => ({ ...u, id: u.id.toString(), email: '', role: u.role || '' }));
-      this.loadMessages();
-      this.loadReferrals();
-    }, error => console.error('خطا در دریافت کاربران:', error));
+    loader.subscribe(
+      users => {
+ 
+        this.users = users.map(u => ({
+          ...u,
+          id: u.id.toString(),
+          role: u.role || ''
+        }));
+
+    
+        if (this.currentUser) {
+          const matchedUser = this.users.find(u => u.id === this.currentUser!.id);
+          if (matchedUser) {
+            this.currentUser.email = matchedUser.email;
+          }
+        }
+
+        this.loadMessages();
+        this.loadReferrals();
+      },
+      error => console.error('خطا در دریافت کاربران:', error)
+    );
   }
+  startPasswordEdit() {
+    this.passwordEditMode = true;
+    this.newPassword = '';
+    this.passwordVisible = false;
+  }
+
+  cancelPasswordEdit() {
+    this.passwordEditMode = false;
+    this.newPassword = '';
+  }
+
+  isPasswordValid(): boolean {
+    return !!this.newPassword && /[A-Z]/.test(this.newPassword) && /[a-z]/.test(this.newPassword);
+  }
+
+
+  submitPasswordChange() {
+    if (!this.currentUser) return;
+
+    if (!this.isPasswordValid()) {
+      alert('رمز عبور باید حداقل یک حرف بزرگ و یک حرف کوچک داشته باشد.');
+      return;
+    }
+
+    const updatedUser = {
+      id: this.currentUser.id,
+      userName: this.currentUser.userName,
+      email: this.currentUser.email,
+      role: this.currentUser.role,
+      password: this.newPassword
+    };
+
+    this.userService.updateUser(updatedUser).subscribe({
+      next: () => {
+        alert('رمز عبور با موفقیت تغییر کرد.');
+        this.cancelPasswordEdit();
+      },
+      error: err => {
+        console.error('خطا در تغییر رمز عبور:', err);
+        alert('خطا در به‌روزرسانی رمز عبور');
+      }
+    });
+  }
+
+  setCurrentUser(): void {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) return;
+    try {
+      const decoded: any = jwtDecode(token);
+      const userRole = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+
+      this.currentUser = {
+        id: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
+        userName: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
+        email: '', 
+        role: Array.isArray(userRole) ? userRole[0] : userRole
+      };
+      this.newReferral.assignedById = this.currentUser.id;
+    } catch {
+      console.error('خطا در decode کردن توکن');
+    }
+  }
+
+ 
+  editMode = false;
+  editableUserName = '';
+  editableEmail = '';
+
+  
+  startEdit(): void {
+    this.editMode = true;
+    this.editableUserName = this.currentUser?.userName || '';
+    this.editableEmail = this.currentUser?.email || '';
+  }
+
+  
+  cancelEdit(): void {
+    this.editMode = false;
+  }
+
+
+  saveProfileChanges(): void {
+    if (!this.currentUser) return;
+
+    const updatedUser = {
+      ...this.currentUser,
+      userName: this.editableUserName.trim(),
+      email: this.editableEmail.trim()
+    };
+
+    this.userService.updateUser(updatedUser).subscribe({
+      next: () => {
+        alert('اطلاعات شما با موفقیت به‌روزرسانی شد.');
+        this.currentUser = updatedUser;
+        this.editMode = false;
+      },
+      error: err => {
+        console.error('خطا در به‌روزرسانی اطلاعات:', err);
+        alert('خطا در به‌روزرسانی اطلاعات');
+      }
+    });
+  }
+
 
   logout(): void { this.authService.logout(); this.router.navigate(['/login']); }
   toggleNavbar(): void { this.navbarCollapsed = !this.navbarCollapsed; }
@@ -99,7 +223,20 @@ export class NavbarComponent implements OnInit {
 
   loadMessages(): void {
     if (!this.currentUser) return;
-    this.chatService.getMessages().subscribe({
+
+
+    let messages$;
+    if (this.hasPermission('chatmessages.getall')) {
+      messages$ = this.chatService.getMessages(); 
+    } else if (this.hasPermission('chatmessages.getmy')) {
+      messages$ = this.chatService.getMyMessages(); 
+    } else {
+      this.messages = []; 
+      this.updateUnreadCount();
+      return;
+    }
+
+    messages$.subscribe({
       next: msgs => {
         this.messages = (msgs || []).map(m => ({
           ...m,
@@ -108,12 +245,41 @@ export class NavbarComponent implements OnInit {
           isReadByCurrentUser: m.isReadByCurrentUser ?? false,
           selected: false,
           isHiddenByCurrentUser: m.isHiddenByCurrentUser ?? false
-        })).filter(m => !m.isHiddenByCurrentUser)
+        }))
+          .filter(m => !m.isHiddenByCurrentUser)
           .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
         this.updateUnreadCount();
       },
       error: err => console.error('خطا در دریافت پیام‌ها:', err)
     });
+  }
+
+  private loadUserPermissions(): void {
+   
+    const token = localStorage.getItem('jwtToken');
+    if (!token) return;
+
+    try {
+      const decoded: any = jwtDecode(token);
+      this.currentUserPermissions = decoded['permissions'] || [];
+    } catch {
+      console.error('خطا در decode کردن توکن برای پرمیژن‌ها');
+    }
+  }
+
+  
+  hasPermission(permission: string): boolean {
+    return this.currentUserPermissions.includes(permission);
+  }
+ 
+  toggleFullscreen() {
+    const elem = document.documentElement;
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
   }
 
   sendMessage(): void {
@@ -201,7 +367,7 @@ export class NavbarComponent implements OnInit {
     this.isEditMode = true;
     this.editingReferralId = referral.id;
 
-    // تبدیل عددی اگر از API به صورت رشته یا عدد متفاوت آمده
+
     this.newReferral = {
       ...referral,
       priority: this.toEnumPriority(referral.priority)
@@ -210,9 +376,8 @@ export class NavbarComponent implements OnInit {
     this.showCreateForm = true;
   }
 
-  // متد کمکی برای تبدیل مقدار دریافتی به enum عددی
   private toEnumPriority(value: any): ReferralPriority {
-    if (typeof value === 'number') return value; // اگر قبلاً عدد بود
+    if (typeof value === 'number') return value; 
     switch (value) {
       case 'Low':
       case 0:
@@ -224,7 +389,7 @@ export class NavbarComponent implements OnInit {
       case 2:
         return ReferralPriority.High;
       default:
-        return ReferralPriority.Medium; // مقدار پیش‌فرض
+        return ReferralPriority.Medium; 
     }
   }
 
@@ -236,7 +401,7 @@ export class NavbarComponent implements OnInit {
     this.newReferral.assignedById = this.currentUser.id;
 
     if (this.isEditMode && this.editingReferralId) {
-      // حالت ویرایش
+      
       const payload = {
         ...this.newReferral,
         status: this.newReferral.status ?? ReferralStatus.Pending
@@ -249,7 +414,7 @@ export class NavbarComponent implements OnInit {
         error: () => alert('خطا در بروزرسانی ارجاع')
       });
     } else {
-      // حالت ایجاد جدید
+      
       const payload = {
         ...this.newReferral,
         status: this.newReferral.status ?? ReferralStatus.Pending
@@ -300,47 +465,44 @@ export class NavbarComponent implements OnInit {
     this.editingReferralId = undefined;
   }
 
-  setCurrentUser(): void {
-    const token = localStorage.getItem('jwtToken');
-    if (!token) return;
-    try {
-      const decoded: any = jwtDecode(token);
-      this.currentUser = {
-        id: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
-        userName: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'],
-        email: '',
-        role: decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
-      };
-      this.newReferral.assignedById = this.currentUser.id;
-    } catch { console.error('خطا در decode کردن توکن'); }
-  }
+ 
 
   loadReferrals(): void {
     if (!this.currentUser) return;
 
-    this.referralService.getAll().subscribe(data => {
-      if (!this.users.length) return;
+    let request$;
 
-      const mappedReferrals = (data || []).map(r => ({
-        ...r,
-        assignedById: r.assignedById?.toString() || '',
-        assignedToId: r.assignedToId?.toString() || '',
-        assignedByName: this.users.find(u => u.id.toString() === r.assignedById?.toString())?.userName || 'نامشخص',
-        assignedToName: this.users.find(u => u.id.toString() === r.assignedToId?.toString())?.userName || 'نامشخص'
-      }));
+    if (this.authService.hasPermission('UserReferral.GetAll')) {
+      request$ = this.referralService.getAllReferrals();
+    } else if (this.authService.hasPermission('UserReferral.GetMyReferrals')) {
+      request$ = this.referralService.getMyReferrals();
+    } else {
+      console.error('کاربر دسترسی مشاهده ارجاعات را ندارد');
+      return;
+    }
 
-      const currentUserId = this.currentUser!.id?.toString();
+    request$.subscribe({
+      next: data => {
+        if (!this.users.length) return;
 
-      if (this.currentUser!.role === 'Admin') {
-        // Admin همه ارجاعات را می‌بیند
-        this.referrals = mappedReferrals;
-      } else {
-        // کاربر معمولی فقط ارجاعاتی که فرستاده یا دریافت کرده را می‌بیند
-        this.referrals = mappedReferrals.filter(r =>
-          r.assignedById === currentUserId || r.assignedToId === currentUserId
-        );
-      }
-    }, err => console.error('خطا در دریافت ارجاعات:', err));
+        this.referrals = (data || []).map(r => ({
+          ...r,
+          assignedById: r.assignedById?.toString() || '',
+          assignedToId: r.assignedToId?.toString() || '',
+          assignedByName: this.users.find(u => u.id.toString() === r.assignedById?.toString())?.userName || 'نامشخص',
+          assignedToName: this.users.find(u => u.id.toString() === r.assignedToId?.toString())?.userName || 'نامشخص'
+        }));
+      },
+      error: err => console.error('خطا در دریافت ارجاعات:', err)
+    });
   }
+
+
+  profileDropdownOpen = false;
+
+  toggleProfileDropdown(): void {
+    this.profileDropdownOpen = !this.profileDropdownOpen;
+  }
+
 
 }

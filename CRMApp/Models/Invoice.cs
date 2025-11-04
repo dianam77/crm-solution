@@ -54,13 +54,13 @@ namespace CRMApp.Models
         public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();
         public ICollection<InvoiceAttachment> Attachments { get; set; } = new List<InvoiceAttachment>();
 
-        // مجموع قیمت‌ها بعد از تخفیف
+
         public decimal TotalAmountWithoutVAT => InvoiceItems?.Sum(i => i.PriceAfterDiscount) ?? 0;
 
-        // مجموع مبلغ ارزش افزوده
+
         public decimal TotalVATAmount => InvoiceItems?.Sum(i => i.VATAmount) ?? 0;
 
-        // مجموع قیمت نهایی = قیمت بعد از تخفیف + ارزش افزوده
+
         public decimal TotalAmount => InvoiceItems?.Sum(i => i.FinalPrice) ?? 0;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

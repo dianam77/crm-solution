@@ -1,137 +1,155 @@
+
 .sidebar {
-  width: 250px;
-  background-color: #fff;
-  height: calc(100vh - 60px); /* ارتفاع کل صفحه منهای ارتفاع navbar */
   position: fixed;
-  top: 60px; /* شروع زیر navbar */
-  left: 0;
+  top: 0;
+  right: 0; 
+  left: auto; 
+  width: 260px;
+  height: 100vh;
+  background-color: #ffffff;
+  border-left: 1px solid #e2e8f0; 
+  border-right: none;
+  box-shadow: -3px 0 15px rgba(0, 0, 0, 0.08); 
+  padding-top: 20px;
   overflow-y: auto;
+  direction: rtl; 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   z-index: 1000;
+  transition: width 0.3s ease;
 }
 
-/* Dropdown panel */
-.dropdown-panel {
-  position: relative; /* نسبت به والد خود */
-  background: #fafafa;
-  margin-left: 6px;
-  border-left: 2px solid #321fdb;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  z-index: 1002;
-  min-width: 200px;
-}
 
-/* اسکرول‌بار طوسی */
-.sidebar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-  background-color: #cfd8dc;
-  border-radius: 3px;
-}
-
-.sidebar::-webkit-scrollbar-track {
-  background: #f5f5f5;
-}
-
-/* Nav و ul */
-.sidebar nav {
-  flex: 1;
-}
-
-.sidebar ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* آیتم‌های منو */
-.nav-item {
-  list-style: none !important;
-  margin: 2px 0;
-}
-
-.nav-link,
-.dropdown-label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 18px;
-  color: #4f5d73;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-
-  .nav-link:hover,
-  .dropdown-label:hover {
-    list-style: none !important;
-    background-color: #f5f6f8;
-    color: #000;
+  .sidebar ul {
+    list-style: none;
+    margin: 0;
+    padding: 35px 0 0 0;
   }
 
-  .nav-link.active,
-  .dropdown-label.active {
-    list-style:none !important;
-    background-color: #321fdb;
-    color: #fff;
+  .sidebar li {
+    margin: 4px 0;
   }
 
-/* فلش باز و بسته شدن زیرمنو */
-.arrow {
-  font-size: 10px;
-  transition: transform 0.3s ease;
-  margin-left: auto;
-}
-
-  .arrow.open {
-    transform: rotate(180deg);
+  .sidebar a,
+  .sidebar .menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px 16px; 
+    font-size: 13px;
+    color: #333;
+    font-weight: 600;
+    border-radius: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.25s ease, background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
   }
 
-/* زیرمنو */
-/* ===============================
-   Sidebar Submenu - Dropdown Menu
-   =============================== */
-
-.dropdown-menu {
-  list-style: none; /* حذف بولت‌های پیش‌فرض */
-  margin: 0; /* حذف فاصله خارجی */
-  padding-left: 15px; /* فاصله داخلی از سمت چپ برای تو رفتگی */
-  display: block; /* مطمئن شدن از نمایش منو */
-}
-
-  .dropdown-menu li a {
-    display: block; /* لینک تمام عرض باشد */
-    padding: 10px 24px; /* فضای داخلی برای راحتی کلیک */
-    font-size: 13px; /* اندازه متن مناسب زیرمنو */
-    color: #4f5d73; /* رنگ متن */
-    text-decoration: none; /* حذف underline */
-    border-radius: 6px; /* گوشه‌های گرد */
-    transition: background 0.2s, color 0.2s; /* انیمیشن نرم برای hover */
-  }
-
-    .dropdown-menu li a:hover {
-      background-color: #f0f1f3; /* تغییر رنگ پس‌زمینه هنگام hover */
-      color: #000; /* تغییر رنگ متن هنگام hover */
+ 
+    .sidebar a::before,
+    .sidebar .menu-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: linear-gradient(90deg, #4f46e5, #6366f1);
+      transition: width 0.3s ease;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
     }
 
-/* دکمه خروج */
-.logout-btn {
-  margin: 12px 16px;
-  padding: 10px 16px;
-  background-color: #e55353;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
+    .sidebar a:hover::before,
+    .sidebar a.active::before,
+    .sidebar .menu-header:hover::before {
+      width: 100%;
+    }
 
-  .logout-btn:hover {
-    background-color: #cc4c4c;
+    
+    .sidebar a:hover,
+    .sidebar .menu-header:hover {
+      background-color: #f0f4ff;
+      color: #4f46e5;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .sidebar a.active {
+      background-color: #e0e7ff;
+      color: #4f46e5;
+      font-weight: 700;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
+
+
+    .sidebar a i,
+    .sidebar .menu-header i {
+      margin-left: 8px;
+      font-size: 16px;
+      color: #777;
+      transition: color 0.3s;
+    }
+
+    .sidebar a:hover i,
+    .sidebar a.active i {
+      color: #4f46e5;
+    }
+
+
+  .sidebar .arrow {
+    margin-right: auto;
+    font-size: 10px;
+    transition: transform 0.3s ease;
+    color: #888;
+  }
+
+    .sidebar .arrow.open {
+      transform: rotate(180deg);
+    }
+
+
+  .sidebar ul li ul {
+    margin: 5px 10px 5px 18px;
+    padding: 0;
+  }
+
+    .sidebar ul li ul li a {
+      display: block;
+      padding: 6px 20px; 
+      font-size: 12px; 
+      color: #555;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+      .sidebar ul li ul li a:hover {
+        background-color: #eef2ff;
+        color: #4f46e5;
+        font-weight: 600;
+        transform: translateX(2px);
+      }
+
+
+  .sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border-radius: 3px;
+  }
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: #999;
+    }
+
+
+  .sidebar a:not(.menu-header) {
+    padding-left: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
   }

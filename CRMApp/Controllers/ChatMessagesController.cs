@@ -23,9 +23,7 @@ namespace CRMApp.Controllers
             _context = context;
         }
 
-        // =============================
-        // 1. دریافت پیام‌ها
-        // =============================
+
         [HttpGet]
         public async Task<IActionResult> GetMessages([FromQuery] int? conversationId)
         {
@@ -41,7 +39,7 @@ namespace CRMApp.Controllers
                     .ThenInclude(r => r.User)
                 .AsQueryable();
 
-            // فیلتر بر اساس conversationId یا پیام‌های مربوط به کاربر
+   
             if (conversationId.HasValue && conversationId.Value > 0)
             {
                 query = query.Where(m => m.ConversationId == conversationId.Value);
@@ -53,7 +51,7 @@ namespace CRMApp.Controllers
                     m.Recipients.Any(r => r.UserId == userId));
             }
 
-            // فقط پیام‌هایی که برای این کاربر مخفی نشده‌اند
+ 
             query = query.Where(m => !m.Recipients.Any(r => r.UserId == userId && r.IsHidden));
 
             var messages = await query
@@ -82,10 +80,52 @@ namespace CRMApp.Controllers
 
             return Ok(messagesDto);
         }
+  
+        [HttpGet("my-messages")]
+        public async Task<IActionResult> GetMyMessages()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+                return Unauthorized("کاربر احراز هویت نشده است.");
 
-        // =============================
-        // 2. ارسال پیام
-        // =============================
+            var userId = Guid.Parse(userIdClaim);
+
+            var messages = await _context.ChatMessages
+                .Include(m => m.Sender)
+                .Include(m => m.Recipients)
+                    .ThenInclude(r => r.User)
+                .Where(m =>
+                    m.SenderId == userId ||
+                    m.Recipients.Any(r => r.UserId == userId))
+                .Where(m => !m.Recipients.Any(r => r.UserId == userId && r.IsHidden))
+                .OrderByDescending(m => m.CreatedAt)
+                .ToListAsync();
+
+            var messagesDto = messages.Select(m => new
+            {
+                m.Id,
+                m.SenderId,
+                SenderName = m.Sender.UserName,
+                ReceiverIds = m.Recipients.Select(r => r.UserId),
+                ReceiverNames = m.Recipients.Select(r => r.User.UserName),
+                m.Content,
+                m.CreatedAt,
+                m.ConversationId,
+                IsReadByCurrentUser = m.Recipients
+                    .Where(r => r.UserId == userId)
+                    .Select(r => r.IsRead)
+                    .FirstOrDefault(),
+                IsHiddenByCurrentUser = m.Recipients
+                    .Where(r => r.UserId == userId)
+                    .Select(r => r.IsHidden)
+                    .FirstOrDefault()
+            });
+
+            return Ok(messagesDto);
+        }
+
+
+
         [HttpPost]
         public async Task<IActionResult> SendMessage([FromBody] CreateChatMessageDto dto)
         {
@@ -103,7 +143,7 @@ namespace CRMApp.Controllers
             if (!receivers.Any())
                 return BadRequest("گیرنده‌ها معتبر نیستند.");
 
-            // بررسی و ایجاد مکالمه
+     
             ChatConversation conversation = null;
             if (dto.ConversationId > 0)
             {
@@ -138,7 +178,7 @@ namespace CRMApp.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            // اضافه کردن گیرندگان + فرستنده
+        
             var allRecipients = new List<Guid>(dto.ReceiverIds);
             allRecipients.Add(dto.SenderId);
 
@@ -151,7 +191,7 @@ namespace CRMApp.Controllers
                 Recipients = allRecipients.Distinct().Select(uid => new ChatMessageRecipient
                 {
                     UserId = uid,
-                    IsRead = uid == dto.SenderId, // فرستنده خودش پیام را خوانده
+                    IsRead = uid == dto.SenderId, 
                     IsHidden = false
                 }).ToList()
             };
@@ -159,7 +199,7 @@ namespace CRMApp.Controllers
             _context.ChatMessages.Add(message);
             await _context.SaveChangesAsync();
 
-            // بارگذاری اطلاعات برای خروجی
+  
             await _context.Entry(message).Reference(m => m.Sender).LoadAsync();
             await _context.Entry(message).Collection(m => m.Recipients).Query().Include(r => r.User).LoadAsync();
 
@@ -176,9 +216,7 @@ namespace CRMApp.Controllers
             });
         }
 
-        // =============================
-        // 3. تعداد پیام‌های خوانده نشده
-        // =============================
+  
         [HttpGet("unread-count")]
         public async Task<IActionResult> GetUnreadMessagesCount()
         {
@@ -195,9 +233,6 @@ namespace CRMApp.Controllers
             return Ok(new { unreadCount = count });
         }
 
-        // =============================
-        // 4. علامت‌گذاری پیام به عنوان خوانده شده
-        // =============================
         [HttpPut("{id}/read")]
         public async Task<IActionResult> MarkAsRead(int id)
         {
@@ -223,9 +258,6 @@ namespace CRMApp.Controllers
             });
         }
 
-        // =============================
-        // 5. مخفی کردن پیام برای کاربر فعلی
-        // =============================
         [HttpPut("{id}/hide")]
         public async Task<IActionResult> HideMessage(int id)
         {

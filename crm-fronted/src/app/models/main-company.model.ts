@@ -1,4 +1,4 @@
-// main-company.model.ts
+
 import { Email } from './email.model';
 import { Phone } from './phone.model';
 import { Address } from './address.model';

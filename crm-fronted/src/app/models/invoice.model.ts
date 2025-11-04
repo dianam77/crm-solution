@@ -7,6 +7,7 @@ export type InvoiceStatus = 'Draft' | 'Sent' | 'Paid' | 'Cancelled';
 
 export interface InvoiceItem {
   productId: string | null;
+  categoryId?: string | null; 
   quantity: number;
   unitPrice: number;
   discount?: number;
@@ -14,6 +15,7 @@ export interface InvoiceItem {
   vatAmount?: number;
   finalPrice?: number;
 }
+
 
 export interface InvoiceAttachment {
   id?: number;

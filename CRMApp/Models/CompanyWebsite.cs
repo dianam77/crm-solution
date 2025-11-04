@@ -8,6 +8,6 @@ public class CompanyWebsite
 
     public int MainCompanyId { get; set; }
 
-    [JsonIgnore] // ← این باعث می‌شود در POST/PUT ارسال نشود
+    [JsonIgnore] 
     public MainCompany? MainCompany { get; set; }
 }

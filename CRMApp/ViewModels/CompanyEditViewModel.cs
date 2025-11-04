@@ -20,10 +20,10 @@ namespace CRMApp.ViewModels
         public List<PhoneViewModel> ContactPhones { get; set; } = new();
         public List<AddressViewModel> Addresses { get; set; } = new();
 
-        // لیست مشتریان حقیقی برای dropdown
+ 
         public List<IndividualCustomer> IndividualCustomers { get; set; } = new();
 
-        // رابطه‌ها
+      
         public List<CustomerCompanyRelationViewModel> Relations { get; set; } = new();
     }
 

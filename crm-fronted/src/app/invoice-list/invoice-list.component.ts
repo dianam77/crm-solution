@@ -6,6 +6,7 @@ import moment from 'moment-jalaali';
 
 import { InvoiceService } from '../services/invoice.service';
 import { Invoice, InvoiceType } from '../models/invoice.model';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-invoice-list',
@@ -29,6 +30,24 @@ export class InvoiceListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadInvoices();
+  }
+  selectedInvoiceAttachments: any[] = [];
+  showAttachmentsModal = false;
+
+  openAttachmentsModal(invoice: any): void {
+    this.selectedInvoiceAttachments = invoice.attachments || [];
+    this.showAttachmentsModal = true;
+  }
+
+  closeAttachmentsModal(): void {
+    this.showAttachmentsModal = false;
+  }
+  getAttachmentUrl(filePath: string): string {
+    if (!filePath) return '#';
+
+
+    const baseUrl = 'https://localhost:5001'; 
+    return filePath.startsWith('http') ? filePath : `${baseUrl}/${filePath}`;
   }
 
   loadInvoices(): void {
@@ -117,28 +136,40 @@ export class InvoiceListComponent implements OnInit {
   }
 
 
-  // جمع VAT تمام آیتم‌ها
+
   getInvoiceTotalVAT(invoice: any): number {
     return invoice.invoiceItems?.reduce((sum: number, item: any) => sum + (item.vatAmount ?? 0), 0) ?? 0;
   }
 
-  // جمع نهایی تمام آیتم‌ها
+
   getInvoiceFinalTotal(invoice: any): number {
     return invoice.invoiceItems?.reduce((sum: number, item: any) => sum + (item.finalPrice ?? 0), 0) ?? 0;
   }
 
-  // تعداد روز اعتبار
+  
   getInvoiceValidityDays(invoice: any): string {
     return invoice.validityDays != null ? invoice.validityDays.toString() : '-';
   }
 
-  // نمایش پیوست‌ها
   getInvoiceAttachments(invoice: any): string {
     if (!invoice.attachments?.length) return '-';
     return invoice.attachments.map((a: any) => a.fileName).join(', ');
   }
+  hasPermission(permission: string): boolean {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) return false;
 
-  // چاپ یک فاکتور
+    try {
+      const decoded: any = jwtDecode(token);
+      const permsRaw = decoded['permissions'] || '[]';
+      const userPermissions: string[] = JSON.parse(permsRaw).map((p: string) => p.toLowerCase());
+      return userPermissions.includes(permission.toLowerCase());
+    } catch (err) {
+      console.error('JWT decode error:', err);
+      return false;
+    }
+  }
+  
   printInvoice(id: number): void {
     this.invoiceService.getInvoicePdf(id).subscribe({
       next: (res: Blob) => {
@@ -152,7 +183,7 @@ export class InvoiceListComponent implements OnInit {
       error: err => {
         console.error('خطا در دریافت PDF:', err);
 
-        // اگر پاسخ سرور شامل متن باشد، آن را بخوانید
+       
         if (err.error instanceof Blob && err.error.type === "text/plain") {
           const reader = new FileReader();
           reader.onload = () => {
@@ -178,6 +209,8 @@ export class InvoiceListComponent implements OnInit {
       default:
         return '-';
     }
+
+
   }
 
 

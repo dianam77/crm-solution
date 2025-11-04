@@ -4,6 +4,10 @@
           [options]="options"
           [type]="chartType">
   </canvas>
+
+  <div class="empty-message" *ngIf="showEmptyMessage">
+    هیچ محصول یا خدمتی موجود نیست
+  </div>
 </div>
 
 <ng-template #loadingTemplate>

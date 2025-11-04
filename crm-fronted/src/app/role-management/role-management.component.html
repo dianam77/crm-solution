@@ -1,0 +1,94 @@
+<div class="role-management">
+  <h2>مدیریت نقش‌ها</h2>
+
+
+  <button class="btn-create" *ngIf="isAdmin()" (click)="openModal()">ایجاد نقش جدید</button>
+
+  <table class="roles-table">
+    <thead>
+      <tr>
+        <th>شماره ردیف</th>
+        <th>نام نقش</th>
+        <th>تعداد دسترسی‌ها</th>
+        <th *ngIf="showOperationsColumn">عملیات</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let role of roles; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ role.name }}</td>
+        <td>{{ role.permissions.length || 0 }} دسترسی</td>
+        <td *ngIf="isAdmin() && !isAdminRole(role.id)">
+          <button class="btn-edit" (click)="openModal(role)">ویرایش</button>
+          <button class="btn-delete" (click)="deleteRole(role.id)">حذف</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <div *ngIf="showModal" class="modal-wrapper">
+    <div class="modal-backdrop" (click)="closeModal()"></div>
+    <div class="modal">
+      <div class="modal-fixed-header">
+        <h3>{{ selectedRoleId ? 'ویرایش نقش' : 'ایجاد نقش جدید' }}</h3>
+        <span class="close-button" (click)="closeModal()">×</span>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="saveRole()">
+          <label>
+            نام نقش
+            <input type="text" [(ngModel)]="newRoleName" name="roleName"
+                   [readonly]="selectedRoleId && isAdminRole(selectedRoleId)" required />
+          </label>
+          <br />
+          <br />
+          <label class="select-all-global">
+            <input type="checkbox" [checked]="isAllPermissionsSelected()"
+                   (change)="toggleSelectAllGlobal($event.target.checked)">
+            انتخاب همه دسترسی‌ها
+          </label>
+          <br />
+          <br />
+
+          <div *ngFor="let group of groupedPermissions" class="permission-group">
+            <div class="group-header" (click)="group.expanded = !group.expanded">
+              <span class="toggle-icon">{{ group.expanded ? '−' : '+' }}</span>
+              <h4>{{ controllerTranslations[group.controller] || group.controller }}</h4>
+            </div>
+
+            <div class="group-select-all" *ngIf="group.expanded">
+              <label>
+                <input type="checkbox" [checked]="isAllSelected(group)"
+                       (change)="toggleSelectAll(group, $event.target.checked)">
+                انتخاب همه دسترسی‌های این بخش
+              </label>
+            </div>
+
+            <ul class="permission-list" *ngIf="group.expanded">
+              <li *ngFor="let perm of group.actions">
+                <label>
+                  <input type="checkbox"
+                         [checked]="selectedPermissions.has(perm.id)"
+                         [disabled]="selectedRoleId && isAdminRole(selectedRoleId)"
+                         (change)="onPermissionToggle(perm.id)">
+                  {{ perm.displayName }}
+                </label>
+              </li>
+            </ul>
+          </div>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn-save"
+                    [disabled]="selectedRoleId && isAdminRole(selectedRoleId)">
+              {{ selectedRoleId ? 'ذخیره تغییرات' : 'ایجاد نقش' }}
+            </button>
+            <button type="button" class="btn-cancel" (click)="closeModal()">انصراف</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+

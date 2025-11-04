@@ -5,7 +5,7 @@ import { CustomerIndividual } from './customer-individual.model';
 
 export interface CustomerCompanyRelation {
   relationId?: number;
-  individualCustomerId?: number; // اختیاری شد
+  individualCustomerId?: number; 
   individualCustomer?: CustomerIndividual;
   relationType?: string;
   startDate?: string;

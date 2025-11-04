@@ -1,4 +1,4 @@
-// referral.model.ts
+
 export enum ReferralStatus {
   Pending = 'Pending',
   Accepted = 'Accepted',

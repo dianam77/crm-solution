@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CRMApp.Controllers.Api
+namespace CRMApp.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -31,12 +31,9 @@ namespace CRMApp.Controllers.Api
             _roleManager = roleManager;
         }
 
-        // --------------------------
-        // متد لیست کامل کاربران
-        // فقط برای Admin و Manager
-        // --------------------------
+
         [HttpGet]
-        [Authorize(Roles = "Admin,Manager")]
+  
         public async Task<IActionResult> GetUsers()
         {
             var users = await _context.Users.AsNoTracking().ToListAsync();
@@ -57,12 +54,8 @@ namespace CRMApp.Controllers.Api
             return Ok(usersWithRoles);
         }
 
-        // --------------------------
-        // متد لیست اسامی کاربران
-        // برای همه نقش‌ها (User، Admin، Manager)
-        // --------------------------
+ 
         [HttpGet("names")]
-        [Authorize(Roles = "User,Admin,Manager")]
         public async Task<IActionResult> GetUserNames()
         {
             var users = await _context.Users
@@ -73,12 +66,7 @@ namespace CRMApp.Controllers.Api
             return Ok(users);
         }
 
-        // --------------------------
-        // متد دریافت لیست نقش‌ها
-        // فقط Admin
-        // --------------------------
         [HttpGet("roles")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetRoles()
         {
             var roles = await _roleManager.Roles
@@ -88,28 +76,27 @@ namespace CRMApp.Controllers.Api
             return Ok(roles);
         }
 
-        // --------------------------
-        // ویرایش کاربر
-        // فقط برای Admin و Manager
-        // --------------------------
+
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> EditUser(Guid id, UserEditViewModel model)
         {
+
             if (id.ToString() != model.Id)
-                return BadRequest();
+                return BadRequest(new { message = "شناسه کاربر نامعتبر است." });
 
             var user = await _context.Users.FindAsync(id);
             if (user == null)
-                return NotFound();
+                return NotFound(new { message = "کاربر یافت نشد." });
 
+       
             user.UserName = model.UserName;
             user.Email = model.Email;
 
             var currentRoles = await _userManager.GetRolesAsync(user);
-            await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            if (currentRoles.Any())
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
 
-            if (!string.IsNullOrEmpty(model.Role))
+            if (!string.IsNullOrWhiteSpace(model.Role))
             {
                 if (!await _roleManager.RoleExistsAsync(model.Role))
                     await _roleManager.CreateAsync(new ApplicationRole { Name = model.Role });
@@ -117,24 +104,27 @@ namespace CRMApp.Controllers.Api
                 await _userManager.AddToRoleAsync(user, model.Role);
             }
 
+      
             if (!string.IsNullOrWhiteSpace(model.Password))
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var result = await _userManager.ResetPasswordAsync(user, token, model.Password);
+
                 if (!result.Succeeded)
-                    return BadRequest(result.Errors);
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    return BadRequest(new { message = errors });
+                }
             }
 
+
             await _context.SaveChangesAsync();
-            return NoContent();
+
+            return NoContent(); 
         }
 
-        // --------------------------
-        // حذف کاربر
-        // فقط برای Admin و Manager
-        // --------------------------
+     
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
             var user = await _context.Users.FindAsync(id);

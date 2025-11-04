@@ -1,11 +1,11 @@
 <div class="container">
 
-  <!-- دکمه ساخت محصول -->
+
   <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-    <button (click)="openProductModal()">+ ساخت محصول</button>
+    <button *ngIf="hasPermission('products.createproduct')" (click)="openProductModal()">+ ساخت محصول</button>
   </div>
 
-  <!-- لیست محصولات -->
+
   <h2 class="section-title">محصولات</h2>
   <div class="products-section" *ngIf="products.length; else noProducts">
     <div *ngFor="let product of products" class="product-card" (click)="openProductDetails(product)">
@@ -22,14 +22,17 @@
     <p>هیچ محصولی وجود ندارد.</p>
   </ng-template>
 
-  <!-- مودال ساخت/ویرایش محصول -->
+
   <div *ngIf="showProductModal" class="modal-overlay">
     <div class="modal-content">
       <button class="close-modal-btn" (click)="closeProductModal()">✖</button>
       <h3>{{ editingProductId ? 'ویرایش محصول' : 'ساخت محصول' }}</h3>
 
-      <form [formGroup]="productForm" (ngSubmit)="saveProduct()" class="product-form">
-        <!-- فیلدهای فرم مانند قبل -->
+      <form [formGroup]="productForm"
+            (ngSubmit)="saveProduct()"
+            class="product-form">
+
+   
         <label>
           نام محصول
           <input type="text" formControlName="name" placeholder="نام محصول">
@@ -66,12 +69,8 @@
           <label>
             <input type="radio" formControlName="type" value="Service" /> خدمت
           </label>
-
-
         </div>
 
-
-        <!-- تصاویر -->
         <div class="image-preview-container">
           <div *ngIf="existingImages.length">
             <h6>تصاویر موجود:</h6>
@@ -103,7 +102,10 @@
         </label>
 
         <div class="modal-buttons">
-          <button type="submit">{{ editingProductId ? 'ویرایش' : 'اضافه' }}</button>
+          <button type="submit"
+                  *ngIf="editingProductId ? hasPermission('products.updateproduct') : hasPermission('products.createproduct')">
+            {{ editingProductId ? 'ویرایش' : 'اضافه' }}
+          </button>
           <button type="button" (click)="closeProductModal()">لغو</button>
         </div>
 
@@ -111,7 +113,6 @@
     </div>
   </div>
 
-  <!-- مودال جزئیات محصول -->
   <div *ngIf="selectedProduct" class="modal-overlay">
     <div class="modal-content rtl-modal">
       <button class="close-modal-btn" (click)="closeProductDetails()">✖</button>
@@ -137,11 +138,11 @@
       </div>
 
       <div class="modal-actions">
-        <button class="action-btn edit-btn"
+        <button *ngIf="hasPermission('products.updateproduct')" class="action-btn edit-btn"
                 (click)="startEditProduct(selectedProduct); closeProductDetails()">
           ویرایش
         </button>
-        <button class="action-btn delete-btn"
+        <button *ngIf="hasPermission('products.deleteproduct')" class="action-btn delete-btn"
                 (click)="deleteProduct(selectedProduct.id); closeProductDetails()">
           حذف
         </button>

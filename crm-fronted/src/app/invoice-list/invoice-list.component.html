@@ -20,10 +20,14 @@
   </div>
 
   <div class="action-buttons">
-    <button class="create-btn" (click)="goToCreate()">افزودن فاکتور جدید</button>
+    <button class="create-btn"
+            *ngIf="hasPermission('invoice.create')"
+            (click)="goToCreate()">
+      افزودن فاکتور جدید
+    </button>
   </div>
 
-  <!-- جدول داخل کانتینر با اسکرول افقی -->
+
   <div class="table-wrapper">
     <table class="invoice-table">
       <thead>
@@ -38,10 +42,16 @@
           <th>مالیات ارزش افزوده (ریال)</th>
           <th>مبلغ کل با مالیات ارزش افزوده (ریال)</th>
           <th>پیوست‌ها</th>
-          <th>عملیات</th>
+
+       
+          <th *ngIf="hasPermission('invoice.update') || hasPermission('invoice.delete')">
+            عملیات
+          </th>
+
           <th>چاپ</th>
         </tr>
       </thead>
+
       <tbody>
         <tr *ngFor="let invoice of filteredInvoices">
           <td>{{ invoice.invoiceNumber }}</td>
@@ -53,15 +63,25 @@
           <td>{{ getInvoiceTotalAfterDiscount(invoice) | number:'1.0-0' }}</td>
           <td>{{ getInvoiceTotalVAT(invoice) | number:'1.0-0' }}</td>
           <td>{{ getInvoiceFinalTotal(invoice) | number:'1.0-0' }}</td>
+
           <td>
-            <span *ngFor="let att of invoice.attachments ?? []; let i = index">
-              <a [href]="att.fileUrl" target="_blank">{{ att.fileName }}</a><span *ngIf="i < (invoice.attachments?.length ?? 0) - 1">, </span>
-            </span>
+            <a class="attachment-icon" (click)="openAttachmentsModal(invoice)">
+              <i class="fas fa-paperclip"></i>
+            </a>
           </td>
-          <td>
-            <button (click)="goToEdit(invoice.id!)">ویرایش</button>
-            <button (click)="onDelete(invoice.id!)">حذف</button>
+
+
+
+       
+          <td *ngIf="hasPermission('invoice.update') || hasPermission('invoice.delete')">
+            <button *ngIf="hasPermission('invoice.update')" (click)="goToEdit(invoice.id!)">
+              ویرایش
+            </button>
+            <button *ngIf="hasPermission('invoice.delete')" (click)="onDelete(invoice.id!)">
+              حذف
+            </button>
           </td>
+
           <td>
             <button (click)="printInvoice(invoice.id!)">چاپ</button>
           </td>
@@ -74,5 +94,30 @@
     </table>
   </div>
 
-  <div *ngIf="loading" class="loading">در حال بارگذاری...</div>
-</div>
+
+  <div class="custom-modal" [class.show]="showAttachmentsModal">
+    <div class="modal-backdrop" (click)="closeAttachmentsModal()"></div>
+    <div class="custom-modal-dialog">
+      <div class="modal-fixed-header">
+        <h5>فایل‌های پیوست فاکتور</h5>
+        <button class="close-modal-btn" (click)="closeAttachmentsModal()">&times;</button>
+      </div>
+
+      <div class="custom-modal-body" dir="rtl">
+        <div *ngIf="selectedInvoiceAttachments?.length; else noFiles">
+          <ul>
+            <li *ngFor="let f of selectedInvoiceAttachments">
+              <a [href]="f.fileUrl || getAttachmentUrl(f.filePath)" target="_blank">
+                <i class="fas fa-file-alt"></i>
+                {{ f.originalName || f.fileName || f.filePath?.split('/').pop() }}
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <ng-template #noFiles>
+          <p>هیچ فایلی موجود نیست.</p>
+        </ng-template>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,93 @@
+<div *ngIf="formLoaded" class="card" dir="rtl">
+  <div class="card-body text-end">
+
+    <ng-container *ngIf="settings; else createButtonOnly">
+      <h5 class="card-title">{{ settings.displayName }}</h5>
+      <p class="card-text">
+        ایمیل: {{ settings.senderEmail }} <br>
+        سرور: {{ settings.smtpServer }}:{{ settings.smtpPort }} <br>
+        SSL: {{ settings.enableSsl ? 'فعال' : 'غیرفعال' }} <br>
+        وضعیت: {{ settings.isActive ? 'فعال' : 'غیرفعال' }}
+      </p>
+      <button class="btn btn-primary" (click)="openModal()">ویرایش تنظیمات</button>
+    </ng-container>
+
+  
+    <ng-template #createButtonOnly>
+      <button class="btn btn-success" (click)="openModal()">ایجاد تنظیمات</button>
+    </ng-template>
+  </div>
+</div>
+
+
+
+<div class="modal" tabindex="-1" [ngClass]="{'show d-block': showModal}" (click)="closeModal()">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <div class="modal-content" dir="rtl" *ngIf="showModal">
+      <div class="modal-header">
+        <h5 class="modal-title ms-auto">{{ settings ? 'ویرایش SMTP' : 'ایجاد SMTP' }}</h5>
+        <button type="button" class="close-modal-btn" (click)="closeModal()">✖</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="smtpForm" (ngSubmit)="saveSettings()">
+
+          <div class="mb-2">
+            <label>نام نمایشی:</label>
+            <input formControlName="displayName" class="form-control" placeholder="CRM System" />
+          </div>
+
+          <div class="mb-2">
+            <label>سرور SMTP:</label>
+            <input formControlName="smtpServer" class="form-control" placeholder="smtp.gmail.com" />
+          </div>
+
+          <div class="mb-2">
+            <label>پورت SMTP:</label>
+            <input type="number" formControlName="smtpPort" class="form-control" placeholder="587" />
+          </div>
+
+          <div class="mb-2">
+            <label>ایمیل فرستنده:</label>
+            <input type="email" formControlName="senderEmail" class="form-control" placeholder="noreply@crmapp.com" />
+          </div>
+
+          <div class="mb-2">
+            <label>App Password ایمیل:</label>
+            <input type="password"
+                   formControlName="senderPassword"
+                   class="form-control"
+                   placeholder="16 کاراکتر"
+                   minlength="16"
+                   maxlength="16" />
+            <div *ngIf="smtpForm.get('senderPassword')?.invalid && smtpForm.get('senderPassword')?.touched" class="text-danger">
+              رمز عبور باید دقیقاً 16 کاراکتر باشد.
+            </div>
+          </div>
+
+
+          <div class="form-check mb-2">
+            <input type="checkbox" formControlName="enableSsl" class="form-check-input" />
+            <label class="form-check-label">استفاده از SSL (پیش‌فرض فعال)</label>
+          </div>
+
+          <div class="form-check mb-3">
+            <input type="checkbox" formControlName="isActive" class="form-check-input" />
+            <label class="form-check-label">فعال (پیش‌فرض فعال)</label>
+          </div>
+
+          <div class="text-end">
+            <button type="submit" class="btn btn-success">
+              {{ settings ? 'ذخیره تغییرات' : 'ایجاد' }}
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">انصراف</button>
+          </div>
+
+        </form>
+      </div>
+
+  
+    </div>
+  </div>
+</div>
+
+

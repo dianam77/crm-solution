@@ -1,18 +1,15 @@
 ﻿using CRMApp.Data;
 using CRMApp.DTOs;
 using CRMApp.Models;
+using CRMApp.Services;
+using CRMApp.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CRMApp.Controllers
@@ -25,42 +22,49 @@ namespace CRMApp.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _config;
+        private readonly TokenService _tokenService;
+        private readonly IEmailService _emailService;
 
         public HomeController(
             CRMAppDbContext dbContext,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration config)
+            IConfiguration config,
+            TokenService tokenService,
+            IEmailService emailService)
         {
             _dbContext = dbContext;
             _userManager = userManager;
             _signInManager = signInManager;
             _config = config;
+            _tokenService = tokenService;
+            _emailService = emailService;
         }
 
-        // POST: api/home/login
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto model)
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
             if (!ModelState.IsValid)
-                return BadRequest("اطلاعات ورودی نامعتبر است");
+                return BadRequest(new { message = "اطلاعات ورودی نامعتبر است" });
 
             var user = await _userManager.FindByNameAsync(model.Username);
             if (user == null)
-                return Unauthorized("نام کاربری یا رمز عبور اشتباه است");
+                return Unauthorized(new { message = "نام کاربری یا رمز عبور اشتباه است" });
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
             if (!result.Succeeded)
-                return Unauthorized("نام کاربری یا رمز عبور اشتباه است");
+                return Unauthorized(new { message = "نام کاربری یا رمز عبور اشتباه است" });
 
             var roles = await _userManager.GetRolesAsync(user);
-            var token = GenerateJwtToken(user, roles);
+            var token = _tokenService.GenerateToken(user, roles);
 
             return Ok(new { token });
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto model)
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "اطلاعات ورودی نامعتبر است" });
@@ -86,45 +90,96 @@ namespace CRMApp.Controllers
             }
 
             await _userManager.AddToRoleAsync(user, role.Name);
-
             return Ok(new { message = "ثبت‌نام با موفقیت انجام شد" });
         }
 
-
-        // GET: api/home/dashboard
+ 
         [HttpGet("dashboard")]
         [Authorize]
         public IActionResult Dashboard()
         {
-            return Ok(new { message = "به داشبورد خوش آمدید" });
+            var username = User.Identity?.Name;
+            var roles = User.Claims
+                .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
+                .Select(c => c.Value)
+                .ToList();
+
+            return Ok(new { message = $"خوش آمدی {username}", roles });
         }
 
-        // متد تولید JWT شامل نقش‌ها
-        private string GenerateJwtToken(ApplicationUser user, IEnumerable<string> roles)
+       
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-            };
+            if (string.IsNullOrWhiteSpace(dto?.Email))
+                return BadRequest(new { message = "لطفاً ایمیل خود را وارد کنید." });
 
-            foreach (var role in roles)
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role));
+                
+                return Ok(new { message = "در صورت معتبر بودن ایمیل، دستورالعمل بازیابی رمز عبور ارسال خواهد شد." });
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var frontendUrl = "http://localhost:4200/reset-password";
+            var resetLink = $"{frontendUrl}?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(user.Email)}";
 
-            var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
-                signingCredentials: creds
-            );
+          
+            var smtpSettings = await _dbContext.SmtpSettings.FirstOrDefaultAsync(s => s.IsActive);
+            if (smtpSettings == null || string.IsNullOrWhiteSpace(smtpSettings.SenderEmail))
+            {
+                return StatusCode(503, new { message = "تنظیمات ایمیل هنوز توسط مدیر سیستم انجام نشده است." });
+            }
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            try
+            {
+                var body = $@"
+                    <p>برای بازیابی رمز عبور خود روی لینک زیر کلیک کنید:</p>
+                    <p><a href='{resetLink}'>بازیابی رمز عبور</a></p>
+                    <p>اگر این درخواست از طرف شما نبوده، این ایمیل را نادیده بگیرید.</p>";
+
+                await _emailService.SendAsync(
+                    user.Email,
+                    "بازیابی رمز عبور",
+                    body,
+                    smtpSettings
+                );
+            }
+            catch (Exception exEmail)
+            {
+                Console.WriteLine("SMTP error: " + exEmail.Message);
+                return StatusCode(500, new { message = "ارسال ایمیل موفق نبود. لطفاً بعداً تلاش کنید." });
+            }
+
+            return Ok(new { message = "در صورت معتبر بودن ایمیل، دستورالعمل بازیابی رمز عبور ارسال خواهد شد." });
+        }
+
+        
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Email) ||
+                string.IsNullOrWhiteSpace(dto.Token) ||
+                string.IsNullOrWhiteSpace(dto.NewPassword))
+            {
+                return BadRequest(new { message = "اطلاعات ناقص است" });
+            }
+
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+                return BadRequest(new { message = "کاربر یافت نشد" });
+
+            var result = await _userManager.ResetPasswordAsync(user, dto.Token, dto.NewPassword);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                return BadRequest(new { message = errors });
+            }
+
+            return Ok(new { message = "رمز عبور با موفقیت تغییر کرد" });
         }
     }
 }

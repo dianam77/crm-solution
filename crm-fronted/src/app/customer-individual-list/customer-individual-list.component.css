@@ -1,4 +1,4 @@
-/* ================== عمومی ================== */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -10,7 +10,7 @@ html, body {
   background-color: #f4f6f9;
   color: #333;
   line-height: 1.6;
-  direction: rtl; /* راست‌چین */
+  direction: rtl; 
 }
 
 .container {
@@ -31,8 +31,8 @@ html, body {
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: center;
-  direction: rtl; /* متن داخل دکمه راست‌چین */
-  float: right; /* خود دکمه سمت راست */
+  direction: rtl; 
+  float: right; 
 }
 
   .btn.btn-primary:hover {
@@ -40,7 +40,7 @@ html, body {
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
   }
 
-/* ================== جدول ================== */
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -69,7 +69,7 @@ html, body {
   .table th,
   .table td {
     padding: 12px 16px;
-    text-align: right; /* راست‌چین */
+    text-align: right; 
     border-bottom: 1px solid #eee;
     font-weight: 500;
     font-size: 0.95rem;
@@ -79,7 +79,7 @@ html, body {
 
   .table tbody tr:hover {
     background: #e3f2fd;
-    transform: translateX(-5px); /* جهت راست به چپ */
+    transform: translateX(-5px); 
     transition: background-color 0.3s ease, transform 0.3s ease;
   }
 
@@ -89,9 +89,9 @@ html, body {
     list-style: none;
   }
 
-/* ================== دکمه‌ها ================== */
+
 button {
-  margin: 4px 0 4px 8px; /* فاصله از چپ تغییر کرد */
+  margin: 4px 0 4px 8px;
   padding: 8px 18px;
   border-radius: 10px;
   border: 1.5px solid transparent;
@@ -116,7 +116,7 @@ button {
     transform: translateY(-2px);
   }
 
-  /* دکمه ثانویه */
+
   button.secondary {
     background: #f0f0f0;
     color: #555;
@@ -130,7 +130,7 @@ button {
       color: #333;
     }
 
-/* ================== فرم افزودن مشتری ================== */
+
 .add-customer-form {
   margin-top: 20px;
   padding: 18px;
@@ -141,7 +141,7 @@ button {
   box-shadow: 0 2px 10px rgba(66, 165, 245, 0.1);
   font-weight: 500;
   color: #1a237e;
-  direction: rtl; /* راست‌چین */
+  direction: rtl; 
 }
 
   .add-customer-form label {
@@ -175,7 +175,7 @@ button {
       outline: none;
     }
 
-/* ردیف‌های فرم */
+
 .field-row {
   display: flex;
   flex-wrap: wrap;
@@ -193,12 +193,12 @@ button {
   flex-direction: row-reverse;
 }
 
-/* ردیف آدرس */
+
 .address-row input {
   width: calc(20% - 16px);
 }
 
-/* دکمه‌های افزودن فیلد داخل فرم */
+
 .add-customer-form button[type="button"] {
   margin-top: 6px;
   background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
@@ -217,15 +217,14 @@ button {
     transform: translateY(-2px);
   }
 
-/* متن خطا */
+
 .error {
   color: #d32f2f;
   font-size: 0.9rem;
   font-weight: 600;
 }
 
-/* ================== مودال و بک‌دراپ ================== */
-/* ================== مودال و بک‌دراپ ================== */
+
 .modal-wrapper {
   position: fixed;
   inset: 0;
@@ -247,7 +246,7 @@ button {
   top: 0;
   background: #f1f5f9;
   z-index: 10;
-  padding: 15px 20px; /* فاصله داخلی هدر */
+  padding: 15px 20px; 
   border-bottom: 1px solid #ddd;
   text-align: center;
   border-top-left-radius: 20px;
@@ -261,13 +260,13 @@ button {
     line-height: 1.8rem;
   }
 
-/* بخش محتوای اسکرول شونده */
+
 .modal-body {
-  padding: 20px; /* فاصله داخلی برای محتوا */
+  padding: 20px; 
   overflow-y: auto;
-  max-height: calc(90vh - 80px); /* کسر ارتفاع هدر */
-  margin: 0; /* حذف فاصله اضافی */
-  border-top: none; /* اطمینان از نداشتن مرز جداکننده اضافی */
+  max-height: calc(90vh - 80px); 
+  margin: 0; 
+  border-top: none; 
 }
 
 modal-body[_ngcontent-ng-c955662907] {
@@ -277,7 +276,6 @@ modal-body[_ngcontent-ng-c955662907] {
   max-height: calc(90vh - 70px);
 }
 
-/* دکمه بستن */
 .close-button {
   position: absolute;
   top: 15px;
@@ -316,26 +314,36 @@ modal-body[_ngcontent-ng-c955662907] {
     font-weight: 700;
   }
 
- .modal-close-btn {
-  font-size: 22px;
+.close-modal-btn {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: #e74c3c;
+  color: #fff;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
   font-weight: bold;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  color: #e74c3c;
-  background: none;
+  transition: all 0.2s;
   border: none;
-  padding: 0 5px;
-  transition: color 0.2s ease;
+  z-index: 20;
 }
 
-  .modal-close-btn:hover {
-    color: #c0392b;
+ .close-modal-btn:hover {
+    background: #c0392b;
+    transform: scale(1.1);
   }
-/* فرم داخل مودال */
+
 .modal form {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  direction: rtl; /* راست‌چین */
+  direction: rtl;
 }
 
   .modal form label {
@@ -354,13 +362,13 @@ modal-body[_ngcontent-ng-c955662907] {
     border: 1px solid #ccc;
     font-size: 14px;
     width: 100%;
-    direction: rtl; /* راست‌چین */
+    direction: rtl; 
     text-align: right;
   }
 
-/* دکمه‌های مودال */
+
 .modal button {
-  align-self: flex-start; /* دکمه‌ها سمت راست در RTL */
+  align-self: flex-start; 
   padding: 10px 18px;
   border-radius: 10px;
   border: none;
@@ -376,10 +384,10 @@ modal-body[_ngcontent-ng-c955662907] {
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
   }
 
-/* محتوای مودال که زیر هدر اسکرول شود */
+
 .modal-body {
-  margin-top: 70px; /* فاصله به اندازه هدر */
+  margin-top: 70px; 
   padding: 20px;
   overflow-y: auto;
-  max-height: calc(90vh - 70px); /* برای جلوگیری از بیرون زدن اسکرول */
+  max-height: calc(90vh - 70px); 
 }

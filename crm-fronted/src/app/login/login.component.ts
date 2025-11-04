@@ -15,16 +15,28 @@ export class LoginComponent {
   username = '';
   password = '';
   errorMessage = '';
+  passwordVisible = false;
 
   constructor(private authService: AuthService, private router: Router) { }
 
   onSubmit() {
     console.log('Login data sending:', { Username: this.username, Password: this.password });
 
+    localStorage.removeItem('jwtToken');
+
     this.authService.login(this.username, this.password).subscribe({
-      next: (res) => {
-        console.log('Token received:', res.token);
+      next: (res: any) => {
+        if (!res.token) {
+          console.error('Token not received from server');
+          this.errorMessage = 'خطا در دریافت توکن';
+          return;
+        }
+
+   
         localStorage.setItem('jwtToken', res.token);
+        console.log('New token saved in localStorage:', localStorage.getItem('jwtToken'));
+
+      
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
@@ -32,5 +44,12 @@ export class LoginComponent {
         this.errorMessage = 'نام کاربری یا رمز عبور اشتباه است';
       }
     });
+
   }
+
+  onForgotPassword() {
+    this.router.navigate(['/forgot-password']);
+  }
+
+
 }

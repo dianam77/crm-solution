@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CategoryService } from '../services/category.service';
 import { Category } from '../models/category.model';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-category-management',
@@ -51,6 +52,21 @@ export class CategoryManagementComponent implements OnInit {
     this.editingCategoryId = category.id;
     this.categoryForm.patchValue({ name: category.name });
     this.showCategoryModal = true;
+  }
+  hasPermission(permission: string): boolean {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) return false;
+
+    try {
+      const decoded: any = jwtDecode(token);
+
+      const permsRaw = decoded['permissions'] || '[]';
+      const userPermissions: string[] = JSON.parse(permsRaw).map((p: string) => p.toLowerCase());
+      return userPermissions.includes(permission.toLowerCase());
+    } catch (err) {
+      console.error('JWT decode error:', err);
+      return false;
+    }
   }
 
   saveCategory() {

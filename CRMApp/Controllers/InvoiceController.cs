@@ -14,7 +14,6 @@ namespace CRMApp.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin,Manager,User")]
     public class InvoiceController : ControllerBase
     {
         private readonly CRMAppDbContext _context;
@@ -81,7 +80,7 @@ namespace CRMApp.Controllers
                 CreatedByUserId = userId,
             };
 
-            // دریافت آیتم‌ها و مقداردهی ستون‌های واقعی
+         
             var items = JsonSerializer.Deserialize<List<InvoiceItem>>(dto.ItemsJson ?? "[]") ?? new List<InvoiceItem>();
             if (items.Any())
             {
@@ -97,7 +96,7 @@ namespace CRMApp.Controllers
 
                 foreach (var item in items)
                 {
-                    // مقداردهی ستون‌های واقعی قبل از ذخیره
+                   
                     item.PriceAfterDiscount = (item.Quantity * item.UnitPrice) - item.Discount;
                     item.FinalPrice = item.PriceAfterDiscount + item.VATAmount;
 
@@ -105,7 +104,7 @@ namespace CRMApp.Controllers
                 }
             }
 
-            // مدیریت فایل‌ها
+      
             var uploadPath = Path.Combine(GetRootPath(), "uploads");
             if (!Directory.Exists(uploadPath))
                 Directory.CreateDirectory(uploadPath);
@@ -126,7 +125,7 @@ namespace CRMApp.Controllers
                     invoice.Attachments.Add(new InvoiceAttachment
                     {
                         FileName = file.FileName,
-                        FilePath = $"/uploads/{fileName}"   // مسیر ذخیره در سرور
+                        FilePath = $"/uploads/{fileName}"   
                     });
                 }
             
@@ -151,10 +150,9 @@ namespace CRMApp.Controllers
 
             if (invoice == null) return NotFound();
 
-            // فیلدهای اصلی
             invoice.InvoiceNumber = dto.InvoiceNumber;
             invoice.InvoiceType = dto.InvoiceType;
-            invoice.Status = dto.Status; // ← اضافه شد
+            invoice.Status = dto.Status; 
             invoice.IssueDate = dto.IssueDate;
             invoice.ValidityDays = dto.ValidityDays ?? 0;
             invoice.CustomerIndividualId = dto.CustomerIndividualId;
@@ -162,7 +160,7 @@ namespace CRMApp.Controllers
             invoice.Notes = dto.Notes;
             invoice.UpdatedAt = DateTime.UtcNow;
 
-            // پاک‌کردن آیتم‌های قبلی و اضافه کردن جدید
+           
             invoice.InvoiceItems.Clear();
             var newItems = JsonSerializer.Deserialize<List<InvoiceItem>>(dto.ItemsJson ?? "[]") ?? new List<InvoiceItem>();
             foreach (var item in newItems)
@@ -172,7 +170,6 @@ namespace CRMApp.Controllers
                 invoice.InvoiceItems.Add(item);
             }
 
-            // مدیریت فایل‌ها
             var uploadPath = Path.Combine(_env.WebRootPath ?? "wwwroot", "uploads");
             if (!Directory.Exists(uploadPath)) Directory.CreateDirectory(uploadPath);
             invoice.Attachments ??= new List<InvoiceAttachment>();
@@ -300,10 +297,10 @@ namespace CRMApp.Controllers
                     ? string.Join("، ", mainCompany.Websites.Select(w => w.Url))
                     : "-";
 
-                // ===== اضافه کردن فیلدهای مورد نیاز PDF =====
+       
                 if (mainCompany.Addresses.Any())
                 {
-                    var addr = mainCompany.Addresses.First(); // یا هر آدرس مناسب
+                    var addr = mainCompany.Addresses.First(); 
                     sellerInfo.Province = addr.Province?.Name ?? "-";
                     sellerInfo.City = addr.City?.Name ?? "-";
                     sellerInfo.PostalCode = addr.PostalCode ?? "-";
@@ -314,7 +311,7 @@ namespace CRMApp.Controllers
             return sellerInfo;
         }
 
-        // ---------- حالا در GetInvoicePdf می‌توانید استفاده کنید ----------
+       
         [HttpGet("{id:int}/pdf")]
         public async Task<IActionResult> GetInvoicePdf(int id)
         {
@@ -345,9 +342,7 @@ namespace CRMApp.Controllers
                     item.Product ??= new Product { Name = "-" };
 
                 var customerInfo = new DTOs.InvoicePrintCustomerInfo();
-                // ... پر کردن customerInfo همانند قبل ...
-
-                // ----------- استفاده از متد جدید برای فروشنده -----------
+      
                 var sellerInfo = await GetSellerInfoAsync();
 
                 var pdfGenerator = new InvoicePdfGenerator(invoice, customerInfo, sellerInfo);

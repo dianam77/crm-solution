@@ -1,26 +1,27 @@
-<!-- دکمه نمایش فرم -->
-<button type="button" (click)="toggleForm()" class="btn btn-primary" *ngIf="canEdit && companies.length === 0">
-  {{ isEditMode ? 'ویرایش شرکت' : 'ثبت شرکت پایه' }}
+
+<button type="button" (click)="toggleForm()" class="btn btn-primary"
+        *ngIf="companies.length === 0 && hasPermission('maincompany.create')">
+  ثبت شرکت پایه
 </button>
 
 <br />
 <br />
 <br />
 
-<!-- فرم modal -->
-<div *ngIf="showForm" class="modal-wrapper">
+
+<div *ngIf="showForm && (hasPermission('maincompany.create') || hasPermission('maincompany.update'))" class="modal-wrapper">
   <div class="modal-backdrop" (click)="toggleForm()"></div>
 
   <div class="modal">
     <div class="modal-fixed-header">
-      <span class="close-button" (click)="toggleForm()">×</span>
+      <span class="close-modal-btn"(click)="toggleForm()">×</span>
       <h3>{{ isEditMode ? 'ویرایش شرکت' : 'فرم ساخت شرکت جدید' }}</h3>
     </div>
 
     <div class="modal-body">
       <form [formGroup]="companyForm" (ngSubmit)="saveCompany()" class="add-customer-form" novalidate>
 
-        <!-- نام شرکت -->
+   
         <div class="field-row">
           <label for="companyName">نام شرکت:</label>
           <input id="companyName" type="text" formControlName="companyName" />
@@ -29,13 +30,12 @@
           </div>
         </div>
 
-        <!-- کد اقتصادی -->
         <div class="field-row">
           <label for="economicCode">کد اقتصادی:</label>
           <input id="economicCode" type="text" maxlength="12" formControlName="economicCode" />
         </div>
 
-        <!-- شماره ثبت -->
+       
         <div class="field-row">
           <label for="registrationNumber">شماره ثبت:</label>
           <input id="registrationNumber" type="text" formControlName="registrationNumber" />
@@ -43,7 +43,7 @@
 
         <hr />
 
-        <!-- ایمیل‌ها -->
+      
         <div formArrayName="emails">
           <label>ایمیل‌ها:</label>
           <div *ngFor="let email of companyEmails.controls; let i = index" [formGroupName]="i" class="email-block field-row">
@@ -63,7 +63,6 @@
 
         <hr />
 
-        <!-- تلفن‌ها -->
         <div formArrayName="contactPhones">
           <label>تلفن‌ها:</label>
           <div *ngFor="let phone of companyPhones.controls; let i = index" [formGroupName]="i" class="phone-block field-row">
@@ -80,7 +79,7 @@
 
         <hr />
 
-        <!-- آدرس‌ها -->
+       
         <div formArrayName="addresses">
           <label>آدرس‌ها:</label>
           <div *ngFor="let address of companyAddresses.controls; let i = index" [formGroupName]="i">
@@ -101,7 +100,7 @@
 
         <hr />
 
-        <!-- وب‌سایت‌ها -->
+
         <div formArrayName="websites">
           <label>وب‌سایت‌ها:</label>
           <div *ngFor="let website of companyWebsites.controls; let i = index" [formGroupName]="i" class="website-block field-row">
@@ -113,17 +112,18 @@
 
         <hr />
 
-        <!-- دکمه‌ها -->
-        <button type="submit">{{ isEditMode ? 'ویرایش شرکت' : 'ثبت شرکت جدید' }}</button>
+        <button *ngIf="hasPermission(isEditMode ? 'maincompany.update' : 'maincompany.create')" type="submit">
+          {{ isEditMode ? 'ویرایش شرکت' : 'ثبت شرکت جدید' }}
+        </button>
         <button type="button" class="secondary" (click)="toggleForm()">انصراف</button>
       </form>
     </div>
   </div>
 </div>
 
-<hr />
 
-<!-- نمایش شرکت‌ها -->
+
+
 <div *ngFor="let company of companies" class="company-card">
   <h3>{{ company.companyName }}</h3>
 
@@ -169,6 +169,11 @@
   </ul>
 
   <div class="company-actions">
-    <button class="btn btn-primary" type="button" (click)="editCompany(company)">ویرایش</button>
+    <button *ngIf="hasPermission('maincompany.update')"
+            class="btn btn-primary"
+            type="button"
+            (click)="editCompany(company)">
+      ویرایش
+    </button>
   </div>
 </div>

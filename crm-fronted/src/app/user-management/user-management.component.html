@@ -1,33 +1,37 @@
 <table class="table table-bordered table-striped rtl-table">
   <thead>
     <tr>
-      <th>شماره ردیف</th> <!-- ستون شماره ردیف اضافه شد -->
+      <th>شماره ردیف</th>
       <th>نام کاربری</th>
       <th>ایمیل</th>
       <th>نقش</th>
-      <th>عملیات</th>
-      <th>تغییر پسورد</th>
+      <th *ngIf="hasPermission('users.edituser') || hasPermission('users.deleteuser')">عملیات</th>
+      <th *ngIf="hasPermission('users.edituser')">تغییر پسورد</th>
     </tr>
   </thead>
   <tbody>
     <ng-container *ngIf="users && users.length > 0; else noUsers">
       <ng-container *ngFor="let user of users; let i = index">
         <tr>
-          <td>{{ i + 1 }}</td> <!-- شماره ردیف خودکار -->
+          <td>{{ i + 1 }}</td>
           <td>{{ user.userName }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.role || 'تعریف نشده' }}</td>
-          <td>
-            <button (click)="startEdit(user)">ویرایش</button>
-            <button *ngIf="currentRole === 'Admin'" (click)="deleteUser(user.id)">حذف</button>
+
+      
+          <td *ngIf="hasPermission('users.edituser') || hasPermission('users.deleteuser')">
+            <button *ngIf="hasPermission('users.edituser')" (click)="startEdit(user)">ویرایش</button>
+            <button *ngIf="hasPermission('users.deleteuser')" (click)="deleteUser(user.id)">حذف</button>
           </td>
-          <td>
+
+       
+          <td *ngIf="hasPermission('users.edituser')">
             <button (click)="startPasswordEdit(user)">تغییر پسورد</button>
           </td>
         </tr>
 
-        <!-- فرم ویرایش -->
-        <tr *ngIf="editingUserId === user.id">
+       
+        <tr *ngIf="editingUserId === user.id && hasPermission('users.edituser')">
           <td colspan="6" style="background: #f9f9f9; padding: 10px;">
             <form (ngSubmit)="saveEdit(user.id)">
               <input [(ngModel)]="editCache.userName" name="userName" placeholder="نام کاربری" required />
@@ -41,60 +45,61 @@
           </td>
         </tr>
 
-        <!-- فرم تغییر پسورد -->
-        <tr *ngIf="passwordEditUserId === user.id">
-          <td colspan="6" style="background: #eef; padding: 10px;">
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-              <label style="font-size: 14px;">رمز عبور جدید:</label>
-              <div style="position: relative;">
-                <input [(ngModel)]="editCache.password"
-                       [type]="passwordVisible ? 'text' : 'password'"
-                       name="password"
-                       placeholder="رمز عبور جدید"
-                       style="padding: 6px 30px 6px 6px; font-size: 14px; width: 200px;" />
-                <span style="position: absolute; top: 50%; right: 6px; transform: translateY(-50%);">
-                  <ng-container *ngIf="passwordVisible; else eyeOff">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="#555"
-                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         (click)="passwordVisible = false" style="cursor: pointer;">
-                      <path d="M1 9s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z" />
-                      <circle cx="9" cy="9" r="2" />
-                    </svg>
-                  </ng-container>
-                  <ng-template #eyeOff>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="#555"
-                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         (click)="passwordVisible = true" style="cursor: pointer;">
-                      <path d="M17.94 17.94 1.06 1.06" />
-                      <path d="M10.58 10.58A2 2 0 0 1 8.41 8.41" />
-                      <path d="M9 5c3.31 0 6.13 2.09 7.5 5-0.27 0.6-0.62 1.16-1.04 1.66" />
-                      <path d="M6.36 6.36C5.04 7.15 3.93 8.42 3 10c1.37 2.91 4.19 5 7.5 5 1.5 0 2.92-0.43 4.11-1.17" />
-                    </svg>
-                  </ng-template>
-                </span>
-              </div>
-              <div style="display: flex; gap: 6px;">
-                <button type="button" (click)="submitPasswordChange(user.id)">ذخیره</button>
-                <button type="button" (click)="cancelPasswordChange()">انصراف</button>
-              </div>
-            </div>
-            <div style="margin-top: 8px;">
-              <div *ngIf="passwordHasNoUppercase()" style="color:red;">
-                رمز عبور باید حداقل یک حرف بزرگ داشته باشد.
-              </div>
-              <div *ngIf="passwordHasNoLowercase()" style="color:red;">
-                رمز عبور باید حداقل یک حرف کوچک داشته باشد.
-              </div>
-            </div>
-          </td>
-        </tr>
+      
+
+<tr *ngIf="passwordEditUserId === user.id">
+  <td colspan="6" style="background: #eef; padding: 10px;">
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <label style="font-size: 14px;">رمز عبور جدید:</label>
+      <div style="position: relative;">
+        <input [(ngModel)]="editCache.password"
+               [type]="passwordVisible ? 'text' : 'password'"
+               name="password"
+               placeholder="رمز عبور جدید"
+               style="padding: 6px 30px 6px 6px; font-size: 14px; width: 200px;" />
+        <span style="position: absolute; top: 50%; right: 6px; transform: translateY(-50%);">
+          <ng-container *ngIf="passwordVisible; else eyeOff">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="#555"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 (click)="passwordVisible = false" style="cursor: pointer;">
+              <path d="M1 9s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5z" />
+              <circle cx="9" cy="9" r="2" />
+            </svg>
+          </ng-container>
+          <ng-template #eyeOff>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="#555"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 (click)="passwordVisible = true" style="cursor: pointer;">
+              <path d="M17.94 17.94 1.06 1.06" />
+              <path d="M10.58 10.58A2 2 0 0 1 8.41 8.41" />
+              <path d="M9 5c3.31 0 6.13 2.09 7.5 5-0.27 0.6-0.62 1.16-1.04 1.66" />
+              <path d="M6.36 6.36C5.04 7.15 3.93 8.42 3 10c1.37 2.91 4.19 5 7.5 5 1.5 0 2.92-0.43 4.11-1.17" />
+            </svg>
+          </ng-template>
+        </span>
+      </div>
+      <div style="display: flex; gap: 6px;">
+        <button type="button" (click)="submitPasswordChange(user.id)">ذخیره</button>
+        <button type="button" (click)="cancelPasswordChange()">انصراف</button>
+      </div>
+    </div>
+    <div style="margin-top: 8px;">
+      <div *ngIf="passwordHasNoUppercase()" style="color:red;">
+        رمز عبور باید حداقل یک حرف بزرگ داشته باشد.
+      </div>
+      <div *ngIf="passwordHasNoLowercase()" style="color:red;">
+        رمز عبور باید حداقل یک حرف کوچک داشته باشد.
+      </div>
+    </div>
+  </td>
+</tr>
       </ng-container>
     </ng-container>
 
-    <ng-template #noUsers>
-      <tr>
-        <td colspan="6" class="text-center">کاربری یافت نشد.</td>
-      </tr>
-    </ng-template>
+<ng-template #noUsers>
+  <tr>
+    <td colspan="6" class="text-center">کاربری یافت نشد.</td>
+  </tr>
+</ng-template>
   </tbody>
 </table>

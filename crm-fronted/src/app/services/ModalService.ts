@@ -1,4 +1,4 @@
-// modal.service.ts
+
 import { Injectable, TemplateRef } from '@angular/core';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { ComponentPortal, TemplatePortal } from '@angular/cdk/portal';

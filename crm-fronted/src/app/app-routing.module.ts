@@ -2,35 +2,54 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { MainLayoutComponent } from './layouts/main-layout.component';
-import { AdminGuard } from './guards/auth.guard';
+import { PermissionGuard } from './guards/permission.guard';
 
 export const routes: Routes = [
+
   { path: '', redirectTo: 'login', pathMatch: 'full' },
+
   { path: 'login', component: LoginComponent },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
+  },
+
+ 
   {
     path: '',
     component: MainLayoutComponent,
     children: [
-      {
-        path: 'register',
-        canActivate: [AdminGuard],
-        loadComponent: () =>
-          import('./register/register.component').then(m => m.RegisterComponent),
-      },
+   
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+
       {
         path: 'dashboard',
         loadComponent: () =>
           import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
       },
       {
-        path: 'users/manage',
-        canActivate: [AdminGuard],
+        path: 'register',
+        canActivate: [PermissionGuard],
         loadComponent: () =>
-          import('./user-management/user-management.component').then(m => m.UserManagementComponent),
+          import('./register/register.component').then(m => m.RegisterComponent),
+      },
+      {
+        path: 'users/manage',
+        canActivate: [PermissionGuard],
+        loadComponent: () =>
+          import('./user-management/user-management.component').then(
+            m => m.UserManagementComponent
+          ),
       },
       {
         path: 'customer-individual',
-        canActivate: [AdminGuard],
+        canActivate: [PermissionGuard],
         loadComponent: () =>
           import('./customer-individual-list/customer-individual-list.component').then(
             m => m.CustomerIndividualListComponent
@@ -38,7 +57,7 @@ export const routes: Routes = [
       },
       {
         path: 'customer-company',
-        canActivate: [AdminGuard],
+        canActivate: [PermissionGuard],
         loadComponent: () =>
           import('./customer-company-list/customer-company-list.component').then(
             m => m.CustomerCompanyListComponent
@@ -46,16 +65,15 @@ export const routes: Routes = [
       },
       {
         path: 'customer-interaction',
-        canActivate: [AdminGuard],
+        canActivate: [PermissionGuard],
         loadComponent: () =>
           import('./customer-interaction/customer-interaction.component').then(
             m => m.CustomerInteractionComponent
           ),
       },
-      // ---------- مدیریت محصولات و دسته‌بندی‌ها ----------
       {
         path: 'products/manage',
-        canActivate: [AdminGuard],
+        canActivate: [PermissionGuard],
         loadComponent: () =>
           import('./product-management/product-management.component').then(
             m => m.ProductManagementComponent
@@ -63,16 +81,15 @@ export const routes: Routes = [
       },
       {
         path: 'categories/manage',
-        canActivate: [AdminGuard],
+        canActivate: [PermissionGuard],
         loadComponent: () =>
           import('./category-management/category-management.component').then(
             m => m.CategoryManagementComponent
           ),
       },
-      // ---------- فاکتورها و پیش‌فاکتورها ----------
       {
         path: 'invoices',
-        canActivate: [AdminGuard],
+        canActivate: [PermissionGuard],
         children: [
           {
             path: '',
@@ -88,21 +105,35 @@ export const routes: Routes = [
             path: 'edit/:id',
             loadComponent: () =>
               import('./invoice-form/invoice-form.component').then(m => m.InvoiceFormComponent),
-          }
-        ]
-      }
-      ,
+          },
+        ],
+      },
+      {
+        path: 'roles/manage',
+        canActivate: [PermissionGuard],
+        loadComponent: () =>
+          import('./role-management/role-management.component').then(
+            m => m.RoleManagementComponent
+          ),
+      },
       {
         path: 'main-company',
-        canActivate: [AdminGuard],
+        canActivate: [PermissionGuard],
         loadComponent: () =>
           import('./main-company/main-company.component').then(m => m.MainCompanyComponent),
       },
-
-
+      {
+        path: 'smtp-settings',
+        canActivate: [PermissionGuard],
+        loadComponent: () =>
+          import('./smtp-settings/smtp-settings.component').then(
+            m => m.SmtpSettingsComponent
+          ),
+      }
 
     ],
   },
+
   { path: '**', redirectTo: 'login' },
 ];
 

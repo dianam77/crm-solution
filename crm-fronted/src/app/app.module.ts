@@ -17,7 +17,6 @@ import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
 import { CustomerInteractionComponent } from './customer-interaction/customer-interaction.component';
 import { CustomerIndividualListComponent } from './customer-individual-list/customer-individual-list.component';
-import { CustomerIndividualFormComponent } from './customer-individual-list/customer-individual-form/customer-individual-form.component';
 
 @NgModule({
   declarations: [
@@ -25,8 +24,7 @@ import { CustomerIndividualFormComponent } from './customer-individual-list/cust
     LoginComponent,
     MainLayoutComponent,
     CustomerInteractionComponent,
-    CustomerIndividualListComponent,
-    CustomerIndividualFormComponent
+    CustomerIndividualListComponent
   ],
   imports: [
     BrowserModule,

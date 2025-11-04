@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ProductService } from '../services/product.service';
 import { CategoryService } from '../services/category.service';
 import { Product, ProductType } from '../models/product.model';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-product-management',
@@ -25,7 +26,8 @@ export class ProductManagementComponent implements OnInit {
   currentImages: File[] = [];
   existingImages: string[] = [];
   currentImagePreviews: string[] = [];
-
+  userPermissions: string[] = [];
+  permissions: string[] = [];
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
@@ -35,6 +37,7 @@ export class ProductManagementComponent implements OnInit {
   ngOnInit(): void {
     this.loadProducts();
     this.loadCategories();
+    this.loadUserPermissions();
     this.initForm();
   }
 
@@ -46,11 +49,34 @@ export class ProductManagementComponent implements OnInit {
       stockQuantity: [0, Validators.required],
       isActive: [true],
       categoryId: ['', Validators.required],
-      type: ['Product', Validators.required] // پیش‌فرض Product
+      type: ['Product', Validators.required] 
     });
   }
 
-  // تابع کمکی برای اطمینان از مقدار صحیح ProductType
+
+
+
+  loadUserPermissions() {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) return;
+
+    try {
+      const decoded: any = jwtDecode(token);
+      const permsRaw = decoded['permissions'] || '[]';
+      this.permissions = JSON.parse(permsRaw).map((p: string) => p.toLowerCase());
+      console.log('User Permissions:', this.permissions);
+    } catch (err) {
+      console.error('JWT decode error:', err);
+      this.permissions = [];
+    }
+  }
+
+
+  hasPermission(permission: string): boolean {
+    return this.permissions.includes(permission.toLowerCase());
+  }
+
+
   private normalizeProductType(type: string | number | undefined): ProductType {
     if (type === 'Service' || type === 'service' || type === 1) return 'Service';
     return 'Product';
@@ -121,7 +147,25 @@ export class ProductManagementComponent implements OnInit {
   }
 
   saveProduct() {
-    if (!this.productForm.valid) return;
+    if (!this.productForm.valid) {
+ 
+      const invalidFields = Object.keys(this.productForm.controls)
+        .filter(key => this.productForm.controls[key].invalid);
+
+      const fieldNames = invalidFields.map(f => {
+        switch (f) {
+          case 'name': return 'نام محصول';
+          case 'price': return 'قیمت';
+          case 'stockQuantity': return 'تعداد موجودی';
+          case 'categoryId': return 'دسته‌بندی';
+          case 'type': return 'نوع محصول';
+          default: return f;
+        }
+      });
+
+      alert('فیلدهای زیر باید تکمیل شوند:\n' + fieldNames.join('\n'));
+      return;
+    }
 
     const value = this.productForm.value;
     const formData = new FormData();
@@ -151,7 +195,7 @@ export class ProductManagementComponent implements OnInit {
           stockQuantity: 0,
           isActive: true,
           categoryId: '',
-          type: ''
+          type: 'Product'
         });
         this.currentImages = [];
         this.currentImagePreviews = [];
@@ -166,20 +210,39 @@ export class ProductManagementComponent implements OnInit {
     });
   }
 
+
   deleteProduct(id: string) {
+    const product = this.products.find(p => p.id === id);
+    if (!product) return;
+
+    if (product.invoiceCount && product.invoiceCount > 0) {
+      alert('این محصول در فاکتور استفاده شده و نمی‌تواند حذف شود.');
+      return;
+    }
+
     if (!confirm('آیا مطمئن هستید؟')) return;
-    this.productService.deleteProduct(id).subscribe(() => {
-      this.products = this.products.filter(p => p.id !== id);
+
+    this.productService.deleteProduct(id).subscribe({
+      next: () => {
+        this.products = this.products.filter(p => p.id !== id);
+      },
+      error: (err) => {
+        if (err.status === 400) {
+          alert(err.error); 
+        } else {
+          alert('خطا در حذف محصول');
+        }
+      }
     });
   }
+
 
   openProductDetails(product: Product) {
     this.productService.getProductById(product.id).subscribe(res => {
 
-      // نرمال کردن type به شکل ProductType
+ 
       res.type = this.normalizeProductType(res.type);
 
-      // آماده کردن تصاویر
       res.images = res.images?.map(img => ({
         ...img,
         imageUrl: img.imageUrl?.startsWith('http') ? img.imageUrl : 'https://localhost:44386/' + img.imageUrl
@@ -251,4 +314,5 @@ export class ProductManagementComponent implements OnInit {
     if (!type) return '';
     return type === 'Service' ? 'خدمت' : 'محصول';
   }
+
 }

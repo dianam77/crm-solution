@@ -4,19 +4,19 @@
   margin-top: 20px;
 }
 
-/* نیمه چپ برای مشتریان */
+
 .left-panel {
-  flex: 1; /* نیمه صفحه */
+  flex: 1; 
   max-width: 50%;
 }
 
-/* نیمه راست برای بخش بعدی */
+
 .right-panel {
   flex: 1;
   max-width: 50%;
 }
 
-/* استایل placeholder برای تست */
+
 .placeholder {
   background-color: #f0f0f0;
   border-radius: 12px;

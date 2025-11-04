@@ -5,7 +5,7 @@ namespace CRMApp.ViewModels
     public class CustomerInteractionUpdateDto
     {
         [Required(ErrorMessage = "نوع تعامل الزامی است")]
-        public int InteractionType { get; set; }  // حتماً عدد ارسال شود
+        public int InteractionType { get; set; }  
 
         public long? IndividualCustomerId { get; set; }
         public long? CompanyCustomerId { get; set; }

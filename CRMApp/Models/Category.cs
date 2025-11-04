@@ -9,7 +9,7 @@ namespace CRMApp.Models
         public string Name { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
 
-        // ارتباط با محصولات
+
         public ICollection<Product>? Products { get; set; }
     }
 }

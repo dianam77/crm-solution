@@ -1,4 +1,4 @@
-/* ================== عمومی ================== */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -20,7 +20,6 @@ html, body {
   direction: rtl;
 }
 
-/* ================== کارت‌ها ================== */
 .category-card,
 .product-card {
   border: 1px solid #ddd;
@@ -41,7 +40,7 @@ html, body {
     box-shadow: 0 12px 25px rgba(0,0,0,0.15);
   }
 
-/* ================== لیست‌ها ================== */
+
 .categories-container {
   display: flex;
   flex-direction: column;
@@ -58,7 +57,7 @@ html, body {
   direction: rtl;
 }
 
-/* ================== کارت محصول ================== */
+
 .product-card {
   flex-direction: column;
   align-items: center;
@@ -111,7 +110,6 @@ html, body {
     font-weight: 600;
   }
 
-/* ================== دکمه‌ها ================== */
 button {
   cursor: pointer;
   padding: 10px 18px;
@@ -147,7 +145,6 @@ button {
     color: #e74c3c;
   }
 
-/* ================== تیترها ================== */
 h2, h3 {
   text-align: center;
   margin-bottom: 15px;
@@ -176,7 +173,7 @@ h2, h3 {
     border-radius: 2px;
   }
 
-/* ================== مودال‌ها ================== */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -209,7 +206,7 @@ h2, h3 {
 .close-modal-btn {
   position: absolute;
   top: 15px;
-  right: 15px;
+  left: 15px;
   background: #e74c3c;
   color: #fff;
   border-radius: 50%;
@@ -229,6 +226,7 @@ h2, h3 {
     transform: scale(1.1);
   }
 
+
 .modal-content h3 {
   text-align: center;
   color: #1976d2;
@@ -238,7 +236,7 @@ h2, h3 {
   direction: rtl;
 }
 
-/* فرم مودال */
+
 .modal-content form {
   display: flex;
   flex-direction: column;
@@ -269,19 +267,17 @@ h2, h3 {
       width: auto;
     }
 
-/* ================== تصاویر محصول ================== */
-/* کانتینر تصاویر داخل مودال */
 .images-container {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  justify-content: flex-start; /* یا center برای وسط چین کردن */
+  justify-content: flex-start; 
 }
 
-/* هر تصویر داخل مودال */
+
 .image-box {
-  width: 100px; /* عرض ثابت */
-  height: 100px; /* ارتفاع ثابت */
+  width: 100px;
+  height: 100px;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid #ddd;
@@ -293,13 +289,13 @@ h2, h3 {
   .image-box img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* حفظ نسبت تصویر */
+    object-fit: cover;
     border-radius: 12px;
   }
 .preview-item,
 .image-preview {
-  position: relative; /* مطمئن شدن از موقعیت نسبی والد */
-  width: 80px; /* اندازه ثابت برای پیش‌نمایش */
+  position: relative; 
+  width: 80px; 
   height: 80px;
   border-radius: 8px;
   overflow: hidden;
@@ -315,9 +311,9 @@ h2, h3 {
 
 .remove-btn {
   position: absolute;
-  top: 4px; /* فاصله کمی از بالا */
-  right: 4px; /* فاصله کمی از راست */
-  background: rgba(231, 76, 60, 0.85); /* نیمه شفاف */
+  top: 4px;
+  right: 4px; 
+  background: rgba(231, 76, 60, 0.85); 
   color: #fff;
   border: none;
   border-radius: 50%;
@@ -383,7 +379,7 @@ h2, h3 {
   border-radius: 4px;
 }
 
-/* ================== انیمیشن‌ها ================== */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -405,10 +401,10 @@ h2, h3 {
     opacity: 1;
   }
 }
-/* رادیوباتن مینیمال آبی */
+
 .radio-group {
   display: flex;
-  flex-direction: row-reverse; /* راست به چپ */
+  flex-direction: row-reverse; 
   gap: 16px;
   margin: 12px 0;
 }
@@ -418,12 +414,12 @@ h2, h3 {
     align-items: center;
     gap: 10px;
     padding: 6px 12px;
-    border-radius: 50px; /* گرد و مینیمال */
+    border-radius: 50px;
     border: 1.5px solid #ccc;
     cursor: pointer;
     transition: all 0.25s ease;
     font-weight: 500;
-    direction: rtl; /* متن راست به چپ */
+    direction: rtl; 
   }
 
     .radio-group label:hover {

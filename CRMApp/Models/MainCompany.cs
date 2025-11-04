@@ -4,7 +4,7 @@ namespace CRMApp.Models
 {
     public class MainCompany
     {
-        public int MainCompanyId { get; set; } // nullable
+        public int MainCompanyId { get; set; } 
 
         public string CompanyName { get; set; }
         public string EconomicCode { get; set; }

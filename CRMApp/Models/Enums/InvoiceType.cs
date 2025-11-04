@@ -2,7 +2,7 @@
 {
     public enum InvoiceType
     {
-        Proforma = 0, // پیش‌فاکتور
-        Invoice = 1   // فاکتور
+        Proforma = 0, 
+        Invoice = 1   
     }
 }

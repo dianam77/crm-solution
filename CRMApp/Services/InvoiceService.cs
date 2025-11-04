@@ -21,7 +21,7 @@ namespace CRMApp.Services
 
         public async Task<Invoice> CreateInvoiceAsync(Invoice invoice)
         {
-            // TotalAmount به صورت محاسبه‌شده از property استفاده می‌شود
+     
             _context.Invoices.Add(invoice);
             await _context.SaveChangesAsync();
             return invoice;
@@ -48,7 +48,7 @@ namespace CRMApp.Services
 
         public async Task<bool> UpdateInvoiceAsync(Invoice invoice)
         {
-            // TotalAmount محاسبه‌شده است، نیازی به مقداردهی مستقیم نیست
+       
             _context.Invoices.Update(invoice);
             return await _context.SaveChangesAsync() > 0;
         }
@@ -68,18 +68,18 @@ namespace CRMApp.Services
             if (invoice == null || invoice.InvoiceType != InvoiceType.Proforma)
                 return false;
 
-            // تبدیل پیش‌فاکتور به فاکتور واقعی
+  
             invoice.InvoiceType = InvoiceType.Invoice;
             invoice.InvoiceNumber = $"INV-{DateTime.UtcNow:yyyyMMdd}-{invoice.Id}";
             invoice.Status = InvoiceStatus.Sent;
 
-            // مقداردهی تاریخ سررسید به صورت دستی
+
             invoice.DueDate = DateTime.UtcNow.AddDays(7);
 
-            // بروزرسانی زمان ویرایش
+   
             invoice.UpdatedAt = DateTime.UtcNow;
 
-            // ذخیره تغییرات در دیتابیس
+
             return await _context.SaveChangesAsync() > 0;
         }
 

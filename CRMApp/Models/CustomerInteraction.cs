@@ -18,7 +18,9 @@
         public string? PerformedBy { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public ICollection<CustomerInteractionProduct> InteractionProducts { get; set; } = new List<CustomerInteractionProduct>();
 
+        public ICollection<CustomerInteractionCategory> InteractionCategories { get; set; } = new List<CustomerInteractionCategory>();
         public ICollection<CustomerInteractionAttachment> Attachments { get; set; } = new List<CustomerInteractionAttachment>();
     }
 

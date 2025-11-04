@@ -36,14 +36,13 @@ namespace CRMApp.ViewModels
         [Display(Name = "وضعیت تاهل")]
         public string? MaritalStatus { get; set; }
 
-        // آدرس‌ها با ویومدل جدید
         public List<AddressViewModel> Addresses { get; set; } = new List<AddressViewModel>();
 
         public List<PhoneViewModel> ContactPhones { get; set; } = new List<PhoneViewModel>();
 
         public List<EmailViewModel> Emails { get; set; } = new List<EmailViewModel>();
 
-        // برای نمایش در فرم‌ها (پرووینس‌ها و شهرها)
+   
         public List<SelectListItem>? ProvincesSelectList { get; set; }
         public List<SelectListItem>? CitiesSelectList { get; set; }
     }

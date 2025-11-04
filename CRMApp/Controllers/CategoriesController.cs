@@ -11,7 +11,7 @@ namespace CRMApp.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin,Manager")]
+
     public class CategoriesController : ControllerBase
     {
         private readonly CRMAppDbContext _context;

@@ -1,4 +1,4 @@
-/* ================== عمومی ================== */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -20,7 +20,7 @@ html, body {
   direction: rtl;
 }
 
-/* ================== تیتر ================== */
+
 .section-title {
   text-align: center;
   font-size: 2rem;
@@ -29,7 +29,7 @@ html, body {
   margin-bottom: 25px;
 }
 
-/* ================== دکمه‌ها ================== */
+
 button {
   cursor: pointer;
   padding: 8px 14px;
@@ -40,7 +40,6 @@ button {
   font-size: 14px;
 }
 
-/* دکمه اضافه */
 .add-btn {
   background: linear-gradient(135deg, #4a90e2, #1976d2);
   color: #fff;
@@ -52,35 +51,35 @@ button {
     box-shadow: 0 6px 16px rgba(0,0,0,0.15);
   }
 
-/* دکمه‌های ویرایش و حذف شیک و ملایم */
+
 .edit-btn {
-  background-color: #f0f4ff; /* رنگ پس‌زمینه ملایم */
-  color: #3f51b5; /* رنگ متن هماهنگ با آبی مودال */
-  border: 1px solid #c5cae9; /* حاشیه ملایم */
+  background-color: #f0f4ff; 
+  color: #3f51b5; 
+  border: 1px solid #c5cae9; 
   padding: 6px 12px;
   border-radius: 6px;
 }
 
   .edit-btn:hover {
-    background-color: #dbe5ff; /* حالت هاور ملایم */
+    background-color: #dbe5ff; 
     color: #303f9f;
   }
 
 .delete-btn {
-  background-color: #fff0f0; /* پس‌زمینه ملایم قرمز */
-  color: #e53935; /* رنگ متن قرمز */
+  background-color: #fff0f0; 
+  color: #e53935;
   border: 1px solid #f5c6cb;
   padding: 6px 12px;
   border-radius: 6px;
 }
 
   .delete-btn:hover {
-    background-color: #ffd6d6; /* حالت هاور ملایم */
+    background-color: #ffd6d6; 
     color: #c62828;
   }
 
 
-/* ================== کارت‌ها ================== */
+
 .categories-container {
   display: flex;
   flex-direction: column;
@@ -108,7 +107,7 @@ button {
   font-size: 16px;
 }
 
-/* ================== مودال ================== */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -153,7 +152,7 @@ button {
     transform: scale(1.1);
   }
 
-/* ================== فرم مودال ================== */
+
 .modal-form {
   display: flex;
   flex-direction: column;

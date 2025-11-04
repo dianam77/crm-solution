@@ -23,39 +23,36 @@ namespace CRMApp.Controllers
             _userManager = userManager;
         }
 
-        // GET: api/UserReferral
-        [HttpGet]
+       
+        [HttpGet("all")]
         public async Task<IActionResult> GetAll()
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (userId == null) return Unauthorized();
-
-            bool isAdmin = User.IsInRole("Admin");
-
-            List<UserReferral> referrals;
-
-            if (isAdmin)
-            {
-                // Admin همه ارجاعات را می‌بیند
-                referrals = await _dbContext.UserReferrals
-                    .Include(r => r.AssignedBy)
-                    .Include(r => r.AssignedTo)
-                    .ToListAsync();
-            }
-            else
-            {
-                // کاربر معمولی ارجاعات فرستاده یا دریافت‌شده خودش را می‌بیند
-                referrals = await _dbContext.UserReferrals
-                    .Include(r => r.AssignedBy)
-                    .Include(r => r.AssignedTo)
-                    .Where(r => r.AssignedToId.ToString() == userId || r.AssignedById.ToString() == userId)
-                    .ToListAsync();
-            }
+            var referrals = await _dbContext.UserReferrals
+                .Include(r => r.AssignedBy)
+                .Include(r => r.AssignedTo)
+                .ToListAsync();
 
             return Ok(referrals);
         }
 
-        // GET: api/UserReferral/{id}
+     
+        [HttpGet("mine")]
+        public async Task<IActionResult> GetMyReferrals()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null) return Unauthorized();
+
+            var referrals = await _dbContext.UserReferrals
+                .Include(r => r.AssignedBy)
+                .Include(r => r.AssignedTo)
+                .Where(r => r.AssignedToId.ToString() == userId || r.AssignedById.ToString() == userId)
+                .ToListAsync();
+
+            return Ok(referrals);
+        }
+
+
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -73,7 +70,6 @@ namespace CRMApp.Controllers
             return Ok(referral);
         }
 
-        // POST: api/UserReferral
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUserReferralDto dto)
         {
@@ -110,9 +106,8 @@ namespace CRMApp.Controllers
             return Ok(referral);
         }
 
-        // PUT: api/UserReferral/{id}
+
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")] // فقط ادمین می‌تواند ویرایش کند
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserReferralDto dto)
         {
             if (!ModelState.IsValid)
@@ -140,9 +135,7 @@ namespace CRMApp.Controllers
             return Ok(new { message = "ارجاع با موفقیت ویرایش شد", referral });
         }
 
-        // PUT: api/UserReferral/{id}/status
         [HttpPut("{id}/status")]
-        [Authorize(Roles = "Admin,User")] // Admin یا User می‌توانند وضعیت را تغییر دهند
         public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateStatusDto dto)
         {
             var referral = await _dbContext.UserReferrals.FindAsync(id);
@@ -150,7 +143,7 @@ namespace CRMApp.Controllers
 
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-            // کاربر معمولی فقط می‌تواند وضعیت ارجاع خودش را تغییر دهد
+
             if (!User.IsInRole("Admin") && referral.AssignedToId.ToString() != userId && referral.AssignedById.ToString() != userId)
                 return Forbid("شما اجازه تغییر وضعیت این ارجاع را ندارید");
 
@@ -166,9 +159,8 @@ namespace CRMApp.Controllers
             public ReferralStatus Status { get; set; }
         }
 
-        // DELETE: api/UserReferral/{id}
+
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var referral = await _dbContext.UserReferrals.FindAsync(id);

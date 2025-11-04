@@ -23,6 +23,11 @@ export class ChatService {
     return this.http.get<ChatMessage[]>(url, { headers: this.getAuthHeaders() })
       .pipe(catchError(err => throwError(() => err)));
   }
+  getMyMessages(): Observable<ChatMessage[]> {
+    const url = `${this.apiUrl}/messages/my-messages`;
+    return this.http.get<ChatMessage[]>(url, { headers: this.getAuthHeaders() })
+      .pipe(catchError(err => throwError(() => err)));
+  }
 
   sendMessage(dto: CreateChatMessageDto): Observable<ChatMessage> {
     return this.http.post<ChatMessage>(`${this.apiUrl}/messages`, dto, { headers: this.getAuthHeaders() })

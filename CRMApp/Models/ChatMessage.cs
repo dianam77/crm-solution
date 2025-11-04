@@ -21,7 +21,7 @@ namespace CRMApp.Models
         public int ConversationId { get; set; }
         public ChatConversation Conversation { get; set; }
 
-        // لیست دریافت‌کنندگان پیام
+   
         public ICollection<ChatMessageRecipient> Recipients { get; set; } = new List<ChatMessageRecipient>();
     }
 }

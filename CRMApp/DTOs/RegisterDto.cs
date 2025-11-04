@@ -7,7 +7,6 @@
         public string Password { get; set; }
         public string RoleName { get; set; }
 
-        // اضافه کردن FullName به صورت اختیاری
         public string? FullName { get; set; }
     }
 }

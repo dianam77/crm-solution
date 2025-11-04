@@ -8,10 +8,10 @@ namespace CRMApp.Models
 
         public int? IndividualCustomerId { get; set; }
 
-        public CustomerIndividual? IndividualCustomer { get; set; } // nullable
+        public CustomerIndividual? IndividualCustomer { get; set; } 
 
         public int? CompanyCustomerId { get; set; }
-        public CustomerCompany? CompanyCustomer { get; set; } // nullable
+        public CustomerCompany? CompanyCustomer { get; set; } 
 
         public string? RelationType { get; set; }
         public DateTime? StartDate { get; set; }

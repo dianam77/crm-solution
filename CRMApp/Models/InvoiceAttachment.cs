@@ -22,7 +22,7 @@ namespace CRMApp.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // لینک کامل برای فرانت‌اند
+   
         [NotMapped]
         public string FileUrl => $"https://localhost:44386{FilePath}";
     }

@@ -10,9 +10,9 @@ export interface ChatMessage {
   receiverIds: string[];
   content: string;
   createdAt: string | Date;
-  isReadByCurrentUser?: boolean; // وضعیت خوانده شدن برای کاربر جاری
+  isReadByCurrentUser?: boolean; 
   selected?: boolean;
-  isHiddenByCurrentUser?: boolean; // وضعیت مخفی شدن برای کاربر جاری
+  isHiddenByCurrentUser?: boolean;
 }
 
 export interface CreateChatMessageDto {

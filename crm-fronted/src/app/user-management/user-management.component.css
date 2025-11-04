@@ -6,7 +6,7 @@
   color: #333;
 }
 
-/* تیتر صفحه */
+
 h2 {
   text-align: center;
   margin-bottom: 20px;
@@ -16,7 +16,7 @@ h2 {
   letter-spacing: -0.5px;
 }
 
-/* جدول */
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -27,7 +27,6 @@ table {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* هدر */
 thead tr {
   background: linear-gradient(90deg, #bbdefb, #90caf9);
   color: #0d47a1;
@@ -40,7 +39,7 @@ thead th {
   text-align: center;
 }
 
-/* ردیف‌ها */
+
 tbody tr {
   transition: background-color 0.25s ease, transform 0.15s ease;
 }
@@ -54,7 +53,7 @@ tbody tr {
     transform: scale(1.005);
   }
 
-/* سلول‌ها */
+
 tbody td {
   padding: 10px;
   text-align: center;
@@ -62,7 +61,7 @@ tbody td {
   color: #444;
 }
 
-/* فرم */
+
 form {
   display: flex;
   flex-wrap: wrap;
@@ -72,7 +71,7 @@ form {
   border-radius: 8px;
 }
 
-/* ورودی‌ها */
+
 input, select {
   padding: 8px 10px;
   border-radius: 8px;
@@ -87,7 +86,6 @@ input, select {
     outline: none;
   }
 
-/* دکمه‌ها */
 button {
   background: linear-gradient(90deg, #42a5f5, #1e88e5);
   color: white;
@@ -107,7 +105,7 @@ button {
     transform: translateY(-2px);
   }
 
-/* دکمه خاکستری */
+
 form button[type="button"] {
   background: linear-gradient(90deg, #90a4ae, #78909c);
 }
@@ -117,7 +115,6 @@ form button[type="button"] {
     transform: translateY(-2px);
   }
 
-/* بخش تغییر پسورد */
 tr[style*="background: #eef"] {
   background-color: #e3f2fd !important;
 }
@@ -134,7 +131,6 @@ tr[style*="background: #eef"] {
       background: linear-gradient(90deg, #1e88e5, #1565c0);
     }
 
-/* ریسپانسیو */
 @media (max-width: 700px) {
   table, thead, tbody, th, td, tr {
     display: block;
