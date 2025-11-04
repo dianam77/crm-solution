@@ -12,6 +12,7 @@ import { User } from '../models/user.model';
 import { ChatMessage, CreateChatMessageDto } from '../models/ChatMessage';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import moment from 'moment-jalaali';
 
 @Component({
   selector: 'app-navbar',
@@ -76,10 +77,17 @@ export class NavbarComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    moment.loadPersian({ usePersianDigits: true });
     this.setCurrentUser();
     this.loadUserPermissions(); 
     this.loadUsers();
   }
+  toJalali(date: any): string {
+    if (!date) return '-';
+    const m = moment(date);
+    return m.isValid() ? m.format('HH:mm jYYYY/jMM/jDD') : '-';
+  }
+
 
   private loadUsers(): void {
     const loader = this.currentUser?.role === 'User'

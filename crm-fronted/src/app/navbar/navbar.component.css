@@ -968,9 +968,19 @@ select {
   }
 
 
+
+.send-message,
+.clear-messages,
+.message-item {
+  direction: rtl;
+  text-align: right;
+}
+
+
 .send-message {
   margin-top: 16px;
   display: flex;
+  flex-direction: row-reverse; 
   gap: 8px;
   padding: 12px;
   border-radius: 14px;
@@ -1010,7 +1020,6 @@ select {
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
-
 .clear-messages {
   margin-top: 14px;
   text-align: center;
@@ -1033,6 +1042,7 @@ select {
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
 
+
 .message-item {
   display: flex;
   flex-direction: column;
@@ -1047,7 +1057,7 @@ select {
 
   .message-item:hover {
     background-color: #f1f3f5;
-    transform: translateX(2px);
+    transform: translateX(-2px); 
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
 
@@ -1055,6 +1065,7 @@ select {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-direction: row-reverse;
 }
 
 .message-text {
@@ -1077,6 +1088,7 @@ select {
   justify-content: space-between;
   align-items: center;
   margin-top: 6px;
+  flex-direction: row-reverse;
 }
 
 .message-time {
@@ -1091,9 +1103,10 @@ select {
   border-radius: 50%;
   border: 2px solid #fff;
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  margin-left: 6px;
+  margin-right: 6px; 
   animation: pulse 1.5s infinite;
 }
+
 
 @keyframes pulse {
   0% {

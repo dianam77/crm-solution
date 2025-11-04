@@ -441,3 +441,8 @@ button {
     .products-list li::before {
       content: none; 
     }
+.date-rtl {
+  direction: ltr;
+  unicode-bidi: embed;
+  display: inline-block;
+}

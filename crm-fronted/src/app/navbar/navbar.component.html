@@ -46,23 +46,26 @@
   <div class="dropdown-content" [class.open]="messagesOpen">
     
     <div class="section">
-      <div class="section-header">پیام‌ها</div>
+      <div class="section-header" style="text-align:center">پیام‌ها</div>
 
       <div *ngFor="let msg of visibleMessages" class="message-item" (click)="markAsRead(msg)">
         <div class="message-main">
+          <input *ngIf="hasPermission('chatmessages.hidemessage') || hasPermission('chatmessages.delete')"
+                 type="checkbox"
+                 [(ngModel)]="msg.selected"
+                 (click)="$event.stopPropagation()" />
           <div class="message-text">
             <div class="message-sender">{{ msg.senderName }}</div>
             <div class="message-content">{{ msg.content | slice:0:40 }}...</div>
           </div>
 
-       
-          <input *ngIf="hasPermission('chatmessages.hidemessage') || hasPermission('chatmessages.delete')"
-                 type="checkbox" 
-                 [(ngModel)]="msg.selected" 
-                 (click)="$event.stopPropagation()" />
+
+
         </div>
         <div class="message-footer">
-          <small>{{ msg.createdAt | date:'short' }}</small>
+          <small class="date-rtl">{{ toJalali(msg.createdAt) }}</small>
+
+
           <span *ngIf="!msg.isReadByCurrentUser && msg.receiverIds.includes(currentUser?.id!)"
                 class="unread-dot"></span>
         </div>
@@ -80,8 +83,9 @@
    
     <div class="section" *ngIf="hasPermission('chatmessages.sendmessage')">
       <div class="toggle-header" (click)="toggleReceiverList()">
-        گیرنده‌ها
+
         <span class="arrow">{{ receiversOpen ? '▲' : '▼' }}</span>
+        گیرنده‌ها
       </div>
       <div class="user-list" *ngIf="receiversOpen">
         <ng-container *ngFor="let user of users">
@@ -97,8 +101,9 @@
 
    
     <div class="section send-message" *ngIf="hasPermission('chatmessages.sendmessage')">
-      <input type="text" [(ngModel)]="newMessageContent" placeholder="پیام جدید..." />
       <button type="button" (click)="sendMessage()">ارسال</button>
+      <input type="text" [(ngModel)]="newMessageContent" placeholder="پیام جدید..." />
+
     </div>
   </div>
 </div>
