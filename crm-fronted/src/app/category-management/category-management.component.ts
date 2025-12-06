@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CategoryService } from '../services/category.service';
 import { Category } from '../models/category.model';
-import { jwtDecode } from 'jwt-decode';
+import  jwtDecode  from 'jwt-decode';
 
 @Component({
   selector: 'app-category-management',

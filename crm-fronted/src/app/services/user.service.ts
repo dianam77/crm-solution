@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { jwtDecode } from 'jwt-decode';
+import  jwtDecode  from 'jwt-decode';
 import { User } from '../models/user.model';
 
 @Injectable({
@@ -16,7 +16,7 @@ export class UserService {
   }
 
   private getAuthHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('token');
     return new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
@@ -40,15 +40,18 @@ export class UserService {
     return this.permissions.includes(permission.toLowerCase());
   }
 
-
   getUserNames(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/names`, { headers: this.getAuthHeaders() });
   }
 
-  
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl, { headers: this.getAuthHeaders() });
   }
+
+  getCurrentUser(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/current`, { headers: this.getAuthHeaders() });
+  }
+
 
   updateUser(user: User): Observable<any> {
     return this.http.put(`${this.apiUrl}/${user.id}`, user, { headers: this.getAuthHeaders() });
@@ -57,6 +60,10 @@ export class UserService {
   deleteUser(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getAuthHeaders() });
   }
+  changePassword(model: any) {
+    return this.http.put(`${this.apiUrl}/change-password`, model, { headers: this.getAuthHeaders() });
+  }
+
 
   getRoles(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/roles`, { headers: this.getAuthHeaders() });

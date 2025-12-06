@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { jwtDecode } from 'jwt-decode';
+import  jwtDecode  from 'jwt-decode';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { ActiveCustomersComponent } from './active-customers/active-customers.component';

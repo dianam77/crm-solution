@@ -21,15 +21,14 @@ export class SmtpSettingsComponent implements OnInit {
   constructor(private smtpService: SmtpService, private fb: FormBuilder) { }
 
   ngOnInit(): void {
-
     this.smtpForm = this.fb.group({
       displayName: ['', Validators.required],
-      smtpServer: ['', Validators.required],
-      smtpPort: [null, Validators.required],
+      smtpServer: ['', [Validators.required, Validators.pattern(/^smtp\.[a-z0-9\-]+\.com$/i)]],
+      smtpPort: [587, [Validators.required, Validators.min(1), Validators.max(65535)]],
       senderEmail: ['', [Validators.required, Validators.email]],
       senderPassword: ['', Validators.required],
-      enableSsl: [false],
-      isActive: [false]
+      enableSsl: [true],
+      isActive: [true]
     });
 
     this.loadSettings();
@@ -38,31 +37,20 @@ export class SmtpSettingsComponent implements OnInit {
   loadSettings() {
     this.smtpService.getSettings().subscribe({
       next: res => {
-   
-        if (!res || !res.id || res.id === 0) {
-          this.settings = null;
-        } else {
-          this.settings = res;
-        }
+        this.settings = res?.id && res.id > 0 ? res : null;
         this.formLoaded = true;
       },
       error: err => {
-        if (err.status === 404) {
-          this.settings = null;
-        } else {
-          console.error(err);
-        }
+        if (err.status === 404) this.settings = null;
+        else console.error(err);
         this.formLoaded = true;
       }
     });
   }
 
   openModal() {
-    if (this.settings) {
-      this.smtpForm.patchValue(this.settings);
-    } else {
-      this.smtpForm.reset();
-    }
+    if (this.settings) this.smtpForm.patchValue(this.settings);
+    else this.smtpForm.reset();
     this.showModal = true;
   }
 
@@ -71,21 +59,33 @@ export class SmtpSettingsComponent implements OnInit {
   }
 
   saveSettings() {
-    
     if (!this.formLoaded) {
       alert('لطفاً تا بارگذاری کامل فرم صبر کنید.');
       return;
     }
 
-
     if (this.smtpForm.invalid) {
-      this.smtpForm.markAllAsTouched(); 
-      alert('⚠️ لطفاً تمام فیلدهای ضروری را پر کنید و مقادیر معتبر وارد نمایید.');
+      this.smtpForm.markAllAsTouched();
+      const errors: string[] = [];
+      const controls = this.smtpForm.controls;
+
+      if (controls['displayName'].invalid) errors.push('نام نمایشی');
+      if (controls['smtpServer'].invalid) errors.push('سرور SMTP (فرمت: smtp.example.com)');
+      if (controls['smtpPort'].invalid) errors.push('پورت SMTP (عدد بین 1 تا 65535)');
+      if (controls['senderEmail'].invalid) {
+        if (controls['senderEmail'].errors?.['required']) errors.push('ایمیل فرستنده');
+        else if (controls['senderEmail'].errors?.['email']) errors.push('فرمت ایمیل صحیح نیست');
+      }
+      if (controls['senderPassword'].invalid) errors.push('رمز عبور (App Password برای Gmail)');
+      alert(`⚠️ لطفاً فیلدهای زیر را به درستی وارد کنید:\n- ${errors.join('\n- ')}`);
       return;
     }
 
-    const data: SmtpSettings = this.smtpForm.value;
-
+    const data: SmtpSettings = {
+      ...this.smtpForm.value,
+      enableSsl: !!this.smtpForm.value.enableSsl,
+      isActive: !!this.smtpForm.value.isActive
+    };
 
     if (!this.settings) {
       this.smtpService.createSettings(data).subscribe({
@@ -94,12 +94,9 @@ export class SmtpSettingsComponent implements OnInit {
           alert('✅ تنظیمات SMTP با موفقیت ایجاد شد.');
           this.closeModal();
         },
-        error: err => {
-          alert('❌ خطا در ایجاد تنظیمات: ' + err.message);
-        }
+        error: err => this.handleApiError(err)
       });
     } else {
-
       data.id = this.settings.id;
       this.smtpService.updateSettings(data).subscribe({
         next: () => {
@@ -107,12 +104,19 @@ export class SmtpSettingsComponent implements OnInit {
           alert('✅ تنظیمات SMTP با موفقیت بروزرسانی شد.');
           this.closeModal();
         },
-        error: err => {
-          alert('❌ خطا در بروزرسانی تنظیمات: ' + err.message);
-        }
+        error: err => this.handleApiError(err)
       });
     }
   }
 
-
+  private handleApiError(err: any) {
+    if (err.status === 400 && err.error) {
+      const fieldErrors = Object.keys(err.error)
+        .map(k => `${k}: ${err.error[k].join(', ')}`)
+        .join('\n');
+      alert(`⚠️ لطفاً خطاهای زیر را اصلاح کنید:\n${fieldErrors}`);
+    } else {
+      alert('❌ خطا در ارتباط با سرور: ' + err.message);
+    }
   }
+}

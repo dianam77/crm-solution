@@ -38,9 +38,14 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
+
+    options.User.AllowedUserNameCharacters =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+/" +
+        "اآبپتثجچحخدذرزسشصضطظعغفقکگلمنوهی ";
 })
-.AddEntityFrameworkStores<CRMAppDbContext>()
-.AddDefaultTokenProviders();
+    .AddEntityFrameworkStores<CRMAppDbContext>()
+    .AddDefaultTokenProviders();
+
 
 
 builder.Services.ConfigureApplicationCookie(options =>

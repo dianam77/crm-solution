@@ -1338,3 +1338,91 @@ select {
   .profile-btn:hover {
     color: #000; 
   }
+.referral-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+  background-color: gray; /* خوانده شده */
+}
+
+  .referral-dot.unread {
+    background-color: red; /* نخوانده */
+  }
+
+.referral-panel li.unread {
+  font-weight: bold;
+  background-color: #f0f8ff;
+  cursor: pointer;
+}
+.referral-panel {
+  position: fixed;
+  top: 0;
+  right: -350px; /* ابتدا خارج از صفحه سمت راست */
+  width: 350px;
+  height: 100%;
+  background-color: #f9f9f9;
+  box-shadow: -2px 0 8px rgba(0,0,0,0.2); /* سایه سمت چپ کارت */
+  padding: 20px;
+  overflow-y: auto;
+  transition: right 0.3s ease;
+  z-index: 1000;
+}
+
+  .referral-panel.visible {
+    right: 0; /* وقتی باز است */
+  }
+
+  .referral-panel h3 {
+    margin-top: 0;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+.referral-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.referral-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+  .referral-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+
+.referral-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.unread-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #e74c3c;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  left: 15px; /* دکمه سمت چپ کارت، چون پنل سمت راست است */
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333;
+}

@@ -69,6 +69,7 @@ namespace CRMApp.Services
         {
             Console.WriteLine("Seeding Admin user started");
 
+            // بررسی اینکه کاربر از قبل وجود ندارد
             var adminUser = await _userManager.FindByNameAsync("admin");
             if (adminUser != null)
             {
@@ -76,15 +77,30 @@ namespace CRMApp.Services
                 return;
             }
 
+            // اطمینان از وجود نقش Admin
+            if (!await _roleManager.RoleExistsAsync("Admin"))
+            {
+                await _roleManager.CreateAsync(new ApplicationRole
+                {
+                    Name = "Admin",
+                    NormalizedName = "ADMIN"
+                });
+                Console.WriteLine("✅ Admin role created");
+            }
+
+            // ایجاد کاربر ادمین با نام و نام خانوادگی
             adminUser = new ApplicationUser
             {
                 UserName = "admin",
                 NormalizedUserName = "ADMIN",
                 Email = "admin@example.com",
                 NormalizedEmail = "ADMIN@EXAMPLE.COM",
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                FirstName = "ادمین",
+                LastName = "سیستم"
             };
 
+            // ایجاد کاربر با پسورد
             var result = await _userManager.CreateAsync(adminUser, "Admin@123");
             if (!result.Succeeded)
             {
@@ -92,6 +108,7 @@ namespace CRMApp.Services
                 return;
             }
 
+            // اختصاص نقش به کاربر
             var addRoleResult = await _userManager.AddToRoleAsync(adminUser, "Admin");
             if (addRoleResult.Succeeded)
                 Console.WriteLine("✅ Admin user created and assigned to Admin role.");
@@ -105,34 +122,34 @@ namespace CRMApp.Services
 
             var controllerTypes = new[]
             {
-                typeof(CategoriesController),
-                typeof(ChatMessagesController),
-                typeof(CustomerCompanyApiController),
-                typeof(CustomerIndividualApiController),
-                typeof(CustomerInteractionController),
-                typeof(HomeController),
-                typeof(InvoiceController),
-                typeof(MainCompanyController),
-                typeof(ProductsController),
-                typeof(UserReferralController),
-                typeof(UsersController),
-                typeof(SmtpSettingsController)
-            };
+        typeof(CategoriesController),
+        typeof(ChatMessagesController),
+        typeof(CustomerCompanyApiController),
+        typeof(CustomerIndividualApiController),
+        typeof(CustomerInteractionController),
+        typeof(HomeController),
+        typeof(InvoiceController),
+        typeof(MainCompanyController),
+        typeof(ProductsController),
+        typeof(UsersController),
+        typeof(CustomerInteractionReferralController),
+        typeof(SmtpSettingsController)
+    };
 
-            
             var ignoredActions = new[]
-{
-    "CustomerIndividualApi.GetProvinces",
-    "CustomerIndividualApi.GetCities",
-    "Invoice.GetInvoicePdf",
-    "Home.ResetPassword",
-    "Home.ForgotPassword",
-    "Users.GetCurrentUser",
-    "Users.ChangeMyPassword",
-    "Home.Login"  
-};
-
-
+            {
+        "CustomerIndividualApi.GetProvinces",
+        "CustomerIndividualApi.GetCities",
+        "Invoice.GetInvoicePdf",
+        "Home.ResetPassword",
+        "Home.ForgotPassword",
+        "Users.GetCurrentUser",
+        "Users.ChangeMyPassword",
+        "Users.ChangePassword",
+        "Home.Login",
+        "CustomerInteraction.CheckActive",
+        "CustomerInteraction.GetCategoriesWithProducts"
+    };
 
             var permissions = new List<Permission>();
 
@@ -166,7 +183,7 @@ namespace CRMApp.Services
                 Console.WriteLine($"✅ {permissions.Count} permissions added.");
             }
 
-       
+            // ⚡ بخش مهم: اتصال تمام پرمیژن‌ها به Admin حتی اگر قبلاً ایجاد شده باشد
             var adminRole = await _roleManager.FindByNameAsync("Admin");
             if (adminRole != null)
             {
@@ -193,6 +210,7 @@ namespace CRMApp.Services
 
             Console.WriteLine("✅ Permissions seeding finished");
         }
+
 
         private async Task SeedProvincesAndCitiesFromJsonAsync(string jsonFilePath)
         {

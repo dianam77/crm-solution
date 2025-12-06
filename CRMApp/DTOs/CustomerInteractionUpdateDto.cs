@@ -16,9 +16,11 @@ public class CustomerInteractionUpdateDto
     public int? DurationMinutes { get; set; }
     public string Subject { get; set; } = null!;
     public string Notes { get; set; } = null!;
-    public string? ExistingAttachmentPaths { get; set; } 
+    public string? ExistingAttachmentPaths { get; set; }
 
-    
+    // 🔹 فیلد جدید برای override وضعیت فعال
+    public bool? IsActiveOverride { get; set; }
+
     public string? CategoryProductGroupsJson { get; set; }
 
     public List<CategoryProductGroupDto> GetCategoryProductGroups()

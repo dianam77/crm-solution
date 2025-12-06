@@ -123,11 +123,18 @@ namespace CRMApp.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("FullName")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -233,7 +240,7 @@ namespace CRMApp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ChatConversationParticipants");
+                    b.ToTable("ChatConversationParticipant");
                 });
 
             modelBuilder.Entity("CRMApp.Models.ChatMessage", b =>
@@ -456,13 +463,9 @@ namespace CRMApp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NationalCode")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CustomerId");
-
-                    b.HasIndex("NationalCode")
-                        .IsUnique()
-                        .HasFilter("[NationalCode] IS NOT NULL");
 
                     b.ToTable("CustomerIndividuals");
                 });
@@ -479,9 +482,13 @@ namespace CRMApp.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CurrentOwnerId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int?>("DurationMinutes")
                         .HasColumnType("int");
@@ -495,11 +502,14 @@ namespace CRMApp.Migrations
                     b.Property<int>("InteractionType")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PerformedBy")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("PerformedById")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("StartDateTime")
                         .HasColumnType("datetime2");
@@ -514,7 +524,13 @@ namespace CRMApp.Migrations
 
                     b.HasIndex("CompanyCustomerId");
 
+                    b.HasIndex("CreatedById");
+
+                    b.HasIndex("CurrentOwnerId");
+
                     b.HasIndex("IndividualCustomerId");
+
+                    b.HasIndex("PerformedById");
 
                     b.ToTable("CustomerInteractions");
                 });
@@ -567,6 +583,46 @@ namespace CRMApp.Migrations
                     b.ToTable("CustomerInteractionProducts");
                 });
 
+            modelBuilder.Entity("CRMApp.Models.CustomerInteractionReferral", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AssignedToId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("InteractionId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ReferredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ReferredById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedToId");
+
+                    b.HasIndex("InteractionId");
+
+                    b.HasIndex("ReferredById");
+
+                    b.ToTable("CustomerInteractionReferrals");
+                });
+
             modelBuilder.Entity("CRMApp.Models.Email", b =>
                 {
                     b.Property<int>("EmailId")
@@ -615,9 +671,7 @@ namespace CRMApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("uniqueidentifier");
@@ -794,9 +848,7 @@ namespace CRMApp.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -942,44 +994,6 @@ namespace CRMApp.Migrations
                     b.ToTable("SmtpSettings");
                 });
 
-            modelBuilder.Entity("CRMApp.Models.UserReferral", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid>("AssignedById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AssignedToId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssignedById");
-
-                    b.HasIndex("AssignedToId");
-
-                    b.ToTable("UserReferrals");
-                });
-
             modelBuilder.Entity("CRMApp.Models.UserRole", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -993,6 +1007,29 @@ namespace CRMApp.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("ChatConversationParticipant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ConversationId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConversationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ChatConversationParticipants");
                 });
 
             modelBuilder.Entity("CompanyWebsite", b =>
@@ -1198,7 +1235,7 @@ namespace CRMApp.Migrations
                     b.HasOne("CRMApp.Models.ChatConversation", "Conversation")
                         .WithMany("Messages")
                         .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("CRMApp.Models.ApplicationUser", "Sender")
@@ -1217,7 +1254,7 @@ namespace CRMApp.Migrations
                     b.HasOne("CRMApp.Models.ChatMessage", "ChatMessage")
                         .WithMany("Recipients")
                         .HasForeignKey("ChatMessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("CRMApp.Models.ApplicationUser", "User")
@@ -1289,13 +1326,36 @@ namespace CRMApp.Migrations
                         .WithMany()
                         .HasForeignKey("CompanyCustomerId");
 
+                    b.HasOne("CRMApp.Models.ApplicationUser", "CreatedBy")
+                        .WithMany()
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CRMApp.Models.ApplicationUser", "CurrentOwner")
+                        .WithMany()
+                        .HasForeignKey("CurrentOwnerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("CRMApp.Models.CustomerIndividual", "IndividualCustomer")
                         .WithMany()
                         .HasForeignKey("IndividualCustomerId");
 
+                    b.HasOne("CRMApp.Models.ApplicationUser", "PerformedBy")
+                        .WithMany()
+                        .HasForeignKey("PerformedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("CompanyCustomer");
 
+                    b.Navigation("CreatedBy");
+
+                    b.Navigation("CurrentOwner");
+
                     b.Navigation("IndividualCustomer");
+
+                    b.Navigation("PerformedBy");
                 });
 
             modelBuilder.Entity("CRMApp.Models.CustomerInteractionCategory", b =>
@@ -1334,6 +1394,33 @@ namespace CRMApp.Migrations
                     b.Navigation("CustomerInteraction");
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("CRMApp.Models.CustomerInteractionReferral", b =>
+                {
+                    b.HasOne("CRMApp.Models.ApplicationUser", "AssignedTo")
+                        .WithMany()
+                        .HasForeignKey("AssignedToId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CRMApp.Models.CustomerInteraction", "Interaction")
+                        .WithMany("Referrals")
+                        .HasForeignKey("InteractionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CRMApp.Models.ApplicationUser", "ReferredBy")
+                        .WithMany()
+                        .HasForeignKey("ReferredById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("Interaction");
+
+                    b.Navigation("ReferredBy");
                 });
 
             modelBuilder.Entity("CRMApp.Models.Email", b =>
@@ -1455,25 +1542,6 @@ namespace CRMApp.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("CRMApp.Models.UserReferral", b =>
-                {
-                    b.HasOne("CRMApp.Models.ApplicationUser", "AssignedBy")
-                        .WithMany()
-                        .HasForeignKey("AssignedById")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CRMApp.Models.ApplicationUser", "AssignedTo")
-                        .WithMany()
-                        .HasForeignKey("AssignedToId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("AssignedBy");
-
-                    b.Navigation("AssignedTo");
-                });
-
             modelBuilder.Entity("CRMApp.Models.UserRole", b =>
                 {
                     b.HasOne("CRMApp.Models.ApplicationRole", "Role")
@@ -1489,6 +1557,25 @@ namespace CRMApp.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ChatConversationParticipant", b =>
+                {
+                    b.HasOne("CRMApp.Models.ChatConversation", "Conversation")
+                        .WithMany()
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CRMApp.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Conversation");
 
                     b.Navigation("User");
                 });
@@ -1615,6 +1702,8 @@ namespace CRMApp.Migrations
                     b.Navigation("InteractionCategories");
 
                     b.Navigation("InteractionProducts");
+
+                    b.Navigation("Referrals");
                 });
 
             modelBuilder.Entity("CRMApp.Models.Invoice", b =>

@@ -4,7 +4,7 @@ import { GroupedPermission, DisplayPermission } from '../models/permission.model
 import { RoleService } from '../services/role.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { jwtDecode } from 'jwt-decode';
+import  jwtDecode  from 'jwt-decode';
 
 @Component({
   selector: 'app-role-management',
@@ -59,7 +59,10 @@ export class RoleManagementComponent implements OnInit {
     'CustomerInteraction.Create': 'ایجاد تعامل جدید',
     'CustomerInteraction.Update': 'ویرایش تعامل',
     'CustomerInteraction.Delete': 'حذف تعامل',
-    'CustomerInteraction.GetCategoriesWithProducts': '  مشاهده دسته‌بندی‌ها و محصولات',
+    'CustomerInteraction.GetCategoriesWithProducts': 'مشاهده دسته‌بندی‌ها و محصولات',
+    'CustomerInteraction.GetMyInteractions': 'مشاهده تعاملات کاربر جاری',
+    'CustomerInteraction.UpdateStatus': 'به‌روزرسانی وضعیت تعامل',
+    'CustomerInteraction.CheckActive': 'بررسی تعامل فعال ',
 
     // --- Home ---
     'Home.Dashboard': 'دسترسی به داشبورد',
@@ -96,11 +99,13 @@ export class RoleManagementComponent implements OnInit {
     'UserReferral.Delete': 'حذف ارجاع',
 
     // --- Users ---
-    'Users.GetUsers': 'مشاهده لیست کاربران',
+    'Users.CreateUser': 'ایجاد کاربر جدید',
+    'Users.GetUsers': 'مشاهده فهرست کاربران',
     'Users.GetUserNames': 'مشاهده نام کاربران',
     'Users.EditUser': 'ویرایش اطلاعات کاربر',
     'Users.DeleteUser': 'حذف کاربر',
-    'Users.GetRoles': 'مشاهده لیست نقش‌ها',
+    'Users.GetRoles': 'مشاهده فهرست نقش‌ها',
+
 
     // --- SMTP Settings ---
     'SmtpSettings.GetAll': 'مشاهده لیست تنظیمات SMTP',

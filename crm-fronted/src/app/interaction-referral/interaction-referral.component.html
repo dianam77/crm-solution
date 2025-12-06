@@ -1,0 +1,34 @@
+<div class="form-group mt-2">
+  <label>انتخاب نقش:</label>
+  <select [(ngModel)]="selectedRole" (change)="onRoleChange()" class="form-control">
+    <option value="">همه نقش‌ها</option>
+    <option *ngFor="let role of roles" [value]="role.name">{{ role.name }}</option>
+  </select>
+</div>
+
+<div class="form-group mt-2">
+  <label>انتخاب کاربر:</label>
+  <select [(ngModel)]="referralAssignedToId"
+          class="form-control"
+          [disabled]="!selectedRole || users.length === 0">
+    <option value="">-- انتخاب کاربر --</option>
+    <option *ngFor="let user of users" [value]="user.id">
+      {{ user.fullName }}
+    </option>
+  </select>
+</div>
+
+<div class="form-group mt-2">
+  <label>یادداشت ارجاع:</label>
+  <textarea [(ngModel)]="referralNote"
+            class="form-control"
+            placeholder="توضیحات ارجاع"></textarea>
+</div>
+
+<button class="btn btn-primary mt-2"
+        (click)="createReferral()"
+        [disabled]="!selectedRole || !referralAssignedToId">
+  ثبت ارجاع
+</button>
+
+<hr>

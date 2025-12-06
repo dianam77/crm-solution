@@ -27,29 +27,15 @@ namespace CRMApp.Services
             _context = context;
         }
 
-        public string GenerateToken(ApplicationUser user, IEnumerable<string> roles)
+        public string GenerateToken(ApplicationUser user, IEnumerable<string> roles, IEnumerable<string> permissions)
         {
-            var finalRoles = roles.ToList();
-
-            if (finalRoles.Contains("Admin"))
-                finalRoles = _context.Roles.Select(r => r.Name).ToList();
-
-            var permissions = _context.RolePermissions
-                                      .Where(rp => finalRoles.Contains(rp.Role.Name))
-                                      .Select(rp => rp.Permission.Name.ToLower())
-                                      .Distinct()
-                                      .ToList();
-
-            Console.WriteLine($"User: {user.UserName}, Permissions: {string.Join(",", permissions)}");
-
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-            };
+    {
+        new Claim(ClaimTypes.Name, user.UserName),
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+    };
 
-            claims.AddRange(finalRoles.Select(role => new Claim(ClaimTypes.Role, role)));
-
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
             claims.Add(new Claim("permissions", JsonSerializer.Serialize(permissions)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
@@ -65,5 +51,7 @@ namespace CRMApp.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+
     }
 }

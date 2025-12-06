@@ -6,7 +6,7 @@ import { City } from '../models/City.model';
 import { LocationService } from '../services/location.service';
 import { MainCompanyService } from '../services/main-company.service';
 import { MainCompany } from '../models/main-company.model';
-import { jwtDecode } from 'jwt-decode';
+import  jwtDecode  from 'jwt-decode';
 
 @Component({
   selector: 'app-main-company',

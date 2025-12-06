@@ -2,6 +2,24 @@
   <h2>ثبت نام کاربر جدید</h2>
 
   <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+    <!-- نام کوچک -->
+    <div class="form-group">
+      <label>نام</label>
+      <input [(ngModel)]="firstName" name="firstName" required #firstNameInput="ngModel" />
+      <div *ngIf="firstNameInput.invalid && firstNameInput.touched" class="error">
+        نام اجباری است
+      </div>
+    </div>
+
+    <!-- نام خانوادگی -->
+    <div class="form-group">
+      <label>نام خانوادگی</label>
+      <input [(ngModel)]="lastName" name="lastName" required #lastNameInput="ngModel" />
+      <div *ngIf="lastNameInput.invalid && lastNameInput.touched" class="error">
+        نام خانوادگی اجباری است
+      </div>
+    </div>
+
     <!-- نام کاربری -->
     <div class="form-group">
       <label>نام کاربری</label>

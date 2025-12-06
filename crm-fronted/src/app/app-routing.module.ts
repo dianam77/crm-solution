@@ -9,6 +9,7 @@ export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
   { path: 'login', component: LoginComponent },
+
   {
     path: 'forgot-password',
     loadComponent: () =>
@@ -20,12 +21,12 @@ export const routes: Routes = [
       import('./reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
   },
 
- 
+  // ================= MAIN LAYOUT ==================
   {
     path: '',
     component: MainLayoutComponent,
     children: [
-   
+
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
       {
@@ -33,20 +34,21 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
       },
+
       {
         path: 'register',
         canActivate: [PermissionGuard],
         loadComponent: () =>
           import('./register/register.component').then(m => m.RegisterComponent),
       },
+
       {
         path: 'users/manage',
         canActivate: [PermissionGuard],
         loadComponent: () =>
-          import('./user-management/user-management.component').then(
-            m => m.UserManagementComponent
-          ),
+          import('./user-management/user-management.component').then(m => m.UserManagementComponent),
       },
+
       {
         path: 'customer-individual',
         canActivate: [PermissionGuard],
@@ -55,6 +57,7 @@ export const routes: Routes = [
             m => m.CustomerIndividualListComponent
           ),
       },
+
       {
         path: 'customer-company',
         canActivate: [PermissionGuard],
@@ -63,6 +66,7 @@ export const routes: Routes = [
             m => m.CustomerCompanyListComponent
           ),
       },
+
       {
         path: 'customer-interaction',
         canActivate: [PermissionGuard],
@@ -71,6 +75,17 @@ export const routes: Routes = [
             m => m.CustomerInteractionComponent
           ),
       },
+
+      // ⭐⭐ مسیر جدید interaction details ⭐⭐
+      {
+        path: 'customer-interaction/:id/details',
+        canActivate: [PermissionGuard],
+        loadComponent: () =>
+          import('./interaction-referral/interaction-referral.component').then(
+            m => m.InteractionReferralComponent
+          ),
+      },
+
       {
         path: 'products/manage',
         canActivate: [PermissionGuard],
@@ -79,6 +94,7 @@ export const routes: Routes = [
             m => m.ProductManagementComponent
           ),
       },
+
       {
         path: 'categories/manage',
         canActivate: [PermissionGuard],
@@ -87,6 +103,8 @@ export const routes: Routes = [
             m => m.CategoryManagementComponent
           ),
       },
+
+      // ================= INVOICE =================
       {
         path: 'invoices',
         canActivate: [PermissionGuard],
@@ -108,28 +126,27 @@ export const routes: Routes = [
           },
         ],
       },
+
       {
         path: 'roles/manage',
         canActivate: [PermissionGuard],
         loadComponent: () =>
-          import('./role-management/role-management.component').then(
-            m => m.RoleManagementComponent
-          ),
+          import('./role-management/role-management.component').then(m => m.RoleManagementComponent),
       },
+
       {
         path: 'main-company',
         canActivate: [PermissionGuard],
         loadComponent: () =>
           import('./main-company/main-company.component').then(m => m.MainCompanyComponent),
       },
+
       {
         path: 'smtp-settings',
         canActivate: [PermissionGuard],
         loadComponent: () =>
-          import('./smtp-settings/smtp-settings.component').then(
-            m => m.SmtpSettingsComponent
-          ),
-      }
+          import('./smtp-settings/smtp-settings.component').then(m => m.SmtpSettingsComponent),
+      },
 
     ],
   },

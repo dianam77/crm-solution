@@ -6,7 +6,7 @@ import moment from 'moment-jalaali';
 
 import { InvoiceService } from '../services/invoice.service';
 import { Invoice, InvoiceType } from '../models/invoice.model';
-import { jwtDecode } from 'jwt-decode';
+import  jwtDecode  from 'jwt-decode';
 
 @Component({
   selector: 'app-invoice-list',

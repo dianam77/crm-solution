@@ -15,7 +15,7 @@ import { CustomerCompanyService } from '../services/customer-company.service';
 import { CustomerIndividualService } from '../services/customer-individual.service';
 import { emailValidator } from '../shared/validators/validate-email.directive';
 import { UserService } from '../services/user.service';
-import { jwtDecode } from 'jwt-decode';
+import  jwtDecode  from 'jwt-decode';
 
 @Component({
   selector: 'app-customer-company-list',

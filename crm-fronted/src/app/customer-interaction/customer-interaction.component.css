@@ -82,7 +82,7 @@ html, body {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 999;
+  z-index: 500!important;
   justify-content: center;
   align-items: center;
   direction: rtl;
@@ -446,3 +446,89 @@ button {
   unicode-bidi: embed;
   display: inline-block;
 }
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* برای اسکرول نرم در موبایل */
+}
+
+.table th, .table td {
+  white-space: nowrap; /* جلوگیری از شکستن متن */
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+.custom-modal-dialog {
+  max-width: 800px;
+  width: 90%;
+  margin: 2rem auto;
+  overflow: visible;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1040;
+}
+
+.custom-modal.show {
+  display: block;
+  z-index: 1050;
+}
+
+.category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.category-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  min-width: 150px;
+}
+
+.products-list {
+  padding-left: 1rem;
+  list-style-type: disc;
+}
+ngx-material-timepicker .ngx-material-timepicker-content {
+  z-index: 2000 !important; /* بالاتر از مودال 1050 */
+}
+.custom-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1050;
+  justify-content: center;
+  align-items: center;
+}
+
+  .custom-modal.show {
+    display: flex;
+  }
+
+.custom-modal-dialog {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  max-width: 500px;
+  width: 100%;
+}
+
+.modal-fixed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+

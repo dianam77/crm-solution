@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
-import { jwtDecode } from 'jwt-decode';
+import  jwtDecode  from 'jwt-decode';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -10,7 +10,8 @@ interface NavLink {
   icon?: string;
   children?: NavLink[];
   showChildren?: boolean;
-  permission?: string;
+  permission?: string;      // لینک با یک پرمیشن
+  permissions?: string[];   // لینک با چند پرمیشن
 }
 
 @Component({
@@ -78,7 +79,12 @@ export class SidebarComponent implements OnInit {
         children: [
           { label: 'مدیریت مشتریان حقیقی', path: '/customer-individual', icon: 'id-card', permission: 'customerindividualapi.getall' },
           { label: 'مدیریت مشتریان حقوقی', path: '/customer-company', icon: 'building', permission: 'customercompanyapi.getcompanies' },
-          { label: 'تعاملات مشتریان', path: '/customer-interaction', icon: 'comments', permission: 'customerinteraction.getall' }
+          {
+            label: 'تعاملات مشتریان',
+            path: '/customer-interaction',
+            icon: 'comments',
+            permissions: ['customerinteraction.getall', 'customerinteraction.getmyinteractions']
+          },
         ]
       },
 

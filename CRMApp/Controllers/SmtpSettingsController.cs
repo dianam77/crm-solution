@@ -32,6 +32,12 @@ namespace CRMApp.Controllers
         [HttpPost]
         public async Task<ActionResult<SmtpSettings>> Create(SmtpSettings setting)
         {
+            if (!ModelState.IsValid)
+            {
+                // خطاهای دقیق فیلدها برمی‌گرده
+                return BadRequest(ModelState);
+            }
+
             setting.CreatedAt = DateTime.UtcNow;
             _context.SmtpSettings.Add(setting);
             await _context.SaveChangesAsync();
@@ -41,6 +47,11 @@ namespace CRMApp.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, SmtpSettings setting)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (id != setting.Id)
                 return BadRequest();
 
@@ -61,5 +72,6 @@ namespace CRMApp.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
     }
 }

@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ProductService } from '../services/product.service';
 import { CategoryService } from '../services/category.service';
 import { Product, ProductType } from '../models/product.model';
-import { jwtDecode } from 'jwt-decode';
+import  jwtDecode from 'jwt-decode';
 
 @Component({
   selector: 'app-product-management',

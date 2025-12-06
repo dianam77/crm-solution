@@ -21,7 +21,6 @@ namespace CRMApp.Controllers
         private readonly CRMAppDbContext _dbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IConfiguration _config;
         private readonly TokenService _tokenService;
         private readonly IEmailService _emailService;
 
@@ -29,14 +28,12 @@ namespace CRMApp.Controllers
             CRMAppDbContext dbContext,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IConfiguration config,
             TokenService tokenService,
             IEmailService emailService)
         {
             _dbContext = dbContext;
             _userManager = userManager;
             _signInManager = signInManager;
-            _config = config;
             _tokenService = tokenService;
             _emailService = emailService;
         }
@@ -57,10 +54,19 @@ namespace CRMApp.Controllers
                 return Unauthorized(new { message = "نام کاربری یا رمز عبور اشتباه است" });
 
             var roles = await _userManager.GetRolesAsync(user);
-            var token = _tokenService.GenerateToken(user, roles);
+
+            // 🔹 گرفتن پرمیژن‌ها از دیتابیس
+            var userPermissions = await _dbContext.RolePermissions
+                .Where(rp => roles.Contains(rp.Role.Name))
+                .Select(rp => rp.Permission.Name)
+                .ToListAsync();
+
+            // 🔹 ساخت JWT با پرمیژن‌ها
+            var token = _tokenService.GenerateToken(user, roles, userPermissions);
 
             return Ok(new { token });
         }
+
 
         [HttpPost("register")]
         [AllowAnonymous]
@@ -79,7 +85,10 @@ namespace CRMApp.Controllers
             var user = new ApplicationUser
             {
                 UserName = model.Username,
-                Email = model.Email
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                IsActive = true
             };
 
             var createResult = await _userManager.CreateAsync(user, model.Password);
@@ -93,7 +102,6 @@ namespace CRMApp.Controllers
             return Ok(new { message = "ثبت‌نام با موفقیت انجام شد" });
         }
 
- 
         [HttpGet("dashboard")]
         [Authorize]
         public IActionResult Dashboard()
@@ -107,7 +115,6 @@ namespace CRMApp.Controllers
             return Ok(new { message = $"خوش آمدی {username}", roles });
         }
 
-       
         [HttpPost("forgot-password")]
         [AllowAnonymous]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
@@ -117,46 +124,27 @@ namespace CRMApp.Controllers
 
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null)
-            {
-                
                 return Ok(new { message = "در صورت معتبر بودن ایمیل، دستورالعمل بازیابی رمز عبور ارسال خواهد شد." });
-            }
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var frontendUrl = "http://localhost:4200/reset-password";
             var resetLink = $"{frontendUrl}?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(user.Email)}";
 
-          
             var smtpSettings = await _dbContext.SmtpSettings.FirstOrDefaultAsync(s => s.IsActive);
             if (smtpSettings == null || string.IsNullOrWhiteSpace(smtpSettings.SenderEmail))
-            {
                 return StatusCode(503, new { message = "تنظیمات ایمیل هنوز توسط مدیر سیستم انجام نشده است." });
-            }
 
-            try
-            {
-                var body = $@"
-                    <p>برای بازیابی رمز عبور خود روی لینک زیر کلیک کنید:</p>
-                    <p><a href='{resetLink}'>بازیابی رمز عبور</a></p>
-                    <p>اگر این درخواست از طرف شما نبوده، این ایمیل را نادیده بگیرید.</p>";
+            var body = $@"
+                <p>برای بازیابی رمز عبور خود روی لینک زیر کلیک کنید:</p>
+                <p><a href='{resetLink}'>بازیابی رمز عبور</a></p>
+                <p>اگر این درخواست از طرف شما نبوده، این ایمیل را نادیده بگیرید.</p>";
 
-                await _emailService.SendAsync(
-                    user.Email,
-                    "بازیابی رمز عبور",
-                    body,
-                    smtpSettings
-                );
-            }
-            catch (Exception exEmail)
-            {
-                Console.WriteLine("SMTP error: " + exEmail.Message);
-                return StatusCode(500, new { message = "ارسال ایمیل موفق نبود. لطفاً بعداً تلاش کنید." });
-            }
+            try { await _emailService.SendAsync(user.Email, "بازیابی رمز عبور", body, smtpSettings); }
+            catch { return StatusCode(500, new { message = "ارسال ایمیل موفق نبود. لطفاً بعداً تلاش کنید." }); }
 
             return Ok(new { message = "در صورت معتبر بودن ایمیل، دستورالعمل بازیابی رمز عبور ارسال خواهد شد." });
         }
 
-        
         [HttpPost("reset-password")]
         [AllowAnonymous]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
@@ -164,9 +152,7 @@ namespace CRMApp.Controllers
             if (string.IsNullOrWhiteSpace(dto.Email) ||
                 string.IsNullOrWhiteSpace(dto.Token) ||
                 string.IsNullOrWhiteSpace(dto.NewPassword))
-            {
                 return BadRequest(new { message = "اطلاعات ناقص است" });
-            }
 
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null)

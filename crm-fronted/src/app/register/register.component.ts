@@ -4,6 +4,7 @@ import { UserService } from '../services/user.service';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { RegisterUser } from '../models/user.model';
 
 @Component({
   selector: 'app-register',
@@ -17,6 +18,8 @@ export class RegisterComponent implements OnInit {
   password = '';
   email = '';
   roleName = '';
+  firstName = '';
+  lastName = '';
   roles: string[] = [];
 
   errorMessage = '';
@@ -43,7 +46,16 @@ export class RegisterComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.authService.register(this.username, this.password, this.email, this.roleName).subscribe({
+    const newUser: RegisterUser = {
+      userName: this.username,
+      password: this.password,
+      email: this.email,
+      roleName: this.roleName,
+      firstName: this.firstName,
+      lastName: this.lastName
+    };
+
+    this.authService.register(newUser).subscribe({
       next: (res: any) => {
         this.successMessage = res.message || 'کاربر با موفقیت ثبت شد';
         this.router.navigate(['/dashboard']);

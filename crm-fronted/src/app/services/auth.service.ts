@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { RegisterUser } from '../models/user.model';
 
 interface LoginResponse {
   token: string;
@@ -36,8 +37,8 @@ export class AuthService {
       );
   }
 
-  register(username: string, password: string, email: string, roleName: string): Observable<any> {
-    return this.http.post<any>(`${this.homeUrl}/register`, { username, Password: password, Email: email, RoleName: roleName });
+  register(user: RegisterUser): Observable<any> {
+    return this.http.post<any>(`${this.homeUrl}/register`, user);
   }
 
   logout() {
@@ -57,7 +58,7 @@ export class AuthService {
   getPermissions(): string[] {
     const token = localStorage.getItem('jwtToken');
     if (!token) return [];
-    
+
     const decoded = this.decodeToken(token);
     if (!decoded?.permissions) return [];
 
@@ -67,6 +68,7 @@ export class AuthService {
       return [];
     }
   }
+
   forgotPassword(email: string): Observable<any> {
     return this.http.post(`${this.homeUrl}/forgot-password`, { email });
   }
@@ -105,6 +107,21 @@ export class AuthService {
       || decoded?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
       || null;
   }
+  getCurrentUserId(): string | null {
+    const token = localStorage.getItem('jwtToken');
+    if (!token) return null;
+
+    const decoded = this.decodeToken(token);
+    if (!decoded) return null;
+
+    // بررسی کلیدهای مختلفی که ممکن است UserId در آن باشد
+    return decoded.id
+      || decoded.sub
+      || decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
+      || null;
+  }
+
+
 
   private updateUserDataFromToken(token: string) {
     const name = this.getNameFromToken(token);

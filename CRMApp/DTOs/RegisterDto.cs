@@ -1,4 +1,5 @@
-﻿namespace CRMApp.DTOs
+﻿// DTO
+namespace CRMApp.DTOs
 {
     public class RegisterDto
     {
@@ -7,6 +8,7 @@
         public string Password { get; set; }
         public string RoleName { get; set; }
 
-        public string? FullName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
     }
 }

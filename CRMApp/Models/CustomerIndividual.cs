@@ -40,5 +40,8 @@ namespace CRMApp.Models
         public ICollection<CustomerCompanyRelation> CustomerCompanyRelations { get; set; } = new List<CustomerCompanyRelation>();
 
         public string FullName => $"{FirstName} {LastName}".Trim();
+
+       
+
     }
 }

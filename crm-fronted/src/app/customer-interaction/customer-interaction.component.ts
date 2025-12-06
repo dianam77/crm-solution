@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import moment from 'moment-jalaali';
@@ -6,21 +6,27 @@ import { forkJoin } from 'rxjs';
 import { NgPersianDatepickerModule } from 'ng-persian-datepicker';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
-import { jwtDecode } from 'jwt-decode';
+import jwtDecode  from 'jwt-decode';
 import { NgSelectModule } from '@ng-select/ng-select';
+
 import { CategoryService } from '../services/category.service';
 import { ProductService } from '../services/product.service';
 import { CustomerInteractionService } from '../services/customer-interaction.service';
 import { CustomerIndividualService } from '../services/customer-individual.service';
 import { CustomerCompanyService } from '../services/customer-company.service';
 import { AuthService } from '../services/auth.service';
-import { AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+
 import { CustomerInteraction } from '../models/customer-interaction.model';
 import { CustomerIndividual } from '../models/customer-individual.model';
 import { CustomerCompany } from '../models/customer-company.model';
 import { Category } from '../models/category.model';
 import { Product } from '../models/product.model';
 import { CustomerInteractionAttachment } from '../models/CustomerInteractionAttachment';
+import { Router } from '@angular/router';
+interface ConflictInfo {
+  customerFullName: string;
+  ownerName: string;
+}
 
 @Component({
   selector: 'app-customer-interaction',
@@ -32,7 +38,6 @@ import { CustomerInteractionAttachment } from '../models/CustomerInteractionAtta
     NgPersianDatepickerModule,
     NgxMaterialTimepickerModule,
     NgSelectModule
-
   ],
   templateUrl: './customer-interaction.component.html',
   styleUrls: ['./customer-interaction.component.css']
@@ -61,17 +66,16 @@ export class CustomerInteractionComponent implements OnInit {
   allProducts: Product[] = [];
 
   currentAttachmentFiles: { file: File, originalName: string }[] = [];
-
   existingAttachments: { filePath: string; originalName: string }[] = [];
-
 
   formattedTime = '';
   timeFormat: '12' | '24' = '24';
   amPm: 'AM' | 'PM' = 'AM';
   permissions: string[] = [];
- 
 
-  
+  // برای هر گروه فیلتر محصولات
+  filteredProductsByGroup: Product[][] = [];
+    customerInteractionService: any;
 
   constructor(
     private fb: FormBuilder,
@@ -81,7 +85,9 @@ export class CustomerInteractionComponent implements OnInit {
     private categoryService: CategoryService,
     private productService: ProductService,
     private cdr: ChangeDetectorRef,
-    public authService: AuthService
+    public authService: AuthService,
+    private router: Router,
+    private zone: NgZone
   ) {
     this.form = this.fb.group({
       interactionType: [0, Validators.required],
@@ -100,12 +106,16 @@ export class CustomerInteractionComponent implements OnInit {
       ])
     });
   }
+  
 
   get categoryProductGroups(): FormArray {
     return this.form.get('categoryProductGroups') as FormArray;
   }
 
-  filteredProductsByGroup: Product[][] = []; 
+  // برای هماهنگی نام فرم در برخی نقاط
+  get categoryProductFormArray(): FormArray {
+    return this.form.get('categoryProductGroups') as FormArray;
+  }
 
   addCategoryProductGroup(): void {
     const group = this.fb.group({
@@ -123,12 +133,9 @@ export class CustomerInteractionComponent implements OnInit {
 
   onCategoryChange(index: number): void {
     const selectedIds = this.categoryProductGroups.at(index).get('categoryIds')?.value || [];
+    // فرض بر این است که Product.categoryId نوعش string یا number است و قابل includes است
     this.filteredProductsByGroup[index] = this.allProducts.filter(p => selectedIds.includes(p.categoryId));
     this.categoryProductGroups.at(index).patchValue({ productIds: [] });
-  }
-
-  get categoryProductFormArray(): FormArray {
-    return this.form.get('categoryProductFormArray') as FormArray;
   }
 
   ngOnInit(): void {
@@ -136,6 +143,30 @@ export class CustomerInteractionComponent implements OnInit {
     this.authService.currentUser$.subscribe(name => this.currentUserName = name || '');
     this.loadPermissions();
 
+    // 🔹 چاپ JWT و نقش‌ها برای دیباگ
+    const token = localStorage.getItem('jwtToken');
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        console.log("📌 JWT Payload:", decoded);
+
+        // بررسی نقش‌ها و دسترسی‌ها
+        if (decoded.permissions) {
+          const perms = Array.isArray(decoded.permissions)
+            ? decoded.permissions
+            : JSON.parse(decoded.permissions);
+          console.log("📌 Permissions:", perms);
+        }
+
+        if (decoded.role) {
+          console.log("📌 Role:", decoded.role);
+        }
+      } catch (err) {
+        console.error("❌ JWT decode error:", err);
+      }
+    }
+
+    // بارگذاری اولیه داده‌ها
     forkJoin({
       individual: this.individualService.getAll(),
       company: this.companyService.getAll(),
@@ -148,12 +179,23 @@ export class CustomerInteractionComponent implements OnInit {
         this.categories = categories;
         this.allProducts = products;
         this.filteredProducts = [];
+        this.filteredProductsByGroup = this.categoryProductGroups.controls.map(_ => []);
         this.loadInteractions();
 
+        // subscribe روی انتخاب مشتری برای بررسی تعامل فعال
+        this.form.get('individualCustomerId')?.valueChanges.subscribe(id => {
+          if (id) this.checkActiveInteraction(id);
+        });
+
+        this.form.get('companyCustomerId')?.valueChanges.subscribe(id => {
+          if (id) this.checkActiveInteraction(id);
+        });
       },
       error: err => console.error(err)
     });
   }
+
+
 
   private loadPermissions() {
     const token = localStorage.getItem('jwtToken');
@@ -172,39 +214,74 @@ export class CustomerInteractionComponent implements OnInit {
   hasPermission(permission: string): boolean {
     return this.permissions.includes(permission.toLowerCase());
   }
-
   loadInteractions(): void {
-    this.interactionService.getAll().subscribe({
-      next: res => {
-        this.interactions = res.map(i => {
-        
-          if (typeof i.interactionType === 'string') {
-            const found = this.interactionTypes.find(x => x.key === i.interactionType);
-            i.interactionType = found ? found.value : undefined;
-          } else if (typeof i.interactionType === 'number') {
-            i.interactionType = Number(i.interactionType);
-          } else {
-            i.interactionType = undefined;
-          }
+    // 🔹 چاپ payload JWT برای دیباگ
+    const token = localStorage.getItem('jwtToken');
+    const payload = token ? this.authService['decodeToken'](token) : null;
+    console.log("📌 JWT PAYLOAD:", payload);
+    console.log("📌 ROLE:", this.authService.getRole());
+    console.log("📌 PERMISSIONS:", this.authService.getPermissions());
 
+    // 🔹 چک permission واقعی برای دیدن همه تعاملات
+    const hasGetAll = this.authService.hasPermission('customerinteraction.getall');
+    console.log("📌 HAS customerinteraction.getall ?", hasGetAll);
+
+    // 🔹 انتخاب متد مناسب
+    const request$ = hasGetAll
+      ? this.interactionService.getAll()
+      : this.interactionService.getMyInteractions();
+
+    request$.subscribe({
+      next: (res: any[]) => {
+        this.interactions = res.map((i: any) => {
+          // تبدیل نوع تعامل
+          let typeKey: number | undefined;
+          if (typeof i.interactionType === 'string') {
+            const parsed = Number(i.interactionType);
+            typeKey = isNaN(parsed) ? undefined : parsed;
+          } else if (typeof i.interactionType === 'number') {
+            typeKey = i.interactionType;
+          } else {
+            typeKey = undefined;
+          }
+          i.interactionType = typeKey;
+
+          // پردازش مشتری
           i.customer = i.individualCustomerId
-            ? this.individualCustomers.find(c => c.customerId === i.individualCustomerId)
+            ? this.individualCustomers.find((c: any) => c.customerId === i.individualCustomerId)
             : i.companyCustomerId
-              ? this.companyCustomers.find(c => c.customerId === i.companyCustomerId)
+              ? this.companyCustomers.find((c: any) => c.customerId === i.companyCustomerId)
               : undefined;
 
-          i.productName = i.productIds?.map(pid => this.allProducts.find(p => p.id === pid)?.name || '').filter(n => n);
-          i.categoryName = i.categoryIds?.map(cid => this.categories.find(c => c.id === cid)?.name || '').filter(n => n);
+          // نام محصولات
+          i.productName = i.productIds
+            ?.map((pid: number) => this.allProducts.find((p: any) => p.id === pid)?.name || '')
+            .filter((n: string) => n);
 
-   
-          i.performedBy = this.currentUserName || '-';
+          // نام دسته‌بندی‌ها
+          i.categoryName = i.categoryIds
+            ?.map((cid: number) => this.categories.find((c: any) => c.id === cid)?.name || '')
+            .filter((n: string) => n);
 
-          return i;
+          // اسامی انجام‌دهنده‌ها
+          i.performedByName = i.performedByName?.trim() || this.currentUserName || '-';
+          i.createdByName = i.createdByName?.trim() || '-';
+          i.currentOwnerName = i.currentOwnerName?.trim() || '-';
+
+          // وضعیت
+          const status = i.isActive ? 'فعال' : 'غیرفعال';
+
+          return { ...i, status };
         });
       },
-      error: err => console.error('Error loading interactions:', err)
+      error: (err: any) => {
+        console.error('Error loading interactions:', err);
+      }
     });
   }
+
+
+
 
 
   selectCustomerType(type: 'individual' | 'company') {
@@ -212,9 +289,6 @@ export class CustomerInteractionComponent implements OnInit {
     if (type === 'individual') this.form.patchValue({ companyCustomerId: null });
     else this.form.patchValue({ individualCustomerId: null });
   }
-
-  
-
 
   getStartDateTimeISO(): string {
     const startDate = this.form.get('startDateTime')?.value;
@@ -249,10 +323,21 @@ export class CustomerInteractionComponent implements OnInit {
   calculateEndDate(): string | undefined {
     const startISO = this.getStartDateTimeISO();
     const duration = Number(this.form.get('durationMinutes')?.value);
+
     if (!startISO || isNaN(duration) || duration <= 0) return undefined;
 
-    return moment(startISO, 'YYYY-MM-DDTHH:mm:ss', true).add(duration, 'minutes').format('YYYY-MM-DDTHH:mm:ss');
+    // محاسبه EndDateTime
+    const endISO = moment(startISO, 'YYYY-MM-DDTHH:mm:ss', true)
+      .add(duration, 'minutes')
+      .format('YYYY-MM-DDTHH:mm:ss');
+
+    // تبدیل اعداد فارسی به انگلیسی
+    const toEnglishNumbers = (input: string) =>
+      input.replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776));
+
+    return toEnglishNumbers(endISO);
   }
+
 
   onTimeTextChange(value: string): void {
     const normalized = this.normalizeTime(value);
@@ -283,75 +368,79 @@ export class CustomerInteractionComponent implements OnInit {
       return;
     }
 
-
     const formData = new FormData();
 
+    // Helper: تبدیل اعداد فارسی به انگلیسی
+    const toEnglishNumbers = (input: string) =>
+      input.replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776));
 
+    // Interaction Type
     const interactionType = this.form.get('interactionType')?.value;
     if (interactionType != null) formData.append('InteractionType', interactionType.toString());
 
-
+    // Start DateTime
     const startDateISO = this.getStartDateTimeISO();
     if (!startDateISO) {
       alert('لطفاً تاریخ و ساعت شروع را به درستی وارد کنید.');
       return;
     }
-    formData.append('StartDateTime', startDateISO);
+    formData.append('StartDateTime', toEnglishNumbers(startDateISO));
 
-    const duration = this.form.get('durationMinutes')?.value;
-    if (duration && !isNaN(duration)) {
+    // Duration & EndDateTime
+    const duration = Number(this.form.get('durationMinutes')?.value);
+    if (!isNaN(duration) && duration > 0) {
       formData.append('DurationMinutes', duration.toString());
-      const endDateISO = this.calculateEndDate();
-      if (endDateISO) formData.append('EndDateTime', endDateISO);
+      const endDateISO = toEnglishNumbers(
+        moment(startDateISO, 'YYYY-MM-DDTHH:mm:ss', true)
+          .add(duration, 'minutes')
+          .format('YYYY-MM-DDTHH:mm:ss')
+      );
+      formData.append('EndDateTime', endDateISO);
     }
 
- 
+    // Subject & Notes
     const subject = this.form.get('subject')?.value;
     const notes = this.form.get('notes')?.value;
     if (subject) formData.append('Subject', subject);
     if (notes) formData.append('Notes', notes);
 
-
+    // Category/Product groups
     const categoryProductGroups = this.form.get('categoryProductGroups') as FormArray;
-    if (categoryProductGroups && categoryProductGroups.length > 0) {
-      const combinedData: { CategoryIds: string[]; ProductIds: string[] }[] = [];
-      categoryProductGroups.controls.forEach(group => {
-        const cats = (group.get('categoryIds')?.value || []).map((c: any) => c.toString());
-        const prods = (group.get('productIds')?.value || []).map((p: any) => p.toString());
-        if (cats.length > 0 || prods.length > 0) combinedData.push({ CategoryIds: cats, ProductIds: prods });
+    if (categoryProductGroups?.length) {
+      const combinedData = categoryProductGroups.controls.map(group => {
+        const cats: string[] = (group.get('categoryIds')?.value || []).map((c: any) => c.toString());
+        const prods: string[] = (group.get('productIds')?.value || []).map((p: any) => p.toString());
+        return { CategoryIds: cats, ProductIds: prods };
       });
       formData.append('CategoryProductGroupsJson', JSON.stringify(combinedData));
     }
 
-
-    if (this.selectedCustomerType === 'individual' && this.form.get('individualCustomerId')?.value) {
-      formData.append('IndividualCustomerId', this.form.get('individualCustomerId')?.value.toString());
-    } else if (this.selectedCustomerType === 'company' && this.form.get('companyCustomerId')?.value) {
-      formData.append('CompanyCustomerId', this.form.get('companyCustomerId')?.value.toString());
+    // Customer selection
+    if (this.selectedCustomerType === 'individual') {
+      const id = this.form.get('individualCustomerId')?.value;
+      if (id != null) formData.append('IndividualCustomerId', id.toString());
+    } else if (this.selectedCustomerType === 'company') {
+      const id = this.form.get('companyCustomerId')?.value;
+      if (id != null) formData.append('CompanyCustomerId', id.toString());
     }
 
+    // New files
     this.currentAttachmentFiles.forEach(f => {
-      formData.append('attachments', f.file, f.originalName);
+      if (f.file && f.originalName) {
+        formData.append('attachments', f.file, f.originalName);
+      }
     });
 
-
+    // Existing attachments
     if (this.existingAttachments?.length) {
       const existingPaths = this.existingAttachments.map(f => f.filePath).join(',');
       formData.append('ExistingAttachmentPaths', existingPaths);
     }
 
+    // Debug payload
+    console.log('📦 Payload Sent to Backend:', Object.fromEntries(formData.entries()));
 
-    const plainObject: any = {};
-    formData.forEach((v, k) => {
-      try {
-        plainObject[k] = JSON.parse(v as string);
-      } catch {
-        plainObject[k] = v;
-      }
-    });
-    console.log('📦 Payload Sent to Backend:', plainObject);
-
-
+    // Send request
     const request = this.isEditMode && this.editingInteractionId != null
       ? this.interactionService.update(this.editingInteractionId, formData)
       : this.interactionService.create(formData);
@@ -368,8 +457,72 @@ export class CustomerInteractionComponent implements OnInit {
       }
     });
   }
+  async checkActiveInteraction(customerId: number): Promise<ConflictInfo | null> {
+    return new Promise((resolve) => {
+      this.interactionService.getActiveByCustomer(customerId).subscribe({
+        next: (res: any) => {
+          console.log('🔹 API Response:', res);
+
+          if (res.conflict && res.conflictingInteractions?.length > 0) {
+            const conflict = res.conflictingInteractions[0];
+
+            const currentUserId = String(this.authService.getCurrentUserId() || '').trim().toLowerCase();
+            const ownerId = String(conflict.currentOwnerId || '').trim().toLowerCase();
+
+            if (ownerId && ownerId !== currentUserId) {
+              const conflictInfo: ConflictInfo = {
+                customerFullName: conflict.customerFullName || 'نامشخص',
+                ownerName: conflict.currentOwnerFullName || 'نامشخص'
+              };
+              resolve(conflictInfo);
+              return;
+            }
+          }
+
+          resolve(null); // اگر تعارضی نیست
+        },
+        error: (err) => {
+          console.error('خطا در بررسی تعامل فعال:', err);
+          resolve(null); // در صورت خطا اجازه ادامه بده
+        }
+      });
+    });
+  }
 
 
+  onCustomerSelect(customerType: 'individual' | 'company') {
+    const customerId = customerType === 'individual'
+      ? this.form.get('individualCustomerId')?.value
+      : this.form.get('companyCustomerId')?.value;
+
+    if (!customerId) return;
+
+    this.checkActiveInteraction(customerId).then(conflict => {
+      if (conflict) {
+        // اجازه بده Angular ابتدا انتخاب را ثبت کند
+        setTimeout(() => {
+          this.zone.run(() => {
+            const message = `⚠️ مشتری «${conflict.customerFullName}» در حال حاضر توسط کاربر «${conflict.ownerName}» در تعامل فعال قرار دارد.\n\nآیا می‌خواهید ادامه دهید؟`;
+            const proceed = window.confirm(message);
+
+            if (!proceed) {
+              // کاربر رد کرد → انتخاب را پاک کن
+              if (customerType === 'individual') {
+                this.form.patchValue({ individualCustomerId: null });
+              } else {
+                this.form.patchValue({ companyCustomerId: null });
+              }
+            }
+          });
+        }, 0);
+      }
+    });
+  }
+
+
+
+
+  // نمایش پیوست‌ها
   selectedAttachments: CustomerInteractionAttachment[] = [];
   showAttachmentsModal = false;
 
@@ -379,17 +532,27 @@ export class CustomerInteractionComponent implements OnInit {
     this.showAttachmentsModal = true;
   }
 
-
-
   editInteraction(i: CustomerInteraction): void {
     this.isEditMode = true;
     this.editingInteractionId = i.id ?? null;
 
-    
+    // تبدیل اعداد فارسی به انگلیسی
+    const toEnglishNumbers = (input: string) =>
+      input.replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776));
+
+    let startDate = '';
+    let startTime = '';
+
+    if (i.startDateTime) {
+      const m = moment(i.startDateTime);
+      startDate = toEnglishNumbers(m.format('jYYYY/jMM/jDD'));
+      startTime = toEnglishNumbers(m.format('HH:mm'));
+    }
+
     this.form.patchValue({
       interactionType: Number(i.interactionType),
-      startDateTime: i.startDateTime ? moment(i.startDateTime).format('jYYYY/jMM/jDD') : '',
-      startTime: i.startDateTime ? moment(i.startDateTime).format('HH:mm') : '',
+      startDateTime: startDate,
+      startTime: startTime,
       durationMinutes: [0, 1].includes(Number(i.interactionType)) ? i.durationMinutes ?? null : null,
       subject: i.subject ?? '',
       notes: i.notes ?? '',
@@ -397,6 +560,7 @@ export class CustomerInteractionComponent implements OnInit {
       companyCustomerId: i.companyCustomerId ?? null
     });
 
+    // خالی‌سازی فرم آرایه گروه‌ها
     while (this.categoryProductGroups.length) {
       this.categoryProductGroups.removeAt(0);
     }
@@ -410,33 +574,26 @@ export class CustomerInteractionComponent implements OnInit {
         const selectedProductIds = i.productIds?.filter(pid => filteredProducts.some(p => p.id === pid)) || [];
 
         const group = this.fb.group({
-          categoryIds: [[catId]],         
-          productIds: [selectedProductIds] 
+          categoryIds: [[catId]],
+          productIds: [selectedProductIds]
         });
 
         this.categoryProductGroups.push(group);
       });
     }
 
-
-    this.formattedTime = i.startDateTime ? moment(i.startDateTime).format('HH:mm') : '';
-
+    this.formattedTime = startTime;
 
     this.existingAttachments = i.attachments?.map(a => ({
       filePath: a.filePath ?? '',
-      originalName: a.filePath?.split('/').pop() ?? ''
+      originalName: a.originalName ?? (a.filePath?.split('/').pop() ?? '')
     })) ?? [];
-
 
     this.currentAttachmentFiles = [];
 
-  
     this.cdr.detectChanges();
     this.showModal = true;
   }
-
-
-
 
 
   updateInteractionEndDate(): void {
@@ -460,8 +617,12 @@ export class CustomerInteractionComponent implements OnInit {
     if (!confirm('آیا از حذف این تعامل اطمینان دارید؟')) return;
     this.interactionService.delete(id).subscribe(() => {
       this.interactions = this.interactions.filter(i => i.id !== id);
+    }, err => {
+      console.error('Error deleting interaction:', err);
+      alert('خطا در حذف تعامل.');
     });
   }
+
   resetForm(): void {
     this.showModal = false;
 
@@ -476,17 +637,21 @@ export class CustomerInteractionComponent implements OnInit {
       notes: ''
     });
 
+    // بازنشانی آرایه گروه‌ها به حالت اولیه (یک گروه خالی)
+    while (this.categoryProductGroups.length) {
+      this.categoryProductGroups.removeAt(0);
+    }
+    this.addCategoryProductGroup();
+
     this.isEditMode = false;
     this.editingInteractionId = null;
 
-
     this.currentAttachmentFiles = [];
-    this.existingAttachments = [];    
+    this.existingAttachments = [];
 
     this.formattedTime = '';
     this.interactions = [...this.interactions];
   }
-
 
   toJalali(dateStr?: string): string {
     if (!dateStr) return '-';
@@ -501,16 +666,24 @@ export class CustomerInteractionComponent implements OnInit {
       event.target.value = '';
     }
   }
-
+  
   getInteractionLabel(type: number | string | undefined): string {
     if (type === undefined || type === null || type === '') return '-';
-    if (typeof type === 'string') {
-      const t = this.interactionTypes.find(x => x.key === type);
-      return t?.label || '-';
+
+    const asNumber = Number(type);
+    if (!isNaN(asNumber)) {
+      const t = this.interactionTypes.find(x => x.value === asNumber);
+      if (t) return t.label;
     }
-    const t = this.interactionTypes.find(x => x.value === Number(type));
-    return t?.label || '-';
+
+    if (typeof type === 'string') {
+      const t = this.interactionTypes.find(x => x.key.toLowerCase() === type.toLowerCase());
+      if (t) return t.label;
+    }
+
+    return '-';
   }
+
 
   getAttachmentUrl(path?: string): string {
     return path ? `https://localhost:44386${path}` : '';
@@ -522,24 +695,22 @@ export class CustomerInteractionComponent implements OnInit {
     if ('companyName' in customer) return customer.companyName || '-';
     return '-';
   }
- 
 
   onFileChange(event: any): void {
     const files: FileList = event.target.files;
-    const maxSizeMB = 5; 
+    const maxSizeMB = 5;
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
     if (files && files.length > 0) {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
-     
         if (file.size > maxSizeBytes) {
           alert(`⚠️ فایل "${file.name}" بیش از ${maxSizeMB} مگابایت حجم دارد و اضافه نمی‌شود.`);
-          continue; 
+          continue;
         }
 
-        
+        // بررسی تکراری بودن بر اساس نام فایل
         const isDuplicate =
           this.currentAttachmentFiles.some(f => f.file.name === file.name) ||
           this.existingAttachments.some(f => f.originalName === file.name);
@@ -549,15 +720,13 @@ export class CustomerInteractionComponent implements OnInit {
           continue;
         }
 
-        
         this.currentAttachmentFiles.push({ file, originalName: file.name });
       }
     }
 
+    // پاک‌سازی input تا دوباره بتوان همان فایل را انتخاب کرد
     event.target.value = '';
   }
-
-
 
   addFileInput(fileInput: HTMLInputElement): void {
     fileInput.click();
@@ -579,30 +748,39 @@ export class CustomerInteractionComponent implements OnInit {
       this.currentAttachmentFiles.splice(index, 1);
     }
   }
+
   isArray(value: any): value is any[] {
     return Array.isArray(value);
   }
+
   getCategoryProductPairs(i: CustomerInteraction): { category: string; products: string[] }[] {
-  if (!i.categoryName || i.categoryName.length === 0) return [];
+    if (!i.categoryName || i.categoryName.length === 0) return [];
 
-  const pairs: { category: string; products: string[] }[] = [];
+    const pairs: { category: string; products: string[] }[] = [];
 
-  i.categoryName.forEach(category => {
+    // اطمینان از اینکه categoryName و productName آرایه هستند
+    const categories: string[] = Array.isArray(i.categoryName) ? i.categoryName : [i.categoryName];
+    const products: string[] = Array.isArray(i.productName) ? i.productName : (i.productName ? [i.productName] : []);
 
-    const productsForCategory = (i.productName || []).filter(pName => {
+    categories.forEach((category: string) => {
+      const productsForCategory = products.filter((pName: string) => {
+        const product = this.allProducts.find(p => p.name === pName);
+        const categoryObj = this.categories.find(c => c.name === category);
+        return product?.categoryId === categoryObj?.id;
+      });
 
-      const product = this.allProducts.find(p => p.name === pName);
-      return product?.categoryId === this.categories.find(c => c.name === category)?.id;
+  
+pairs.push({
+  category,
+  products: productsForCategory
+});
+
+
     });
 
-    pairs.push({
-      category,
-      products: productsForCategory
-    });
-  });
+    return pairs;
+  }
 
-  return pairs;
-}
 
   selectedCategoryProducts: { category: string; products: string[] }[] = [];
   showCategoryModal = false;
@@ -613,9 +791,63 @@ export class CustomerInteractionComponent implements OnInit {
     this.showCategoryModal = true;
   }
 
-
-
-
   onFormatChange(value: '12' | '24'): void { this.timeFormat = value; }
   onAmPmChange(value: 'AM' | 'PM'): void { this.amPm = value; }
+
+
+  goToReferral(interactionId: number) {
+    this.router.navigate([`/customer-interaction/${interactionId}/details`]);
+  }
+  showIsActiveModal = false;
+  selectedIsActive: boolean = false;
+  editingActiveId: number | null = null;
+
+  openIsActiveModal(interaction: CustomerInteraction) {
+    this.editingActiveId = interaction.id!;
+    this.selectedIsActive = interaction.isActive ?? false;
+    this.showIsActiveModal = true;
+  }
+
+  closeIsActiveModal() {
+    this.showIsActiveModal = false;
+    this.editingActiveId = null;
+  }
+  saveIsActive() {
+    if (this.editingActiveId === null) return;
+
+    // مقدار selectedIsActive الان حتما Boolean است
+    const activeValue: boolean = this.selectedIsActive;
+
+    this.interactionService.updateIsActive(this.editingActiveId, activeValue)
+      .subscribe({
+        next: () => {
+          // آپدیت سریع UI بدون reload
+          const interaction = this.interactions.find(i => i.id === this.editingActiveId);
+          if (interaction) interaction.isActive = activeValue;
+
+          this.closeIsActiveModal();
+          alert("وضعیت با موفقیت به‌روزرسانی شد.");
+        },
+        error: err => {
+          console.error(err);
+          alert("خطا در تغییر وضعیت.");
+        }
+      });
+  }
+
+
+
+  canRefer(interaction: CustomerInteraction): boolean {
+    const currentUserId = String(this.authService.getCurrentUserId()).trim().toLowerCase();
+    const isOwnerOrAssigned =
+      String(interaction.currentOwnerId).trim().toLowerCase() === currentUserId ||
+      String(interaction.performedById).trim().toLowerCase() === currentUserId;
+
+    const hasReferralPermission = this.hasPermission('customerinteractionreferral.createreferral');
+
+    return isOwnerOrAssigned && hasReferralPermission;
+  }
+
+
+
 }

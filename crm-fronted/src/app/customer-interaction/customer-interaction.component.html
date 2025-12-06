@@ -1,22 +1,26 @@
 <div class="container mt-4">
 
-  <button class="btn btn-primary mb-3" (click)="showModal = true"
-          *ngIf="hasPermission('customerinteraction.create')">
-    تعامل جدید
-  </button>
+  <!-- دکمه ایجاد تعامل جدید -->
+  <div class="mb-3">
+    <button class="btn btn-primary"
+            (click)="showModal = true"
+            *ngIf="hasPermission('customerinteraction.create')">
+      تعامل جدید
+    </button>
+    <br /><br />
+  </div>
 
+  <!-- مدال ایجاد / ویرایش تعامل -->
   <div class="custom-modal" [class.show]="showModal">
-    <div class="modal-backdrop"></div>
+
     <div class="custom-modal-dialog">
       <div class="modal-fixed-header">
         <h5>{{ isEditMode ? 'ویرایش تعامل' : 'تعامل جدید' }}</h5>
         <button class="close-modal-btn" (click)="resetForm()">&times;</button>
       </div>
-
       <div class="custom-modal-body">
         <form [formGroup]="form" (ngSubmit)="submit()">
-
- 
+          <!-- نوع تعامل -->
           <div class="form-row mb-2">
             <label>نوع تعامل</label>
             <select formControlName="interactionType" (change)="onInteractionTypeChange()" class="form-control">
@@ -25,28 +29,26 @@
             </select>
           </div>
 
+          <!-- تاریخ و ساعت شروع -->
           <div class="form-row d-flex gap-2 mb-2">
             <ng-persian-datepicker type="date" format="jYYYY/jMM/jDD">
               <input type="text" class="form-control" formControlName="startDateTime" placeholder="تاریخ شروع" />
             </ng-persian-datepicker>
-
             <input class="form-control"
                    [ngxTimepicker]="picker"
                    formControlName="startTime"
                    readonly
                    placeholder="انتخاب ساعت"
                    (input)="onTimeTextChange($event.target.value)">
+            <ngx-material-timepicker #picker [format]="24" appendTo="body"></ngx-material-timepicker>
 
-            <ngx-material-timepicker #picker [format]="24"></ngx-material-timepicker>
+
           </div>
 
-
+          <!-- مدت زمان -->
           <div class="form-row mb-2" *ngIf="isDurationEnabled()">
             <label>مدت زمان (دقیقه)</label>
-            <input type="text"
-                   formControlName="durationMinutes"
-                   (input)="checkNumber($event); onDurationChange()"
-                   class="form-control">
+            <input type="text" formControlName="durationMinutes" (input)="checkNumber($event); onDurationChange()" class="form-control">
           </div>
 
           <div class="form-row mb-2" *ngIf="isDurationEnabled() && form.get('durationMinutes')?.value">
@@ -56,7 +58,7 @@
             </div>
           </div>
 
-      
+          <!-- انتخاب مشتری -->
           <div class="form-row mb-2">
             <label>انتخاب مشتری</label>
             <div class="d-flex gap-3">
@@ -65,26 +67,27 @@
             </div>
           </div>
 
+          <!-- مشتری حقیقی -->
           <div class="form-row mb-2" *ngIf="selectedCustomerType==='individual'">
-            <select class="form-control" formControlName="individualCustomerId">
+            <select class="form-control" formControlName="individualCustomerId" (change)="onCustomerSelect('individual')">
               <option [ngValue]="null">-- انتخاب مشتری حقیقی --</option>
               <option *ngFor="let c of individualCustomers" [ngValue]="c.customerId">{{c.fullName}}</option>
             </select>
           </div>
 
+          <!-- مشتری حقوقی -->
           <div class="form-row mb-2" *ngIf="selectedCustomerType==='company'">
-            <select class="form-control" formControlName="companyCustomerId">
+            <select class="form-control" formControlName="companyCustomerId" (change)="onCustomerSelect('company')">
               <option [ngValue]="null">-- انتخاب مشتری حقوقی --</option>
               <option *ngFor="let c of companyCustomers" [ngValue]="c.customerId">{{c.companyName}}</option>
             </select>
           </div>
 
+
+          <!-- دسته‌بندی و محصولات -->
           <div formArrayName="categoryProductGroups">
             <label class="fw-bold mb-2 d-block">دسته‌بندی و محصولات:</label>
-
             <div *ngFor="let group of categoryProductGroups.controls; let i = index" [formGroupName]="i" class="mb-3 border rounded p-2">
-
-     
               <div class="form-row mb-2">
                 <label>دسته‌بندی‌ها</label>
                 <ng-select [items]="categories"
@@ -95,7 +98,6 @@
                            (change)="onCategoryChange(i)">
                 </ng-select>
               </div>
-
               <div class="form-row mb-2">
                 <label>محصولات / خدمات</label>
                 <ng-select [items]="filteredProductsByGroup[i]"
@@ -105,30 +107,26 @@
                            formControlName="productIds">
                 </ng-select>
               </div>
-
-
               <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeCategoryProductGroup(i)">
                 حذف گروه
               </button>
             </div>
-
             <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="addCategoryProductGroup()">
               + افزودن دسته/محصول دیگر
             </button>
           </div>
 
-
+          <!-- موضوع و توضیحات -->
           <div class="form-row mb-2">
             <label>موضوع</label>
             <input type="text" class="form-control" formControlName="subject">
           </div>
-
           <div class="form-row mb-2">
             <label>توضیحات</label>
             <textarea class="form-control" formControlName="notes"></textarea>
           </div>
 
-
+          <!-- پیوست فایل -->
           <div class="form-row mb-2">
             <label>پیوست</label>
             <input type="file" #fileInput multiple style="display:none" (change)="onFileChange($event)">
@@ -149,10 +147,9 @@
                 <button type="button" class="btn btn-sm btn-danger ms-2" (click)="removeNewAttachment(i)">حذف</button>
               </div>
             </div>
-
           </div>
 
- 
+          <!-- دکمه ثبت / ویرایش -->
           <div class="form-row d-flex gap-2 mt-2">
             <button type="submit" class="btn btn-success" [disabled]="form.invalid">{{ isEditMode ? 'ویرایش' : 'ثبت' }}</button>
           </div>
@@ -161,10 +158,10 @@
     </div>
   </div>
 
-
-  <div class="table-scroll-wrapper mt-4">
-    <table class="table table-bordered">
-      <thead>
+  <!-- جدول تعاملات -->
+  <div class="table-responsive table-scroll-wrapper mt-4">
+    <table class="table table-bordered table-hover">
+      <thead class="table-light">
         <tr>
           <th>شماره ردیف</th>
           <th>نوع تعامل</th>
@@ -173,25 +170,41 @@
           <th>تاریخ پایان</th>
           <th>موضوع</th>
           <th>مشتری</th>
-          <th>توسط</th>
+          <th>انجام‌دهنده</th>
+          <th>ایجادکننده</th>
+          <th>مالک فعلی</th>
+          <th>وضعیت تعامل</th>
           <th>دسته‌بندی / محصول</th>
           <th>فایل پیوست</th>
-          <th *ngIf="hasPermission('customerinteraction.update') || hasPermission('customerinteraction.delete')">
-            عملیات
-          </th>
+          <th>عملیات</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let i of interactions; let idx = index">
           <td>{{ toPersianDigits(idx + 1) }}</td>
-          <td>{{ getInteractionLabel(i.interactionType ?? undefined) }}</td>
+          <td>{{ getInteractionLabel(i.interactionType) }}</td>
           <td>{{ toJalali(i.startDateTime) }}</td>
           <td>{{ toPersianDigits(i.durationMinutes ?? '-') }}</td>
           <td>{{ toJalali(i.endDateTime ?? undefined) }}</td>
           <td>{{ i.subject || '-' }}</td>
           <td>{{ getCustomerDisplayName(i.customer) }}</td>
-          <td>{{ i.performedBy || '-' }}</td>
+          <td>{{ i.performedByName || '-' }}</td>
+          <td>{{ i.createdByName || '-' }}</td>
+          <td>{{ i.currentOwnerName || '-' }}</td>
 
+          <!-- وضعیت تعامل -->
+          <td>
+            <ng-container *ngIf="hasPermission('customerinteraction.updateisactive'); else simpleStatus">
+              <button class="btn btn-sm btn-secondary" (click)="openIsActiveModal(i)">
+                {{ i.isActive ? 'فعال' : 'غیرفعال' }}
+              </button>
+            </ng-container>
+            <ng-template #simpleStatus>
+              <span>{{ i.isActive ? 'فعال' : 'غیرفعال' }}</span>
+            </ng-template>
+          </td>
+
+          <!-- دسته‌بندی / محصولات -->
           <td>
             <ng-container *ngIf="i.categoryName?.length || i.productName?.length; else noCategoryProduct">
               <a href="#" class="category-icon" (click)="openCategoryModal(i, $event)">
@@ -201,6 +214,7 @@
             <ng-template #noCategoryProduct>-</ng-template>
           </td>
 
+          <!-- فایل پیوست -->
           <td>
             <ng-container *ngIf="i.attachments?.length; else noFile">
               <a href="#" class="attachment-icon" (click)="openAttachmentsModal(i, $event)">
@@ -210,70 +224,97 @@
             <ng-template #noFile>-</ng-template>
           </td>
 
-          <td *ngIf="hasPermission('customerinteraction.update') || hasPermission('customerinteraction.delete')">
-            <button (click)="editInteraction(i)"
-                    class="btn btn-sm btn-primary"
-                    *ngIf="hasPermission('customerinteraction.update')">
-              ویرایش
+          <!-- عملیات -->
+          <td>
+            <button (click)="goToReferral(i.id!)" class="btn btn-sm btn-warning">
+              ارجاع
             </button>
-
-            <button (click)="deleteInteraction(i.id!)"
-                    class="btn btn-sm btn-danger ms-2"
-                    *ngIf="hasPermission('customerinteraction.delete')">
-              حذف
-            </button>
+            <button (click)="editInteraction(i)" class="btn btn-sm btn-primary ms-2" *ngIf="hasPermission('customerinteraction.update')">ویرایش</button>
+            <button (click)="deleteInteraction(i.id!)" class="btn btn-sm btn-danger ms-2" *ngIf="hasPermission('customerinteraction.delete')">حذف</button>
           </td>
         </tr>
       </tbody>
-
     </table>
   </div>
-  <div class="custom-modal" [class.show]="showAttachmentsModal">
-    <div class="modal-backdrop"></div>
-    <div class="custom-modal-dialog">
-      <div class="modal-fixed-header">
-        <h5>فایل‌های پیوست</h5>
-        <button class="close-modal-btn" (click)="showAttachmentsModal = false">&times;</button>
+
+</div>
+<!-- مودال وضعیت تعامل -->
+<div class="custom-modal" [class.show]="showIsActiveModal">
+  <div class="custom-modal-dialog">
+    <div class="modal-fixed-header">
+      <h5>تغییر وضعیت تعامل</h5>
+      <button class="close-modal-btn" (click)="closeIsActiveModal()">&times;</button>
+    </div>
+    <div class="custom-modal-body">
+      <p>وضعیت فعلی تعامل: {{ selectedIsActive ? 'فعال' : 'غیرفعال' }}</p>
+
+      <div>
+        <label>
+          <input type="radio" name="isActive" [(ngModel)]="selectedIsActive" [value]="true">
+          فعال
+        </label>
+      </div>
+      <div>
+        <label>
+          <input type="radio" name="isActive" [(ngModel)]="selectedIsActive" [value]="false">
+          غیرفعال
+        </label>
       </div>
 
-      <div class="custom-modal-body">
-        <div *ngIf="selectedAttachments?.length; else noFiles">
-          <ul>
-            <li *ngFor="let f of selectedAttachments">
-              <a [href]="getAttachmentUrl(f.filePath)" target="_blank">
-                <i class="fas fa-file-alt"></i>
-                {{ f.originalName || f.filePath.split('/').pop() }}
-              </a>
-            </li>
+      <div class="mt-3">
+        <button class="btn btn-success" (click)="saveIsActive()">ذخیره</button>
+        <button class="btn btn-secondary" (click)="closeIsActiveModal()">لغو</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="custom-modal" [class.show]="showAttachmentsModal">
+
+  <div class="custom-modal-dialog">
+    <div class="modal-fixed-header">
+      <h5>فایل‌های پیوست</h5>
+      <button class="close-modal-btn" (click)="showAttachmentsModal = false">&times;</button>
+    </div>
+
+    <div class="custom-modal-body">
+      <div *ngIf="selectedAttachments?.length; else noFiles">
+        <ul>
+          <li *ngFor="let f of selectedAttachments">
+            <a [href]="getAttachmentUrl(f.filePath)" target="_blank">
+              <i class="fas fa-file-alt"></i>
+              {{ f.originalName || f.filePath.split('/').pop() }}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <ng-template #noFiles>
+        <p>هیچ فایلی موجود نیست.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+<div class="custom-modal" [class.show]="showCategoryModal">
+
+  <div class="custom-modal-dialog">
+    <div class="modal-fixed-header">
+      <h5>دسته‌بندی / محصولات</h5>
+      <button class="close-modal-btn" (click)="showCategoryModal = false">&times;</button>
+    </div>
+
+    <div class="custom-modal-body">
+      <div *ngIf="selectedCategoryProducts?.length; else noData" class="category-grid">
+        <div *ngFor="let pair of selectedCategoryProducts" class="category-card">
+          <strong class="category-title">{{ pair.category }}</strong>
+          <ul class="products-list">
+            <li *ngFor="let p of pair.products">{{ p }}</li>
           </ul>
         </div>
-
-        <ng-template #noFiles>
-          <p>هیچ فایلی موجود نیست.</p>
-        </ng-template>
       </div>
+      <ng-template #noData>
+        <p>هیچ دسته‌بندی یا محصولی وجود ندارد.</p>
+      </ng-template>
     </div>
   </div>
-  <div class="custom-modal" [class.show]="showCategoryModal">
-    <div class="modal-backdrop"></div>
-    <div class="custom-modal-dialog">
-      <div class="modal-fixed-header">
-        <h5>دسته‌بندی / محصولات</h5>
-        <button class="close-modal-btn" (click)="showCategoryModal = false">&times;</button>
-      </div>
-
-      <div class="custom-modal-body">
-        <div *ngIf="selectedCategoryProducts?.length; else noData" class="category-grid">
-          <div *ngFor="let pair of selectedCategoryProducts" class="category-card">
-            <strong class="category-title">{{ pair.category }}</strong>
-            <ul class="products-list">
-              <li *ngFor="let p of pair.products">{{ p }}</li>
-            </ul>
-          </div>
-        </div>
-        <ng-template #noData>
-          <p>هیچ دسته‌بندی یا محصولی وجود ندارد.</p>
-        </ng-template>
-      </div>
-    </div>
-  </div>
+</div>

@@ -18,5 +18,8 @@ namespace CRMApp.Models
         public List<Address> Addresses { get; set; } = new List<Address>();
         public List<ContactPhone> ContactPhones { get; set; } = new List<ContactPhone>();
         public List<Email> Emails { get; set; } = new List<Email>();
+
+
+
     }
 }

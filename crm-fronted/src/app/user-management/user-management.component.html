@@ -3,6 +3,8 @@
     <tr>
       <th>شماره ردیف</th>
       <th>نام کاربری</th>
+      <th>نام</th>
+      <th>نام خانوادگی</th>
       <th>ایمیل</th>
       <th>نقش</th>
       <th *ngIf="hasPermission('users.edituser') || hasPermission('users.deleteuser')">عملیات</th>
@@ -14,9 +16,11 @@
       <ng-container *ngFor="let user of users; let i = index">
         <tr>
           <td>{{ toPersianDigits(i + 1) }}</td>
-          <td>{{ toPersianDigits(user.userName) }}</td>
-          <td>{{ toPersianDigits(user.email) }}</td>
-          <td>{{ toPersianDigits(user.role || 'تعریف نشده') }}</td>
+          <td>{{ user.userName }}</td>
+          <td>{{ user.firstName || '-' }}</td>
+          <td>{{ user.lastName || '-' }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role || 'تعریف نشده' }}</td>
 
           <td *ngIf="hasPermission('users.edituser') || hasPermission('users.deleteuser')">
             <button *ngIf="hasPermission('users.edituser')" (click)="startEdit(user)">ویرایش</button>
@@ -28,13 +32,16 @@
           </td>
         </tr>
 
+        <!-- فرم ویرایش کاربر -->
         <tr *ngIf="editingUserId === user.id && hasPermission('users.edituser')">
-          <td colspan="6" style="background: #f9f9f9; padding: 10px;">
+          <td colspan="8" style="background: #f9f9f9; padding: 10px;">
             <form (ngSubmit)="saveEdit(user.id)">
               <input [(ngModel)]="editCache.userName" name="userName" placeholder="نام کاربری" required />
+              <input [(ngModel)]="editCache.firstName" name="firstName" placeholder="نام" />
+              <input [(ngModel)]="editCache.lastName" name="lastName" placeholder="نام خانوادگی" />
               <input [(ngModel)]="editCache.email" name="email" type="email" placeholder="ایمیل" required />
               <select [(ngModel)]="editCache.role" name="role" required>
-                <option *ngFor="let role of roles" [value]="role">{{ toPersianDigits(role) }}</option>
+                <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
               </select>
               <button type="submit">ذخیره</button>
               <button type="button" (click)="cancelEdit()" style="margin-left: 10px;">انصراف</button>
@@ -42,10 +49,9 @@
           </td>
         </tr>
 
-
-
+        <!-- فرم تغییر پسورد -->
         <tr *ngIf="passwordEditUserId === user.id">
-          <td colspan="6" style="background: #eef; padding: 10px;">
+          <td colspan="8" style="background: #eef; padding: 10px;">
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
               <label style="font-size: 14px;">رمز عبور جدید:</label>
               <div style="position: relative;">
@@ -93,10 +99,10 @@
       </ng-container>
     </ng-container>
 
-<ng-template #noUsers>
-  <tr>
-    <td colspan="6" class="text-center">کاربری یافت نشد.</td>
-  </tr>
-</ng-template>
+    <ng-template #noUsers>
+      <tr>
+        <td colspan="8" class="text-center">کاربری یافت نشد.</td>
+      </tr>
+    </ng-template>
   </tbody>
 </table>

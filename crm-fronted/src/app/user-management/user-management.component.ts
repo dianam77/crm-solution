@@ -3,7 +3,7 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { User } from '../models/user.model';
 import { UserService } from '../services/user.service';
 import { CommonModule } from '@angular/common';
-import { jwtDecode } from 'jwt-decode';
+import  jwtDecode  from 'jwt-decode';
 
 @Component({
   selector: 'app-user-management',
@@ -14,7 +14,7 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class UserManagementComponent implements OnInit {
   users: User[] = [];
-  roles: string[] = []; 
+  roles: string[] = [];
   editingUserId: string | null = null;
   passwordEditUserId: string | null = null;
   passwordVisible = false;
@@ -29,12 +29,8 @@ export class UserManagementComponent implements OnInit {
 
   loadRoles() {
     this.userService.getRoles().subscribe({
-      next: (response) => {
-        this.roles = Array.isArray(response) ? response : [];
-      },
-      error: (err) => {
-        console.error('خطا در دریافت نقش‌ها:', err);
-      }
+      next: (response) => this.roles = Array.isArray(response) ? response : [],
+      error: (err) => console.error('خطا در دریافت نقش‌ها:', err)
     });
   }
 
@@ -66,9 +62,7 @@ export class UserManagementComponent implements OnInit {
     }
 
     this.userService.getUsers().subscribe({
-      next: (response) => {
-        this.users = Array.isArray(response) ? response : [];
-      },
+      next: (response) => this.users = Array.isArray(response) ? response : [],
       error: (err) => {
         console.error('خطا در بارگذاری کاربران:', err);
         this.users = [];
@@ -98,7 +92,9 @@ export class UserManagementComponent implements OnInit {
       userName: this.editCache.userName,
       email: this.editCache.email,
       role: this.editCache.role,
-      password: '' 
+      firstName: this.editCache.firstName,
+      lastName: this.editCache.lastName,
+      password: ''
     };
 
     this.userService.updateUser(updatedUser).subscribe({
@@ -110,7 +106,6 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-
   deleteUser(id: string) {
     if (!this.hasPermission('users.deleteuser')) return;
     if (!confirm('آیا مطمئن هستید که می‌خواهید این کاربر را حذف کنید؟')) return;
@@ -120,7 +115,6 @@ export class UserManagementComponent implements OnInit {
       error: () => alert('خطا در حذف کاربر')
     });
   }
-
 
   startPasswordEdit(user: User) {
     if (!this.hasPermission('users.edituser')) return;
@@ -150,6 +144,8 @@ export class UserManagementComponent implements OnInit {
       userName: this.editCache.userName,
       email: this.editCache.email,
       role: this.editCache.role,
+      firstName: this.editCache.firstName,
+      lastName: this.editCache.lastName,
       password: this.editCache.password
     };
 
@@ -164,7 +160,6 @@ export class UserManagementComponent implements OnInit {
       }
     });
   }
-
 
   passwordHasNoUppercase() {
     return this.editCache.password && !/[A-Z]/.test(this.editCache.password);

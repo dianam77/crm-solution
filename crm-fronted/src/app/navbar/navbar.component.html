@@ -19,115 +19,118 @@
     <i class="fas fa-search search-icon"></i>
   </div>
 
- 
+
   <div class="navbar-icons">
-   
+
     <button class="icon-btn" (click)="toggleFullscreen()">
       <i class="fas fa-expand"></i>
     </button>
-    
+
     <button class="icon-btn">
       <i class="fas fa-bell"></i>
       <span class="badge">3</span>
     </button>
 
-    <button class="icon-btn"
-            (click)="toggleReferralPanel()">
+    <button class="icon-btn" (click)="toggleReferralPanel()">
       <i class="fas fa-list"></i>
+      <span class="badge" *ngIf="unreadReferralsCount > 0">{{ unreadReferralsCount }}</span>
     </button>
 
-   
-<div class="icon-dropdown" *ngIf="hasPermission('chatmessages.getmessages') || hasPermission('chatmessages.getmy')">
-  <button class="icon-btn" (click)="toggleMessages()">
-    <i class="fas fa-envelope"></i>
-    <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
-  </button>
 
-  <div class="dropdown-content" [class.open]="messagesOpen">
-    
-    <div class="section">
-      <div class="section-header" style="text-align:center">پیام‌ها</div>
 
-      <div *ngFor="let msg of visibleMessages" class="message-item" (click)="markAsRead(msg)">
-        <div class="message-main">
-          <input *ngIf="hasPermission('chatmessages.hidemessage') || hasPermission('chatmessages.delete')"
-                 type="checkbox"
-                 [(ngModel)]="msg.selected"
-                 (click)="$event.stopPropagation()" />
-          <div class="message-text">
-            <div class="message-sender">{{ msg.senderName }}</div>
-            <div class="message-content">{{ msg.content | slice:0:40 }}...</div>
+    <div class="icon-dropdown" *ngIf="hasPermission('chatmessages.getmessages') || hasPermission('chatmessages.getmy')">
+      <button class="icon-btn" (click)="toggleMessages()">
+        <i class="fas fa-envelope"></i>
+        <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+
+      <div class="dropdown-content" [class.open]="messagesOpen">
+
+        <div class="section">
+          <div class="section-header" style="text-align:center">پیام‌ها</div>
+
+          <div *ngFor="let msg of visibleMessages" class="message-item" (click)="markAsRead(msg)">
+            <div class="message-main">
+              <input *ngIf="hasPermission('chatmessages.hidemessage') || hasPermission('chatmessages.delete')"
+                     type="checkbox"
+                     [(ngModel)]="msg.selected"
+                     (click)="$event.stopPropagation()" />
+              <div class="message-text">
+                <div class="message-sender">{{ msg.senderName }}</div>
+                <div class="message-content">{{ msg.content | slice:0:40 }}...</div>
+              </div>
+
+
+
+            </div>
+            <div class="message-footer">
+              <small class="date-rtl">{{ toJalali(msg.createdAt) }}</small>
+
+
+              <span *ngIf="!msg.isReadByCurrentUser && msg.receiverIds.includes(currentUser?.id!)"
+                    class="unread-dot"></span>
+            </div>
           </div>
 
+          <div *ngIf="visibleMessages.length === 0" class="empty">هیچ پیامی وجود ندارد</div>
 
+          <div class="clear-messages" *ngIf="hasPermission('chatmessages.hidemessage') || hasPermission('chatmessages.delete')">
+            <button type="button" (click)="deleteSelectedMessages()" [disabled]="!hasSelectedMessages">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+
+        <div class="section" *ngIf="hasPermission('chatmessages.sendmessage')">
+          <div class="toggle-header" (click)="toggleReceiverList()">
+
+            <span class="arrow">{{ receiversOpen ? '▲' : '▼' }}</span>
+            گیرنده‌ها
+          </div>
+          <div class="user-list" *ngIf="receiversOpen">
+            <ng-container *ngFor="let user of users">
+              <label *ngIf="user.id !== currentUser?.id">
+                <input type="checkbox"
+                       [checked]="currentReceiverIds.includes(user.id)"
+                       (change)="onCheckboxChange($event, user.id)" />
+                {{ user.userName }}
+              </label>
+            </ng-container>
+          </div>
+        </div>
+
+
+        <div class="section send-message" *ngIf="hasPermission('chatmessages.sendmessage')">
+          <button type="button" (click)="sendMessage()">ارسال</button>
+          <input type="text" [(ngModel)]="newMessageContent" placeholder="پیام جدید..." />
 
         </div>
-        <div class="message-footer">
-          <small class="date-rtl">{{ toJalali(msg.createdAt) }}</small>
-
-
-          <span *ngIf="!msg.isReadByCurrentUser && msg.receiverIds.includes(currentUser?.id!)"
-                class="unread-dot"></span>
-        </div>
-      </div>
-
-      <div *ngIf="visibleMessages.length === 0" class="empty">هیچ پیامی وجود ندارد</div>
-
-      <div class="clear-messages" *ngIf="hasPermission('chatmessages.hidemessage') || hasPermission('chatmessages.delete')">
-        <button type="button" (click)="deleteSelectedMessages()" [disabled]="!hasSelectedMessages">
-          <i class="fas fa-trash"></i>
-        </button>
       </div>
     </div>
 
-   
-    <div class="section" *ngIf="hasPermission('chatmessages.sendmessage')">
-      <div class="toggle-header" (click)="toggleReceiverList()">
-
-        <span class="arrow">{{ receiversOpen ? '▲' : '▼' }}</span>
-        گیرنده‌ها
-      </div>
-      <div class="user-list" *ngIf="receiversOpen">
-        <ng-container *ngFor="let user of users">
-          <label *ngIf="user.id !== currentUser?.id">
-            <input type="checkbox"
-                   [checked]="currentReceiverIds.includes(user.id)"
-                   (change)="onCheckboxChange($event, user.id)" />
-            {{ user.userName }}
-          </label>
-        </ng-container>
-      </div>
-    </div>
-
-   
-    <div class="section send-message" *ngIf="hasPermission('chatmessages.sendmessage')">
-      <button type="button" (click)="sendMessage()">ارسال</button>
-      <input type="text" [(ngModel)]="newMessageContent" placeholder="پیام جدید..." />
-
-    </div>
-  </div>
-</div>
 
 
 
-   
     <button class="icon-btn" (click)="toggleTheme()">
       <i class="fas" [ngClass]="darkMode ? 'fa-sun' : 'fa-moon'"></i>
     </button>
 
     <div class="profile-dropdown" *ngIf="currentUser" class="icon-btn">
-   
+
       <button class="profile-btn" (click)="toggleProfileDropdown()">
         <span class="username">{{ currentUser.userName }}</span>
         <span class="caret">&#9662;</span>
       </button>
 
-      
+
       <div class="dropdown-content" [class.show]="profileDropdownOpen">
         <div class="profile-info" dir="rtl">
 
-          
+
           <div *ngIf="!editMode && !passwordEditMode">
+            <p><strong>نام:</strong> {{ currentUser.firstName || 'ثبت نشده' }}</p>
+            <p><strong>نام خانوادگی:</strong> {{ currentUser.lastName || 'ثبت نشده' }}</p>
             <p><strong>نام کاربری:</strong> {{ currentUser.userName }}</p>
             <p><strong>ایمیل:</strong> {{ currentUser.email || 'ثبت نشده' }}</p>
             <p><strong>نقش:</strong> {{ currentUser.role || 'تعریف نشده' }}</p>
@@ -136,13 +139,15 @@
               <button (click)="startEdit()" title="ویرایش اطلاعات">
                 <i class="fas fa-user-edit"></i>
               </button>
-              <button  (click)="startPasswordEdit()" title="تغییر رمز عبور">
+              <button (click)="startPasswordEdit()" title="تغییر رمز عبور">
                 <i class="fas fa-lock"></i>
               </button>
             </div>
           </div>
 
           <div *ngIf="editMode" class="edit-section">
+            <input [(ngModel)]="editableFirstName" placeholder="نام" />
+            <input [(ngModel)]="editableLastName" placeholder="نام خانوادگی" />
             <input [(ngModel)]="editableUserName" placeholder="نام کاربری جدید" />
             <input [(ngModel)]="editableEmail" placeholder="ایمیل جدید" type="email" />
 
@@ -152,7 +157,8 @@
             </div>
           </div>
 
-      
+
+
           <div *ngIf="passwordEditMode" style="margin-top: 10px;">
             <div style="position: relative; display: inline-block; width: 100%;">
               <input [(ngModel)]="newPassword"
@@ -165,7 +171,7 @@
               border: 1px solid #ccc;
               font-size: 14px;
             " />
-         
+
               <span style="
               position: absolute;
               top: 50%;
@@ -214,104 +220,36 @@
 
 
   </div>
+  <div class="referral-panel" [class.visible]="referralPanelVisible">
+    <button class="close-btn" (click)="toggleReferralPanel()">&times;</button>
 
+    <h3>ارجاعات من ({{ referrals.length }})</h3>
 
-<div class="referral-panel"
-     *ngIf="hasPermission('userreferral.getall') || hasPermission('userreferral.getmyreferrals')"
-     [class.visible]="referralPanelVisible"
-     dir="rtl">
-
-
-  <div class="panel-header">
-    <h2>ارجاعات شما</h2>
-    <button class="close-btn" (click)="referralPanelVisible = false">&times;</button>
-  </div>
-
-  <button class="btn-add"
-          *ngIf="hasPermission('userreferral.create')"
-          (click)="openCreateModal()">
-    ایجاد ارجاع جدید
-  </button>
-
-
-  <div *ngIf="showCreateForm" class="create-form">
-    <div class="form-header">
-      <h3>{{ isEditMode ? 'ویرایش ارجاع' : 'ایجاد ارجاع جدید' }}</h3>
-      <button class="close-btn" (click)="resetForm()">&times;</button>
-    </div>
-
-    <form (ngSubmit)="saveReferral()">
-      <div class="form-group">
-        <label>ارجاع دهنده</label>
-        <span class="current-user">{{ currentUser?.userName || 'در حال بارگذاری...' }}</span>
+    <div class="referral-card" *ngFor="let r of referrals" (click)="markReferralAsRead(r)">
+      <div class="referral-row">
+        <span class="referral-label">تعامل:</span>
+        <span class="referral-value">{{ InteractionTypeLabels[r.interactionId] || r.interactionId }}</span>
+        <span class="unread-dot" *ngIf="!r.isRead"></span>
       </div>
-
-      <div class="form-group">
-        <label>ارجاع گیرنده</label>
-        <select [(ngModel)]="newReferral.assignedToId" name="assignedToId" required>
-          <option *ngFor="let user of users" [ngValue]="user.id" [hidden]="user.id === currentUser?.id">
-            {{ user.userName }}
-          </option>
-        </select>
+      <div class="referral-row">
+        <span class="referral-label">ارجاع‌دهنده:</span>
+        <span class="referral-value">{{ r.referredByName || r.referredById }}</span>
       </div>
-
-      <div class="form-group">
-        <label>توضیحات</label>
-        <textarea [(ngModel)]="newReferral.notes" name="notes"></textarea>
+      <div class="referral-row">
+        <span class="referral-label">یادداشت:</span>
+        <span class="referral-value">{{ r.note || '-' }}</span>
       </div>
+      <div class="referral-row">
+        <span class="referral-label">تاریخ ارجاع:</span>
+        <span class="referral-value">{{ toJalali(r.referredAt) }}</span>
 
-      <div class="form-group">
-        <label>اولویت</label>
-        <select [(ngModel)]="newReferral.priority" name="priority">
-          <option [ngValue]="priorityEnum.Low">کم</option>
-          <option [ngValue]="priorityEnum.Medium">متوسط</option>
-          <option [ngValue]="priorityEnum.High">زیاد</option>
-        </select>
-      </div>
-
-      <button type="submit" class="btn-submit">
-        {{ isEditMode ? 'ذخیره تغییرات' : 'ارسال' }}
-      </button>
-    </form>
-  </div>
-
-  <hr>
-
- 
-  <div class="referral-cards">
-    <div class="referral-card" *ngFor="let r of referrals">
-      <div class="card-header">
-        <span><strong>ارجاع دهنده:</strong> {{ r.assignedByName }}</span>
-        <span><strong>ارجاع گیرنده:</strong> {{ r.assignedToName }}</span>
-      </div>
-
-      <div class="card-body">
-        <p><strong>اولویت:</strong> {{ priorityLabels[r.priority] }}</p>
-
-        <ng-container *ngIf="hasPermission('userreferral.updatestatus'); else readOnlyStatus">
-          <label><strong>وضعیت:</strong></label>
-          <select [(ngModel)]="r.status" (change)="updateReferralStatus(r)">
-            <option [ngValue]="statusEnum.Pending">در انتظار</option>
-            <option [ngValue]="statusEnum.Accepted">قبول شده</option>
-            <option [ngValue]="statusEnum.Rejected">رد شده</option>
-            <option [ngValue]="statusEnum.Completed">تکمیل شده</option>
-          </select>
-        </ng-container>
-
-       
-        <ng-template #readOnlyStatus>
-          <p><strong>وضعیت:</strong> {{ statusLabels[r.status] }}</p>
-        </ng-template>
-
-        <p><strong>توضیحات:</strong> {{ r.notes || '-' }}</p>
-      </div>
-
-
-
-      <div class="card-actions">
-        <button *ngIf="hasPermission('userreferral.update')" (click)="openEditModal(r)">ویرایش</button>
-        <button *ngIf="hasPermission('userreferral.delete')" (click)="deleteReferral(r)">حذف</button>
       </div>
     </div>
+
+
+    <ng-template #noReferrals>
+      <p>هیچ ارجاع فعالی وجود ندارد.</p>
+    </ng-template>
   </div>
-</div>
+
+
