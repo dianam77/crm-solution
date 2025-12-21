@@ -30,11 +30,13 @@
       <i class="fas fa-bell"></i>
       <span class="badge">3</span>
     </button>
-
     <button class="icon-btn" (click)="toggleReferralPanel()">
       <i class="fas fa-list"></i>
-      <span class="badge" *ngIf="unreadReferralsCount > 0">{{ unreadReferralsCount }}</span>
+      <!-- دایره قرمز فقط برای ارجاعات خودش -->
+      <span class="badge" *ngIf="myUnreadReferralsCount > 0">{{ myUnreadReferralsCount }}</span>
     </button>
+
+
 
 
 
@@ -218,38 +220,65 @@
 
 
 
+    <div class="referral-panel" [class.visible]="referralPanelVisible">
+      <button class="close-btn" (click)="toggleReferralPanel()">&times;</button>
 
-  </div>
-  <div class="referral-panel" [class.visible]="referralPanelVisible">
-    <button class="close-btn" (click)="toggleReferralPanel()">&times;</button>
+      <h3>
+        {{ hasPermission('CustomerInteractionReferral.GetReferralHistory') ? 'تاریخچه ارجاعات' : 'ارجاعات من' }}
+        ({{ referrals.length }})
+      </h3>
 
-    <h3>ارجاعات من ({{ referrals.length }})</h3>
 
-    <div class="referral-card" *ngFor="let r of referrals" (click)="markReferralAsRead(r)">
-      <div class="referral-row">
-        <span class="referral-label">تعامل:</span>
-        <span class="referral-value">{{ InteractionTypeLabels[r.interactionId] || r.interactionId }}</span>
-        <span class="unread-dot" *ngIf="!r.isRead"></span>
-      </div>
-      <div class="referral-row">
-        <span class="referral-label">ارجاع‌دهنده:</span>
-        <span class="referral-value">{{ r.referredByName || r.referredById }}</span>
-      </div>
-      <div class="referral-row">
-        <span class="referral-label">یادداشت:</span>
-        <span class="referral-value">{{ r.note || '-' }}</span>
-      </div>
-      <div class="referral-row">
-        <span class="referral-label">تاریخ ارجاع:</span>
-        <span class="referral-value">{{ toJalali(r.referredAt) }}</span>
 
-      </div>
+      <ng-container *ngIf="referrals.length > 0; else noReferrals">
+        <div class="referral-card" *ngFor="let r of referrals"
+             (click)="r.assignedToId?.toString() === currentUser?.id ? markReferralAsRead(r) : null">
+
+          <div class="referral-row">
+            <span class="referral-label">تعامل:</span>
+            <span class="referral-value">
+              {{ r.interactionType !== undefined ? InteractionTypeLabels[r.interactionType] : r.interactionId }}
+            </span>
+
+            <!-- دایره قرمز فقط برای ارجاع خودش -->
+            <span class="unread-dot"
+                  *ngIf="r.assignedToId?.toString() === currentUser?.id && !r.isRead && r.id !== 0">
+            </span>
+          </div>
+
+          <div class="referral-row">
+            <span class="referral-label">ارجاع‌دهنده:</span>
+            <span class="referral-value">{{ r.referredByName || r.referredById || '-' }}</span>
+          </div>
+
+          <div class="referral-row" *ngIf="hasPermission('CustomerInteractionReferral.GetReferralHistory')">
+            <span class="referral-label">دریافت‌کننده:</span>
+            <span class="referral-value">{{ r.assignedToName || r.assignedToId || '-' }}</span>
+          </div>
+
+          <div class="referral-row">
+            <span class="referral-label">یادداشت:</span>
+            <span class="referral-value">{{ r.note || '-' }}</span>
+          </div>
+
+          <div class="referral-row">
+            <span class="referral-label">تاریخ ارجاع:</span>
+            <span class="referral-value">{{ r.referredAt ? toJalali(r.referredAt) : '-' }}</span>
+          </div>
+
+        </div>
+      </ng-container>
+
+
+
+      <ng-template #noReferrals>
+        <p *ngIf="hasPermission('customerinteraction.viewreferralhistory')">
+          هیچ ارجاعی در تاریخچه وجود ندارد.
+        </p>
+        <p *ngIf="!hasPermission('customerinteraction.viewreferralhistory')">
+          هیچ ارجاعی برای شما وجود ندارد.
+        </p>
+      </ng-template>
+
+
     </div>
-
-
-    <ng-template #noReferrals>
-      <p>هیچ ارجاع فعالی وجود ندارد.</p>
-    </ng-template>
-  </div>
-
-

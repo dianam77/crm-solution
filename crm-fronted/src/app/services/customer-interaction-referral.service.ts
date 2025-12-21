@@ -25,4 +25,10 @@ export class CustomerInteractionReferralService {
   markAsRead(referralId: number): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/${referralId}/mark-as-read`, {});
   }
+
+  getReferralHistory(): Observable<CustomerInteractionReferral[]> {
+    return this.http.get<CustomerInteractionReferral[]>(`${this.baseUrl}/referral-history`);
+  }
+
+
 }

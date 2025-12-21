@@ -1,19 +1,20 @@
 export interface CustomerInteractionReferral {
   id: number;
   interactionId: number;
+  interactionType?: number; // ✅ اضافه شد
 
   referredById?: string;
+  assignedToId?: string;
+
   referredByName?: string;
+  assignedToName?: string;
+
   referredAt?: string;
   note?: string;
 
   isRead?: boolean;
-
-  // 👇 این دو مقدار برای نمایش در HTML لازم هستند
-  assignedToName?: string;
   isActive?: boolean;
 }
-
 
 export interface ReferralCreateDto {
   interactionId: number;

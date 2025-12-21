@@ -43,10 +43,6 @@ export class CustomerInteractionService {
     return this.http.get<any[]>(`${this.apiUrl}/categories-with-products`);
   }
 
-  // ================ 🔥 متد جدید: دریافت تعامل فعال مشتری ================
-  getActiveByCustomer(customerId: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/active-by-customer/${customerId}`);
-  }
 
   // ================ 🔥 متد جدید: گرفتن مالکیت تعامل ================
   claimOwnership(interactionId: number): Observable<any> {
@@ -63,6 +59,18 @@ export class CustomerInteractionService {
     return this.http.get<CustomerInteraction[]>(`${this.apiUrl}/my`);
   }
 
+
+  getActiveByCustomer(customerId: number, customerType: 'individual' | 'company') {
+    return this.http.get(
+      `${this.apiUrl}/active-by-customer`,
+      {
+        params: {
+          customerId,
+          customerType
+        }
+      }
+    );
+  }
 
 
 

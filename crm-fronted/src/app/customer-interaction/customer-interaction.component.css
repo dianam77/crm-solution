@@ -99,23 +99,21 @@ html, body {
   z-index: 1;
 }
 
+/* مودال اصلی */
 .custom-modal-dialog {
-  position: relative;
-  background-color: #fff;
-  border-radius: 1rem;
-  max-width: 700px;
-  width: 100%;
-  z-index: 2;
-  padding: 1.5rem;
-  box-shadow: 0 1rem 2rem rgba(0,0,0,0.3);
-  overflow-y: auto;
-  max-height: 80vh;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  /* تغییر برای پهن‌تر شدن */
+  max-width: 90%; /* حداکثر 90% عرض صفحه */
+  width: 1200px; /* یا هر مقدار دلخواه برای دسکتاپ */
+  margin: auto; /* مرکز صفحه */
+  overflow-x: auto; /* اسکرول افقی اگر جدول بزرگ باشد */
+  max-height: 90vh; /* ارتفاع حداکثر 90% ارتفاع صفحه */
   display: flex;
   flex-direction: column;
-  text-align: right;
-  direction: rtl;
-  animation: slideDown 0.3s ease;
 }
+
 
 @keyframes slideDown {
   from {
@@ -532,3 +530,83 @@ ngx-material-timepicker .ngx-material-timepicker-content {
   margin-bottom: 1rem;
 }
 
+.custom-modal {
+  display: none;
+  position: fixed; /* مهم */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999; /* بسیار بالاتر از سایدبار */
+  justify-content: center;
+  align-items: center;
+}
+
+.custom-modal.show {
+  display: flex;
+}
+
+.custom-modal-dialog.modal-lg {
+  position: fixed;
+  top: 50%;
+  right: 280px; /* عرض سایدبار */
+  transform: translateY(-50%);
+  max-width: 1200px;
+  width: calc(100% - 280px); /* 20px فاصله اضافی */
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 200!important; /* بالاتر از سایدبار */
+}
+/* مودال ویرایش روی همه نمایش داده شود */
+.edit-modal {
+  display: none;
+  position: fixed; /* مهم */
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 700 !important; /* بالاتر از همه مودال‌ها */
+  justify-content: center;
+  align-items: center;
+}
+
+  .edit-modal.show {
+    display: flex;
+  }
+
+  .edit-modal .custom-modal-dialog {
+    position: relative;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+ngx-material-timepicker .ngx-material-timepicker-content {
+  position: fixed !important; /* حتماً fixed */
+  top: 50% !important; /* اگر بخواهید وسط صفحه */
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 2147483647 !important; /* بالاتر از همه مودال‌ها */
+}
+
+.timepicker-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
+}
