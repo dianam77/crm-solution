@@ -1,0 +1,57 @@
+<div class="referral-panel">
+  <h3>
+    تاریخچه ارجاعات مشتری ({{ referrals.length }})
+  </h3>
+
+  <ng-container *ngIf="referrals.length; else noReferrals">
+    <div class="referral-card" *ngFor="let r of referrals">
+
+      <!-- مشتری -->
+      <div class="referral-row">
+        <span class="referral-label">مشتری:</span>
+        <span class="referral-value">{{ r.customerName || '-' }}</span>
+      </div>
+
+      <!-- ارجاع‌دهنده -->
+      <div class="referral-row">
+        <span class="referral-label">ارجاع‌دهنده:</span>
+        <span class="referral-value">{{ r.referredByName || '-' }}</span>
+      </div>
+
+      <!-- نقش ارجاع‌دهنده -->
+      <div class="referral-row">
+        <span class="referral-label">نقش ارجاع‌دهنده:</span>
+        <span class="referral-value">{{ r.referredByRole || '-' }}</span>
+      </div>
+
+      <!-- دریافت‌کننده -->
+      <div class="referral-row">
+        <span class="referral-label">دریافت‌کننده:</span>
+        <span class="referral-value">{{ r.assignedToName || '-' }}</span>
+      </div>
+
+      <!-- نقش دریافت‌کننده -->
+      <div class="referral-row">
+        <span class="referral-label">نقش دریافت‌کننده:</span>
+        <span class="referral-value">{{ r.assignedToRole || '-' }}</span>
+      </div>
+
+      <!-- یادداشت -->
+      <div class="referral-row">
+        <span class="referral-label">یادداشت:</span>
+        <span class="referral-value">{{ r.note || '-' }}</span>
+      </div>
+
+      <!-- تاریخ ارجاع -->
+      <div class="referral-row">
+        <span class="referral-label">تاریخ ارجاع:</span>
+        <span class="referral-value">{{ r.referredAt ? toJalali(r.referredAt) : '-' }}</span>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <ng-template #noReferrals>
+    <p>هیچ ارجاعی وجود ندارد.</p>
+  </ng-template>
+</div>

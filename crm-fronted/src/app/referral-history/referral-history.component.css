@@ -1,0 +1,87 @@
+.referral-panel {
+  direction: rtl;
+  max-width: 800px;
+  margin: 20px auto;
+  font-family: 'Vazir', sans-serif;
+  padding: 10px;
+}
+
+  .referral-panel h3 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: #222;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .referral-panel .badge {
+    background-color: #e74c3c;
+    color: white;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 50%;
+  }
+
+.referral-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 20px 25px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+  .referral-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+  }
+
+/* هر فیلد روی یک خط */
+.referral-row {
+  display: flex;
+  flex-direction: row; /* label و value کنار هم */
+  justify-content: flex-start;
+  margin-bottom: 8px;
+}
+
+.referral-label {
+  font-weight: 600;
+  color: #555;
+  margin-right: 5px; /* فاصله بین label و value */
+}
+
+.referral-value {
+  color: #444;
+  word-wrap: break-word;
+}
+
+/* dot برای unread */
+.unread-dot {
+  width: 12px;
+  height: 12px;
+  background-color: #e74c3c;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.referral-row.hint {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 10px;
+}
+
+.referral-panel p {
+  text-align: center;
+  color: #666;
+  font-size: 0.95rem;
+  margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+  .referral-card {
+    padding: 15px 20px;
+  }
+}

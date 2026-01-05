@@ -24,6 +24,7 @@ namespace CRMApp.Data
         public DbSet<CustomerInteractionAttachment> CustomerInteractionAttachments { get; set; }
         public DbSet<CustomerInteractionCategory> CustomerInteractionCategories { get; set; }
         public DbSet<CustomerInteractionProduct> CustomerInteractionProducts { get; set; }
+        public DbSet<CustomerReferral> CustomerReferrals { get; set; } = null!;
 
         public DbSet<ChatMessage> ChatMessages { get; set; }
         public DbSet<ChatConversation> ChatConversations { get; set; }
@@ -164,22 +165,23 @@ namespace CRMApp.Data
                 .HasForeignKey(ci => ci.PerformedById)
                 .OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<CustomerInteractionReferral>()
-    .HasOne(r => r.Interaction)
-    .WithMany(i => i.Referrals)
-    .HasForeignKey(r => r.InteractionId)
-    .OnDelete(DeleteBehavior.Cascade); // حذف تعامل، ارجاع‌ها هم حذف شوند
+                    .HasOne(r => r.ReferredBy)
+                    .WithMany()
+                    .HasForeignKey(r => r.ReferredById)
+                    .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<CustomerInteractionReferral>()
-                .HasOne(r => r.ReferredBy)
-                .WithMany()
-                .HasForeignKey(r => r.ReferredById)
-                .OnDelete(DeleteBehavior.Restrict); // حذف کاربر ارجاع‌دهنده، ارجاع حذف نشود
-
+            // 🔹 رابطه با دریافت‌کننده
             modelBuilder.Entity<CustomerInteractionReferral>()
                 .HasOne(r => r.AssignedTo)
                 .WithMany()
                 .HasForeignKey(r => r.AssignedToId)
-                .OnDelete(DeleteBehavior.Restrict); // حذف کاربر دریافت‌کننده، ارجاع حذف نشود
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 🔹 فقط یک ارجاع فعال برای هر مشتری (حقیقی یا حقوقی)
+            modelBuilder.Entity<CustomerInteractionReferral>()
+                .HasIndex(r => new { r.CustomerId, r.IsIndividual })
+                .HasFilter("[IsActive] = 1")
+                .IsUnique();
 
             modelBuilder.Entity<CustomerInteractionAttachment>()
                 .HasOne(a => a.CustomerInteraction)
@@ -373,7 +375,21 @@ namespace CRMApp.Data
                 entity.Property(s => s.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
             });
 
-          
+            modelBuilder.Entity<CustomerReferral>(entity =>
+            {
+                entity.HasKey(r => r.Id);
+
+                entity.HasOne(r => r.ReferredBy)
+                      .WithMany()
+                      .HasForeignKey(r => r.ReferredById)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(r => r.AssignedTo)
+                      .WithMany()
+                      .HasForeignKey(r => r.AssignedToId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
         }
 
     }

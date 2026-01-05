@@ -78,13 +78,14 @@ export const routes: Routes = [
 
       // ⭐⭐ مسیر جدید interaction details ⭐⭐
       {
-        path: 'customer-interaction/:id/details',
+        path: 'customer-interaction/referral',
         canActivate: [PermissionGuard],
         loadComponent: () =>
           import('./interaction-referral/interaction-referral.component').then(
             m => m.InteractionReferralComponent
           ),
       },
+
 
       {
         path: 'products/manage',
@@ -146,6 +147,14 @@ export const routes: Routes = [
         canActivate: [PermissionGuard],
         loadComponent: () =>
           import('./smtp-settings/smtp-settings.component').then(m => m.SmtpSettingsComponent),
+      },
+      {
+        path: 'customer-interaction/referral-history',
+        canActivate: [PermissionGuard],
+        loadComponent: () =>
+          import('./referral-history/referral-history.component').then(
+            m => m.ReferralHistoryComponent
+          ),
       },
 
     ],

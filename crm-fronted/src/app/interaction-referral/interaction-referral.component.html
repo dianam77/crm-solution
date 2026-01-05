@@ -1,8 +1,12 @@
 <div class="form-group mt-2">
   <label>انتخاب نقش:</label>
-  <select [(ngModel)]="selectedRole" (change)="onRoleChange()" class="form-control">
-    <option value="">همه نقش‌ها</option>
-    <option *ngFor="let role of roles" [value]="role.name">{{ role.name }}</option>
+  <select [(ngModel)]="selectedRole"
+          (change)="onRoleChange()"
+          class="form-control">
+    <option value="">انتخاب نقش</option>
+    <option *ngFor="let role of roles" [value]="role.name">
+      {{ role.name }}
+    </option>
   </select>
 </div>
 
@@ -22,13 +26,15 @@
   <label>یادداشت ارجاع:</label>
   <textarea [(ngModel)]="referralNote"
             class="form-control"
-            placeholder="توضیحات ارجاع"></textarea>
+            placeholder="توضیحات ارجاع">
+  </textarea>
 </div>
 
-<button class="btn btn-primary mt-2"
+<button class="btn btn-primary mt-3"
         (click)="createReferral()"
         [disabled]="!selectedRole || !referralAssignedToId">
-  ثبت ارجاع
+  ثبت ارجاع مشتری
 </button>
 
 <hr>
+

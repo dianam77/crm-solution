@@ -9,7 +9,7 @@ import { UserService } from '../services/user.service';
 import { ChatService } from '../services/ChatService';
 import { AuthService } from '../services/auth.service';
 import { CustomerInteractionReferralService } from '../services/customer-interaction-referral.service';
-
+import { Observable } from 'rxjs';
 import { User } from '../models/user.model';
 import { ChatMessage, CreateChatMessageDto } from '../models/ChatMessage';
 import { Router } from '@angular/router';
@@ -24,7 +24,6 @@ export const InteractionTypeLabels: Record<number, string> = {
   4: 'یادداشت',
   5: 'سایر'
 };
-
 
 @Component({
   selector: 'app-navbar',
@@ -76,16 +75,18 @@ export class NavbarComponent implements OnInit {
   ngOnInit(): void {
     moment.loadPersian({ usePersianDigits: true });
     this.setCurrentUser();
-    this.loadUserPermissions();  // log داخل خود متد
+    this.loadUserPermissions();
     this.loadUsers();
     this.loadCurrentUserProfile();
+
+    this.loadReferrals();
   }
 
 
   // ======================== Date Utilities ========================
   toJalali(date: any): string {
     if (!date) return '-';
-    const m = moment(date).tz('Asia/Tehran'); // 🚀 استفاده از moment-timezone
+    const m = moment(date).tz('Asia/Tehran');
     return m.isValid() ? m.format('HH:mm jYYYY/jMM/jDD') : '-';
   }
 
@@ -107,14 +108,10 @@ export class NavbarComponent implements OnInit {
       console.error('خطا در decode کردن توکن');
     }
   }
+
   getInteractionLabel(interactionId: number): string {
-  // اگر عدد در مپ هست، نام نمایش داده شود
-  if (InteractionTypeLabels[interactionId] !== undefined) {
-    return InteractionTypeLabels[interactionId];
+    return InteractionTypeLabels[interactionId] ?? 'سایر';
   }
-  // اگر عدد در مپ نیست، می‌توانید پیش‌فرض "سایر" یا "-" نمایش دهید
-  return 'سایر';
-}
 
   private loadUserPermissions(): void {
     const token = localStorage.getItem('jwtToken');
@@ -122,12 +119,11 @@ export class NavbarComponent implements OnInit {
     try {
       const decoded: any = jwtDecode(token);
       this.currentUserPermissions = decoded['permissions'] || [];
-      console.log('currentUserPermissions', this.currentUserPermissions); // ✅ اینجا
+      console.log('currentUserPermissions', this.currentUserPermissions);
     } catch {
       console.error('خطا در decode کردن توکن برای پرمیژن‌ها');
     }
   }
-
 
   hasPermission(permission: string): boolean {
     return this.currentUserPermissions.includes(permission);
@@ -156,9 +152,7 @@ export class NavbarComponent implements OnInit {
     this.editableEmail = this.currentUser?.email || '';
   }
 
-  cancelEdit(): void {
-    this.editMode = false;
-  }
+  cancelEdit(): void { this.editMode = false; }
 
   saveProfileChanges(): void {
     if (!this.currentUser) return;
@@ -217,13 +211,7 @@ export class NavbarComponent implements OnInit {
   toggleTheme(): void { this.darkMode = !this.darkMode; }
   toggleReferralPanel() {
     this.referralPanelVisible = !this.referralPanelVisible;
-
-    if (this.referralPanelVisible) {
-      this.loadReferrals();
-      setTimeout(() => this.updateUnreadReferralsCount(), 0);
-    }
   }
-
 
   toggleReceiverList(): void { this.receiversOpen = !this.receiversOpen; }
   toggleMessages(): void { this.messagesOpen = !this.messagesOpen; }
@@ -313,50 +301,48 @@ export class NavbarComponent implements OnInit {
   get hasSelectedMessages(): boolean { return this.messages.some(m => m.selected); }
 
   loadReferrals(): void {
-    if (!this.hasPermission('CustomerInteractionReferral.GetReferralHistory')) {
-      // فقط ارجاعات خود کاربر
-      this.customerReferralService.getReferralsByUser(this.currentUser!.id)
-        .subscribe({
-          next: history => this.setReferrals(history),
-          error: err => console.error('خطا در دریافت ارجاعات کاربر:', err)
-        });
-    } else {
-      // همه تاریخچه
-      this.customerReferralService.getReferralHistory()
-        .subscribe({
-          next: history => this.setReferrals(history),
-          error: err => console.error('خطا در دریافت تاریخچه:', err)
-        });
-    }
-  }
-
-  private setReferrals(history: CustomerInteractionReferral[]) {
     if (!this.currentUser) return;
 
-    this.referrals = (history || []).map(r => {
-      const isAssignedToMe = r.assignedToId?.toString() === this.currentUser!.id?.toString();
-
-      return {
-        ...r,
-        // فقط ارجاع خودش را به حالت واقعی isRead نگه دار
-        isRead: isAssignedToMe ? r.isRead === true : true,
-        referredAt: r.referredAt ? new Date(r.referredAt).toISOString() : undefined,
-        referredByName: r.referredByName || '-',
-        assignedToName: r.assignedToName || '-'
-      };
+    // همیشه فقط ارجاعات کاربر جاری
+    this.customerReferralService.getReferralsByUser().subscribe({
+      next: (history: CustomerInteractionReferral[]) => {
+        // فیلتر اضافی، فقط برای مطمئن شدن
+        const currentUserId = this.currentUser!.id.toString().toLowerCase();
+        this.referrals = history
+          .filter(r => r.assignedToId?.toString().toLowerCase() === currentUserId)
+          .map(r => ({
+            ...r,
+            assignedToId: r.assignedToId?.toString().toLowerCase(),
+            isRead: r.isRead === true,
+            isActive: r.isActive === true
+          }));
+        this.updateUnreadReferralsCount();
+      },
+      error: err => console.error('خطا در دریافت ارجاعات:', err)
     });
+  }
+
+
+  private setReferrals(history: CustomerInteractionReferral[]): void {
+    if (!this.currentUser) return;
+    const currentUserId = this.currentUser.id.toString().toLowerCase();
+
+    // فقط ارجاعات کاربر جاری
+    const filtered = history.filter(r => r.assignedToId?.toString().toLowerCase() === currentUserId);
+
+    this.referrals = filtered.map(r => ({
+      ...r,
+      assignedToId: r.assignedToId?.toString().toLowerCase(),
+      isRead: r.isRead === true,
+      isActive: r.isActive === true
+    }));
 
     this.updateUnreadReferralsCount();
   }
 
-
-
-
-
-  // علامت‌گذاری به عنوان خوانده شده
   markReferralAsRead(referral: CustomerInteractionReferral): void {
-    // فقط ارجاعات خودش را علامت خوانده شده بزن
-    if (referral.assignedToId?.toString() !== this.currentUser?.id) return;
+    if (!this.currentUser) return;
+    if (referral.assignedToId?.toString() !== this.currentUser.id) return;
     if (referral.isRead) return;
 
     referral.isRead = true;
@@ -369,23 +355,15 @@ export class NavbarComponent implements OnInit {
       }
     });
   }
-
-
-
-
-
   updateUnreadReferralsCount(): void {
     if (!this.currentUser) return;
+    const currentUserId = this.currentUser.id.toString();
 
-    this.unreadReferralsCount = this.referrals
-      .filter(r => r.assignedToId?.toString() === this.currentUser?.id?.toString() && !r.isRead)
-      .length;
+    this.unreadReferralsCount = this.referrals.filter(r =>
+      r.assignedToId === currentUserId && !r.isRead
+    ).length;
   }
 
-
-  get myUnreadReferralsCount(): number {
-    return this.unreadReferralsCount;
-  }
 
 
 

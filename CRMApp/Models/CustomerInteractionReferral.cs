@@ -1,33 +1,24 @@
-﻿using System;
+﻿using CRMApp.Models;
 
-namespace CRMApp.Models
+public class CustomerInteractionReferral
 {
-    public class CustomerInteractionReferral
-    {
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        // تعامل ارجاع داده شده
-        public int InteractionId { get; set; }
-        public CustomerInteraction Interaction { get; set; } = null!;
+    // 👇 مشتری
+    public int CustomerId { get; set; }
+    public bool IsIndividual { get; set; }
 
-        // کاربر ارجاع‌دهنده
-        public Guid ReferredById { get; set; }
-        public ApplicationUser? ReferredBy { get; set; }
+    // 👇 ارجاع‌دهنده
+    public Guid ReferredById { get; set; }
+    public ApplicationUser? ReferredBy { get; set; }
 
-        // کاربر گیرنده ارجاع
-        public Guid AssignedToId { get; set; }
-        public ApplicationUser? AssignedTo { get; set; }
+    // 👇 دریافت‌کننده
+    public Guid AssignedToId { get; set; }
+    public ApplicationUser? AssignedTo { get; set; }
 
-        // یادداشت ارجاع
-        public string? Note { get; set; }
+    public string? Note { get; set; }
+    public DateTime ReferredAt { get; set; } = DateTime.UtcNow;
 
-        // تاریخ ارجاع
-        public DateTime ReferredAt { get; set; } = DateTime.UtcNow;
-
-        // وضعیت فعال یا انجام شده
-        public bool IsActive { get; set; } = true;
-
-        // ✅ وضعیت خوانده شده
-        public bool IsRead { get; set; } = false;
-    }
+    public bool IsActive { get; set; } = true;
+    public bool IsRead { get; set; } = false;
 }

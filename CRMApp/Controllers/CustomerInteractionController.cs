@@ -48,13 +48,14 @@ namespace CRMApp.Controllers
                 .Include(i => i.IndividualCustomer)
                 .Include(i => i.CompanyCustomer)
                 .Include(i => i.Attachments)
-                .Include(i => i.InteractionCategories)
-                .Include(i => i.InteractionProducts)
+                .Include(i => i.InteractionCategories).ThenInclude(ic => ic.Category)
+                .Include(i => i.InteractionProducts).ThenInclude(ip => ip.Product)
                 .Include(i => i.CreatedBy)
                 .Include(i => i.CurrentOwner)
                 .Include(i => i.PerformedBy)
                 .OrderByDescending(i => i.StartDateTime)
                 .ToListAsync();
+
             var interactionsDto = interactions.Select(i => new
             {
                 i.Id,
@@ -71,8 +72,8 @@ namespace CRMApp.Controllers
                 CompanyCustomerId = i.CompanyCustomerId,
 
                 CustomerFullName = i.IndividualCustomer != null
-        ? i.IndividualCustomer.FullName
-        : i.CompanyCustomer?.CompanyName ?? "-",
+                    ? i.IndividualCustomer.FullName
+                    : i.CompanyCustomer?.CompanyName ?? "-",
 
                 Attachments = i.Attachments.Select(a => new
                 {
@@ -81,18 +82,20 @@ namespace CRMApp.Controllers
                 }).ToList(),
 
                 CategoryIds = i.InteractionCategories.Select(ic => ic.CategoryId).ToList(),
+                CategoryNames = i.InteractionCategories.Select(ic => ic.Category.Name).ToList(),
                 ProductIds = i.InteractionProducts.Select(ip => ip.ProductId).ToList(),
+                ProductNames = i.InteractionProducts.Select(ip => ip.Product.Name).ToList(),
 
                 CreatedByName = i.CreatedBy?.FullName ?? "-",
                 CurrentOwnerName = i.CurrentOwner?.FullName ?? "-",
-                CurrentOwnerId = i.CurrentOwnerId,   // ✅ اضافه کنید
+                CurrentOwnerId = i.CurrentOwnerId,
                 PerformedByName = i.PerformedBy?.FullName ?? "-",
-                PerformedById = i.PerformedById     // ✅ اضافه کنید برای fallback در frontend
+                PerformedById = i.PerformedById
             }).ToList();
-
 
             return Ok(interactionsDto);
         }
+
 
         [HttpGet("active-by-customer")]
         public async Task<IActionResult> GetActiveInteractionByCustomer(
@@ -208,14 +211,77 @@ namespace CRMApp.Controllers
         [HttpPost]
         [RequestSizeLimit(50_000_000)]
         [Authorize]
-        public async Task<IActionResult> Create([FromForm] CustomerInteractionUpdateDto dto,
-                                         [FromForm] List<IFormFile>? attachments)
+        public async Task<IActionResult> Create(
+    [FromForm] CustomerInteractionUpdateDto dto,
+    [FromForm] List<IFormFile>? attachments)
         {
-            var userIdString = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
-                return Unauthorized("کاربر لاگین نکرده یا شناسه نامعتبر است.");
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdString, out var userId))
+                return Unauthorized("کاربر لاگین نکرده است.");
 
-            // اطمینان از مقداردهی Collection
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            var now = DateTime.UtcNow;
+
+            // ---------- permissions ----------
+            var permissionsClaim = User.Claims.FirstOrDefault(c => c.Type == "permissions")?.Value;
+            List<string> permissions = string.IsNullOrEmpty(permissionsClaim)
+                ? new List<string>()
+                : System.Text.Json.JsonSerializer.Deserialize<List<string>>(permissionsClaim);
+
+            bool canForceUpdate = permissions.Any(p =>
+                p.Equals("CustomerInteraction.UpdateIsActive", StringComparison.OrdinalIgnoreCase)
+            );
+
+            // ---------- تعامل‌های فعال همان مشتری ----------
+            IQueryable<CustomerInteraction> activeQuery = _context.CustomerInteractions
+                .Where(i => i.IsActive);
+
+            if (dto.IndividualCustomerId.HasValue)
+                activeQuery = activeQuery.Where(i => i.IndividualCustomerId == dto.IndividualCustomerId);
+            else if (dto.CompanyCustomerId.HasValue)
+                activeQuery = activeQuery.Where(i => i.CompanyCustomerId == dto.CompanyCustomerId);
+            else
+                return BadRequest("مشتری مشخص نشده است.");
+
+            var activeInteractions = await activeQuery.ToListAsync();
+
+            // ---------- بررسی قوانین ----------
+            foreach (var oldInteraction in activeInteractions)
+            {
+                var threeMonthsPassed = (now - oldInteraction.CreatedAt).TotalDays >= 90;
+
+                bool isCurrentOwner = oldInteraction.CurrentOwnerId == userId;
+                bool isCreatedByCurrentUser = oldInteraction.CreatedById == userId;
+
+                // تعامل ارجاعی: مالک فعلی هست ولی سازنده نیست
+                bool isReferredInteraction = isCurrentOwner && !isCreatedByCurrentUser;
+
+                // فقط این حالت ممنوع است
+                if (!threeMonthsPassed && !canForceUpdate && !isReferredInteraction && isCreatedByCurrentUser)
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest(
+                        "تعامل فعال دیگری برای این مشتری وجود دارد و امکان غیرفعال‌سازی آن نیست."
+                    );
+                }
+            }
+
+            // ---------- غیرفعال‌سازی تعامل‌های قبلی مجاز ----------
+            foreach (var oldInteraction in activeInteractions)
+            {
+                bool canDeactivate =
+                    (now - oldInteraction.CreatedAt).TotalDays >= 90 ||
+                    canForceUpdate ||
+                    (oldInteraction.CurrentOwnerId == userId && oldInteraction.CreatedById != userId);
+
+                if (canDeactivate)
+                {
+                    oldInteraction.IsActive = false;
+                    oldInteraction.UpdatedAt = now;
+                }
+            }
+
+            // ---------- ساخت تعامل جدید ----------
             var interaction = new CustomerInteraction
             {
                 IndividualCustomerId = dto.IndividualCustomerId,
@@ -229,61 +295,63 @@ namespace CRMApp.Controllers
                 CreatedById = userId,
                 CurrentOwnerId = userId,
                 PerformedById = userId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                CreatedAt = now,
+                UpdatedAt = now,
                 IsActive = true,
-                Attachments = new List<CustomerInteractionAttachment>(), // مهم
+                Attachments = new List<CustomerInteractionAttachment>(),
                 InteractionCategories = new List<CustomerInteractionCategory>(),
                 InteractionProducts = new List<CustomerInteractionProduct>()
             };
 
-            // ذخیره فایل‌ها
-            var uploads = Path.Combine(GetRootPath(), "uploads");
-            if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
-
-            if (attachments != null)
+            // ---------- فایل‌ها ----------
+            if (attachments != null && attachments.Any())
             {
+                var uploadsPath = Path.Combine(GetRootPath(), "uploads");
+                if (!Directory.Exists(uploadsPath))
+                    Directory.CreateDirectory(uploadsPath);
+
                 foreach (var file in attachments)
                 {
                     if (!IsValidFile(file))
                         return BadRequest($"نوع فایل {file.FileName} مجاز نیست.");
 
-                    var name = Guid.NewGuid() + Path.GetExtension(file.FileName);
-                    var path = Path.Combine(uploads, name);
-                    using var stream = new FileStream(path, FileMode.Create);
+                    var fileName = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                    var fullPath = Path.Combine(uploadsPath, fileName);
+
+                    using var stream = new FileStream(fullPath, FileMode.Create);
                     await file.CopyToAsync(stream);
 
                     interaction.Attachments.Add(new CustomerInteractionAttachment
                     {
-                        FilePath = "/uploads/" + name,
+                        FilePath = "/uploads/" + fileName,
                         OriginalName = file.FileName
                     });
                 }
             }
 
-            // دسته‌بندی و محصولات
+            // ---------- دسته‌بندی‌ها و محصولات ----------
             var groups = dto.GetCategoryProductGroups();
             foreach (var g in groups)
             {
                 foreach (var cat in g.CategoryIds.Distinct())
-                    if (Guid.TryParse(cat, out var id1))
+                    if (Guid.TryParse(cat, out var catId))
                         interaction.InteractionCategories.Add(new CustomerInteractionCategory
                         {
-                            CustomerInteractionId = interaction.Id,
-                            CategoryId = id1
+                            CategoryId = catId
                         });
 
                 foreach (var prod in g.ProductIds.Distinct())
-                    if (Guid.TryParse(prod, out var id2))
+                    if (Guid.TryParse(prod, out var prodId))
                         interaction.InteractionProducts.Add(new CustomerInteractionProduct
                         {
-                            CustomerInteractionId = interaction.Id,
-                            ProductId = id2
+                            ProductId = prodId
                         });
             }
 
+            // ---------- ذخیره ----------
             _context.CustomerInteractions.Add(interaction);
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return Ok(interaction);
         }
@@ -475,11 +543,24 @@ namespace CRMApp.Controllers
 
             if (!canViewAll)
             {
+                // پیدا کردن لیست مشتریانی که کاربر مالک فعلی آن‌هاست
+                var referredCustomerIds = _context.CustomerInteractionReferrals
+    .Where(r => r.AssignedToId == userId)   // همه ارجاعات، چه فعال چه غیر فعال
+    .Select(r => r.CustomerId)
+    .Distinct()
+    .ToList();
+
                 query = query.Where(i =>
+                    i.CreatedById == userId ||
+                    i.PerformedById == userId ||
                     i.CurrentOwnerId == userId ||
-                    i.Referrals.Any(r => r.AssignedToId == userId && r.IsActive) ||
-                    i.Referrals.Any(r => r.ReferredById == userId && r.IsActive)
+                    i.Referrals.Any(r => r.AssignedToId == userId) ||
+                    i.Referrals.Any(r => r.ReferredById == userId) ||
+                    (i.IndividualCustomerId != null && referredCustomerIds.Contains(i.IndividualCustomerId.Value)) ||
+                    (i.CompanyCustomerId != null && referredCustomerIds.Contains(i.CompanyCustomerId.Value))
                 );
+
+
             }
 
             var interactions = await query
@@ -516,8 +597,8 @@ namespace CRMApp.Controllers
                 PerformedById = i.PerformedById,
 
                 IsOwnedByCurrentUser = i.CurrentOwnerId == userId,
-                IsReferredToUser = i.Referrals.Any(r => r.AssignedToId == userId && r.IsActive),
-                IsReferredByUser = i.Referrals.Any(r => r.ReferredById == userId && r.IsActive),
+                IsReferredToUser = i.Referrals.Any(r => r.AssignedToId == userId),
+                IsReferredByUser = i.Referrals.Any(r => r.ReferredById == userId),
 
                 // محدودیت ویرایش تعاملات غیرفعال
                 CanEdit = i.IsActive || canEditInactive
@@ -525,7 +606,6 @@ namespace CRMApp.Controllers
 
             return Ok(interactionsDto);
         }
-
 
 
 

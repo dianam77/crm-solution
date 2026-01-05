@@ -4,6 +4,7 @@ using CRMApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CRMApp.Migrations
 {
     [DbContext(typeof(CRMAppDbContext))]
-    partial class CRMAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251221110131_r5555")]
+    partial class r5555
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -583,6 +586,46 @@ namespace CRMApp.Migrations
                     b.ToTable("CustomerInteractionProducts");
                 });
 
+            modelBuilder.Entity("CRMApp.Models.CustomerInteractionReferral", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("AssignedToId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("InteractionId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ReferredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ReferredById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedToId");
+
+                    b.HasIndex("InteractionId");
+
+                    b.HasIndex("ReferredById");
+
+                    b.ToTable("CustomerInteractionReferrals");
+                });
+
             modelBuilder.Entity("CRMApp.Models.CustomerReferral", b =>
                 {
                     b.Property<int>("Id")
@@ -1084,56 +1127,6 @@ namespace CRMApp.Migrations
                     b.ToTable("CustomerInteractionAttachments");
                 });
 
-            modelBuilder.Entity("CustomerInteractionReferral", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid>("AssignedToId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("CustomerInteractionId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsIndividual")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ReferredAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("ReferredById")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssignedToId");
-
-                    b.HasIndex("CustomerInteractionId");
-
-                    b.HasIndex("ReferredById");
-
-                    b.HasIndex("CustomerId", "IsIndividual")
-                        .IsUnique()
-                        .HasFilter("[IsActive] = 1");
-
-                    b.ToTable("CustomerInteractionReferrals");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
@@ -1447,6 +1440,33 @@ namespace CRMApp.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("CRMApp.Models.CustomerInteractionReferral", b =>
+                {
+                    b.HasOne("CRMApp.Models.ApplicationUser", "AssignedTo")
+                        .WithMany()
+                        .HasForeignKey("AssignedToId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CRMApp.Models.CustomerInteraction", "Interaction")
+                        .WithMany("Referrals")
+                        .HasForeignKey("InteractionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CRMApp.Models.ApplicationUser", "ReferredBy")
+                        .WithMany()
+                        .HasForeignKey("ReferredById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AssignedTo");
+
+                    b.Navigation("Interaction");
+
+                    b.Navigation("ReferredBy");
+                });
+
             modelBuilder.Entity("CRMApp.Models.CustomerReferral", b =>
                 {
                     b.HasOne("CRMApp.Models.ApplicationUser", "AssignedTo")
@@ -1643,29 +1663,6 @@ namespace CRMApp.Migrations
                         .IsRequired();
 
                     b.Navigation("CustomerInteraction");
-                });
-
-            modelBuilder.Entity("CustomerInteractionReferral", b =>
-                {
-                    b.HasOne("CRMApp.Models.ApplicationUser", "AssignedTo")
-                        .WithMany()
-                        .HasForeignKey("AssignedToId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("CRMApp.Models.CustomerInteraction", null)
-                        .WithMany("Referrals")
-                        .HasForeignKey("CustomerInteractionId");
-
-                    b.HasOne("CRMApp.Models.ApplicationUser", "ReferredBy")
-                        .WithMany()
-                        .HasForeignKey("ReferredById")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("AssignedTo");
-
-                    b.Navigation("ReferredBy");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

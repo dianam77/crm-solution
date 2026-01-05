@@ -1,10 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using CRMApp.Models;
 using CRMApp.Data;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRMApp.Controllers
@@ -20,151 +16,167 @@ namespace CRMApp.Controllers
             _context = context;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateReferral([FromBody] ReferralCreateDto dto)
+        // ====================== ارجاع مشتری با تمام تعامل‌ها ======================
+        [HttpPost("by-customer")]
+        public async Task<IActionResult> CreateReferralByCustomer(
+            [FromBody] CustomerReferralDto dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var userId = User.GetUserId();
             if (userId == Guid.Empty)
-                return Unauthorized("کاربر احراز هویت نشده است.");
+                return Unauthorized("کاربر لاگین نیست");
 
-            // 1️⃣ پیدا کردن تعامل
-            var interaction = await _context.CustomerInteractions
-                .Include(i => i.IndividualCustomer)
-                .Include(i => i.CompanyCustomer)
-                .Include(i => i.CurrentOwner)
-                .FirstOrDefaultAsync(i => i.Id == dto.InteractionId);
-
-            if (interaction == null)
-                return BadRequest("InteractionId نامعتبر است.");
-
-            var assignedUser = await _context.Users.FindAsync(dto.AssignedToId);
-            if (assignedUser == null)
-                return BadRequest("کاربر انتخابی وجود ندارد.");
-
-            // 2️⃣ غیرفعال کردن تعاملات فعال همان مشتری (غیر از تعامل جاری)
-            var activeInteractionsSameCustomer = await _context.CustomerInteractions
-                .Where(i =>
-                    i.Id != interaction.Id &&
-                    i.IsActive &&
-                    (
-                        (interaction.IndividualCustomerId != null && i.IndividualCustomerId == interaction.IndividualCustomerId) ||
-                        (interaction.CompanyCustomerId != null && i.CompanyCustomerId == interaction.CompanyCustomerId)
-                    )
-                )
+            // 1️⃣ غیرفعال‌کردن ارجاع‌های قبلی این مشتری
+            var oldReferrals = await _context.CustomerInteractionReferrals
+                .Where(r =>
+                    r.CustomerId == dto.CustomerId &&
+                    r.IsIndividual == dto.IsIndividual &&
+                    r.IsActive)
                 .ToListAsync();
 
-            foreach (var item in activeInteractionsSameCustomer)
-            {
-                item.IsActive = false;
-            }
-
-            // تعامل فعلی همیشه فعال می‌ماند
-            interaction.IsActive = true;
-
-            // 3️⃣ غیرفعال کردن ارجاعات قبلی همین تعامل
-            var previousReferrals = await _context.CustomerInteractionReferrals
-                .Where(r => r.InteractionId == interaction.Id && r.IsActive)
-                .ToListAsync();
-
-            foreach (var r in previousReferrals)
-            {
+            foreach (var r in oldReferrals)
                 r.IsActive = false;
-            }
 
-            // 4️⃣ تغییر مالک تعامل فعلی و ذخیره فوری
-            interaction.CurrentOwnerId = dto.AssignedToId;
-            await _context.SaveChangesAsync(); // ⚠️ ذخیره قبل از بررسی پیام
-
-            // 5️⃣ بررسی پیام ⚠️ برای تعامل‌های فعال دیگر با همان مشتری و مالک متفاوت
-            var otherOwnerInteractions = await _context.CustomerInteractions
-                .Where(i =>
-                    i.IsActive &&
-                    i.Id != interaction.Id &&
-                    (
-                        (interaction.IndividualCustomerId != null && i.IndividualCustomerId == interaction.IndividualCustomerId) ||
-                        (interaction.CompanyCustomerId != null && i.CompanyCustomerId == interaction.CompanyCustomerId)
-                    ) &&
-                    i.CurrentOwnerId != interaction.CurrentOwnerId // مالک جدید
-                )
-                .Include(i => i.CurrentOwner)
-                .ToListAsync();
-
-            if (otherOwnerInteractions.Any())
-            {
-                var ownerNames = otherOwnerInteractions
-                    .Select(i => i.CurrentOwner.FullName ?? i.CurrentOwnerId.ToString());
-
-                return BadRequest($"⚠️ مشتری «{(interaction.IndividualCustomerId != null ? "فردی" : "شرکتی")}» در حال حاضر توسط کاربر «{string.Join(", ", ownerNames)}» در تعامل فعال قرار دارد.");
-            }
-
-            // 6️⃣ ایجاد ارجاع جدید
+            // 2️⃣ ایجاد فقط یک ارجاع جدید
             var referral = new CustomerInteractionReferral
             {
-                InteractionId = dto.InteractionId,
+                CustomerId = dto.CustomerId,
+                IsIndividual = dto.IsIndividual,
                 AssignedToId = dto.AssignedToId,
                 ReferredById = userId,
                 Note = dto.Note,
-                ReferredAt = DateTime.UtcNow,
                 IsActive = true,
                 IsRead = false
             };
+
             _context.CustomerInteractionReferrals.Add(referral);
 
+            // 3️⃣ تغییر مالک تمام تعامل‌های فعال مشتری
+            var interactions = await _context.CustomerInteractions
+                .Where(i => i.IsActive &&
+                    (dto.IsIndividual
+                        ? i.IndividualCustomerId == dto.CustomerId
+                        : i.CompanyCustomerId == dto.CustomerId))
+                .ToListAsync();
+
+            foreach (var interaction in interactions)
+                interaction.CurrentOwnerId = dto.AssignedToId;
+
             await _context.SaveChangesAsync();
-            return Ok(referral);
+
+            return Ok(new
+            {
+                message = "مشتری با تمام تعامل‌هایش با موفقیت ارجاع شد",
+                interactionsCount = interactions.Count
+            });
         }
 
-
+        // ====================== تاریخچه ارجاعات ======================
         [HttpGet("referral-history")]
         public async Task<IActionResult> GetAllReferralHistory()
         {
             var referrals = await _context.CustomerInteractionReferrals
                 .Include(r => r.AssignedTo)
+                    .ThenInclude(u => u.UserRoles)
+                        .ThenInclude(ur => ur.Role)
                 .Include(r => r.ReferredBy)
-                .Include(r => r.Interaction) // اضافه کردن تعامل برای دسترسی به InteractionType
+                    .ThenInclude(u => u.UserRoles)
+                        .ThenInclude(ur => ur.Role)
                 .OrderByDescending(r => r.ReferredAt)
                 .Select(r => new
                 {
                     r.Id,
-                    r.InteractionId,
-                    InteractionType = r.Interaction != null ? (int?)r.Interaction.InteractionType : null, // تبدیل صریح enum به int?
+                    r.CustomerId,
+                    r.IsIndividual,
                     r.Note,
                     r.ReferredAt,
                     r.IsRead,
                     r.IsActive,
-                    AssignedToName = r.AssignedTo != null ? r.AssignedTo.FullName : null,
-                    ReferredByName = r.ReferredBy != null ? r.ReferredBy.FullName : null
+
+                    AssignedToName = r.AssignedTo != null ? r.AssignedTo.FullName : "-",
+                    ReferredByName = r.ReferredBy != null ? r.ReferredBy.FullName : "-",
+
+                    AssignedToRole = r.AssignedTo != null
+                        ? r.AssignedTo.UserRoles
+                            .Select(ur => ur.Role.Name)
+                            .FirstOrDefault()
+                        : "-",
+
+                    ReferredByRole = r.ReferredBy != null
+                        ? r.ReferredBy.UserRoles
+                            .Select(ur => ur.Role.Name)
+                            .FirstOrDefault()
+                        : "-",
+
+                    CustomerName = r.IsIndividual
+                        ? _context.CustomerIndividuals
+                            .Where(c => c.CustomerId == r.CustomerId)
+                            .Select(c => c.FullName)
+                            .FirstOrDefault()
+                        : _context.CustomerCompanies
+                            .Where(c => c.CustomerId == r.CustomerId)
+                            .Select(c => c.CompanyName)
+                            .FirstOrDefault(),
+
+                    CustomerType = r.IsIndividual ? "Individual" : "Company"
                 })
                 .ToListAsync();
 
             return Ok(referrals);
         }
 
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetUserReferrals(string userId)
+        [HttpGet("my-referrals")]
+        public async Task<IActionResult> GetReferralsByUser()
         {
-            var userGuid = Guid.Parse(userId);
+            var userId = User.GetUserId();
 
             var referrals = await _context.CustomerInteractionReferrals
-                .Where(r => r.AssignedToId == userGuid)
+                .Where(r => r.AssignedToId == userId)
                 .Include(r => r.AssignedTo)
+                    .ThenInclude(u => u.UserRoles)
+                        .ThenInclude(ur => ur.Role)
                 .Include(r => r.ReferredBy)
-                .Include(r => r.Interaction) // اضافه کردن تعامل برای دسترسی به InteractionType
+                    .ThenInclude(u => u.UserRoles)
+                        .ThenInclude(ur => ur.Role)
                 .OrderByDescending(r => r.ReferredAt)
                 .Select(r => new
                 {
                     r.Id,
-                    r.InteractionId,
-                    InteractionType = r.Interaction != null ? (int?)r.Interaction.InteractionType : null, // تبدیل صریح enum به int?
+                    r.CustomerId,
+                    r.IsIndividual,
                     r.Note,
                     r.ReferredAt,
                     r.IsRead,
                     r.IsActive,
-                    AssignedToName = r.AssignedTo != null ? r.AssignedTo.FullName : null,
-                    ReferredByName = r.ReferredBy != null ? r.ReferredBy.FullName : null
+
+                    r.AssignedToId,
+                    r.ReferredById,
+
+                    AssignedToName = r.AssignedTo != null ? r.AssignedTo.FullName : "-",
+                    ReferredByName = r.ReferredBy != null ? r.ReferredBy.FullName : "-",
+
+                    AssignedToRole = r.AssignedTo != null
+                        ? r.AssignedTo.UserRoles
+                            .Select(ur => ur.Role.Name)
+                            .FirstOrDefault()
+                        : "-",
+
+                    ReferredByRole = r.ReferredBy != null
+                        ? r.ReferredBy.UserRoles
+                            .Select(ur => ur.Role.Name)
+                            .FirstOrDefault()
+                        : "-",
+
+                    CustomerName = r.IsIndividual
+                        ? _context.CustomerIndividuals
+                            .Where(c => c.CustomerId == r.CustomerId)
+                            .Select(c => c.FullName)
+                            .FirstOrDefault()
+                        : _context.CustomerCompanies
+                            .Where(c => c.CustomerId == r.CustomerId)
+                            .Select(c => c.CompanyName)
+                            .FirstOrDefault(),
+
+                    CustomerType = r.IsIndividual ? "Individual" : "Company"
                 })
                 .ToListAsync();
 
@@ -172,13 +184,15 @@ namespace CRMApp.Controllers
         }
 
 
-        // ----------------- Mark As Read ----------------------
+
+
+        // ====================== علامت‌گذاری خوانده‌شده ======================
         [HttpPost("{id}/mark-as-read")]
         public async Task<IActionResult> MarkAsRead(int id)
         {
             var referral = await _context.CustomerInteractionReferrals.FindAsync(id);
             if (referral == null)
-                return NotFound("ارجاع یافت نشد.");
+                return NotFound("ارجاع یافت نشد");
 
             var userId = User.GetUserId();
             if (referral.AssignedToId != userId)
@@ -186,25 +200,17 @@ namespace CRMApp.Controllers
 
             referral.IsRead = true;
             await _context.SaveChangesAsync();
+
             return Ok();
         }
 
-        // ----------------- DTO ----------------------
-        public class ReferralCreateDto
+        // ====================== DTO ======================
+        public class CustomerReferralDto
         {
-            public int InteractionId { get; set; }
+            public int CustomerId { get; set; }
+            public bool IsIndividual { get; set; }
             public Guid AssignedToId { get; set; }
             public string? Note { get; set; }
-        }
-    }
-
-    // ----------------- Extension for UserId ----------------------
-    public static class ClaimsPrincipalExtensions
-    {
-        public static Guid GetUserId(this ClaimsPrincipal user)
-        {
-            var idClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return idClaim != null ? Guid.Parse(idClaim) : Guid.Empty;
         }
     }
 }

@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import {
-  CustomerInteractionReferral,
-  ReferralCreateDto
+  ReferralCreateDto,
+  ReferralHistoryDto
 } from '../models/customer-interaction-referral.model';
 
 import { User } from '../models/user.model';
@@ -12,30 +15,32 @@ import { CustomerInteractionReferralService } from '../services/customer-interac
 import { UserService } from '../services/user.service';
 import { RoleService } from '../services/role.service';
 
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-
 @Component({
   selector: 'app-interaction-referral',
+  standalone: true,
   templateUrl: './interaction-referral.component.html',
   styleUrls: ['./interaction-referral.component.css'],
   imports: [CommonModule, FormsModule, ReactiveFormsModule]
 })
 export class InteractionReferralComponent implements OnInit {
 
-  interactionId!: number;
+  // =================== Customer ===================
+  customerId!: number;
+  isIndividualCustomer = true;
 
-  referrals: CustomerInteractionReferral[] = [];
-  referralNote: string = '';
-  referralAssignedToId: string = '';
+  // =================== Referrals ==================
+  referrals: ReferralHistoryDto[] = [];
 
+  referralNote = '';
+  referralAssignedToId = '';
+
+  // =================== Users & Roles ==============
   allUsers: User[] = [];
   users: User[] = [];
   roles: Role[] = [];
-  selectedRole: string = '';
+  selectedRole = '';
 
-  // 👇 اضافه شده برای شناسایی کاربر لاگین‌شده
-  currentUserId: string | null = null;
+  currentUserId!: string;
 
   constructor(
     private referralService: CustomerInteractionReferralService,
@@ -45,61 +50,62 @@ export class InteractionReferralComponent implements OnInit {
     private router: Router
   ) { }
 
+  // =================== Init =======================
   ngOnInit(): void {
-    // 📌 دریافت ID تعامل از URL
-    this.interactionId = Number(this.route.snapshot.paramMap.get('id'));
+    // از queryParams بخوان
+    const customerIdParam = this.route.snapshot.queryParamMap.get('customerId');
+    const typeParam = this.route.snapshot.queryParamMap.get('customerType');
 
-    if (!this.interactionId) {
-      console.error("❌ interactionId در URL پیدا نشد!");
+    if (!customerIdParam) {
+      console.error('❌ customerId پیدا نشد');
       return;
     }
 
-    // 📌 گرفتن ID کاربر لاگین‌شده از localStorage
-    this.currentUserId = localStorage.getItem('userId');
+    this.customerId = Number(customerIdParam);
+    this.isIndividualCustomer = typeParam === 'individual';
+
+    console.log('✅ customer resolved:', {
+      customerId: this.customerId,
+      isIndividual: this.isIndividualCustomer
+    });
 
     this.loadRoles();
     this.loadUsers();
     this.loadReferrals();
   }
 
-  // 📌 دریافت نقش‌ها
+
+  // =================== Roles ======================
   loadRoles(): void {
     this.roleService.getRoles().subscribe({
-      next: res => this.roles = res,
-      error: err => console.error('Error loading roles:', err)
+      next: (res: Role[]) => this.roles = res,
+      error: (err: any) => console.error('Error loading roles:', err)
     });
   }
 
-  // 📌 دریافت کاربران
+  // =================== Users ======================
   loadUsers(): void {
     this.userService.getCurrentUser().subscribe({
-      next: current => {
-
-        this.currentUserId = current.id;   // 👈 کاربر واقعی، نه از localStorage
+      next: (current: User) => {
+        this.currentUserId = current.id;
 
         this.userService.getUsers().subscribe({
-          next: res => {
+          next: (res: User[]) => {
             this.allUsers = res;
-            this.applyRoleFilter();        // 👈 بعد از دریافت currentUser
+            this.applyRoleFilter();
           },
-          error: err => console.error('Error loading users:', err)
+          error: (err: any) => console.error('Error loading users:', err)
         });
-
       },
-      error: err => console.error('Error loading current user:', err)
+      error: (err: any) => console.error('Error loading current user:', err)
     });
   }
 
-
-
-
-  // 📌 انتخاب نقش برای فیلتر کاربران
   onRoleChange(): void {
     this.applyRoleFilter();
     this.referralAssignedToId = '';
   }
 
-  // 📌 فقط کاربران نقش انتخاب‌شده نمایش داده می‌شوند + کاربر لاگین‌شده حذف می‌شود
   private applyRoleFilter(): void {
     if (!this.selectedRole) {
       this.users = [];
@@ -108,44 +114,56 @@ export class InteractionReferralComponent implements OnInit {
 
     this.users = this.allUsers
       .filter(u => u.role === this.selectedRole)
-      .filter(u => u.id !== this.currentUserId);  // حذف خودش
+      .filter(u => u.id !== this.currentUserId);
   }
 
-
-  // 📌 لود ارجاعات ثبت‌شده
+  // =================== Load Referrals =============
   loadReferrals(): void {
-    if (!this.interactionId) return;
-
-    this.referralService.getReferrals(this.interactionId).subscribe({
-      next: res => this.referrals = res,
-      error: err => console.error('Error loading referrals:', err)
-    });
+    this.referralService
+      .getCustomerReferrals(this.customerId, this.isIndividualCustomer)
+      .subscribe({
+        next: (res: ReferralHistoryDto[]) => {
+          this.referrals = res;
+        },
+        error: (err: any) => {
+          console.error('Error loading referrals:', err);
+        }
+      });
   }
 
-  // 📌 ثبت ارجاع جدید
+
+
   createReferral(): void {
-    if (!this.interactionId || !this.referralAssignedToId) {
-      alert("لطفاً همه فیلدهای مورد نیاز را پر کنید");
+    if (!this.customerId || !this.referralAssignedToId) {
+      alert('لطفاً همه فیلدها را تکمیل کنید');
       return;
     }
 
     const dto: ReferralCreateDto = {
-      interactionId: Number(this.interactionId),
-      assignedToId: this.referralAssignedToId,
-      note: this.referralNote
+      CustomerId: this.customerId,
+      AssignedToId: this.referralAssignedToId,
+      Note: this.referralNote || '',
+      IsIndividual: this.isIndividualCustomer
     };
 
-    console.log("📌 Payload sent to backend:", dto);
+    console.log('📤 referral dto:', dto);
 
-    this.referralService.createReferral(dto).subscribe({
+    this.referralService.createCustomerReferral(dto).subscribe({
       next: () => {
-        alert('ارجاع با موفقیت ثبت شد');
-        this.router.navigate(['/customer-interaction']);
+        alert('✅ ارجاع با موفقیت ثبت شد');
+
+        // ⚡ هدایت به داشبورد به جای تعاملات
+        this.router.navigate(['/dashboard']);
       },
-      error: err => {
+      error: (err: any) => {
         console.error('Error creating referral:', err);
-        alert('خطا در ثبت ارجاع.');
+        alert('خطا در ثبت ارجاع');
       }
     });
   }
+
+
+
+
+
 }

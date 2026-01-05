@@ -42,7 +42,7 @@ interface ConflictInfo {
     NgPersianDatepickerModule,
     NgxMaterialTimepickerModule,
     NgSelectModule,
-    FilterByCustomerPipe
+    
   ],
   templateUrl: './customer-interaction.component.html',
   styleUrls: ['./customer-interaction.component.css']
@@ -150,15 +150,49 @@ export class CustomerInteractionComponent implements OnInit {
   }
 
   onCategoryChange(index: number): void {
-    const selectedIds = this.categoryProductGroups.at(index).get('categoryIds')?.value || [];
-    this.filteredProductsByGroup[index] = this.allProducts.filter(p => selectedIds.includes(p.categoryId));
+    const selectedIds: string[] = this.categoryProductGroups.at(index).get('categoryIds')?.value || [];
+
+    // بررسی دسته‌بندی‌های تکراری
+    const allOtherSelectedIds: string[] = this.categoryProductGroups.controls
+      .filter((_, i: number) => i !== index)   // همه گروه‌ها به جز این گروه
+      .flatMap(g => g.get('categoryIds')?.value || []);
+
+    const duplicates: string[] = selectedIds.filter((id: string) => allOtherSelectedIds.includes(id));
+
+    if (duplicates.length > 0) {
+      // پاک کردن دسته‌های تکراری
+      this.categoryProductGroups.at(index).patchValue({
+        categoryIds: selectedIds.filter((id: string) => !duplicates.includes(id)),
+        productIds: []
+      });
+
+      // نمایش پیغام کاربر پسند
+      alert(`دسته‌بندی "${duplicates.map((d: string) => this.getCategoryNameById(d)).join(', ')}" قبلاً انتخاب شده است.`);
+      return;
+    }
+
+    // فیلتر محصولات بر اساس دسته‌بندی‌های انتخاب شده
+    this.filteredProductsByGroup[index] = this.allProducts.filter(
+      p => p.categoryId && selectedIds.includes(p.categoryId)
+    );
+
+
+    // پاک کردن محصولات قبلی
     this.categoryProductGroups.at(index).patchValue({ productIds: [] });
   }
+
+  // متد کمکی برای گرفتن نام دسته‌بندی از id
+  getCategoryNameById(id: string): string {
+    const category = this.categories.find(c => c.id === id);
+    return category ? category.name : id;
+  }
+
 
   ngOnInit(): void {
     this.currentUserName = this.authService.getCurrentUserName() || '';
     this.authService.currentUser$.subscribe(name => this.currentUserName = name || '');
-
+    // بعد از بارگذاری یا فیلتر کردن تعاملات فراخوانی کنید
+    this.updateHasAnyOperation();
     this.loadPermissions();
 
     forkJoin({
@@ -209,6 +243,7 @@ export class CustomerInteractionComponent implements OnInit {
     );
 
     this.showInteractionsModal = true;
+    this.updateHasAnyOperation();
   }
   getFirstInteractionByCustomer(customer: any) {
     return this.interactions.find(i =>
@@ -741,8 +776,59 @@ export class CustomerInteractionComponent implements OnInit {
   onFormatChange(value: '12' | '24'): void { this.timeFormat = value; }
   onAmPmChange(value: 'AM' | 'PM'): void { this.amPm = value; }
   goToReferral(interactionId: number) {
-    this.router.navigate([`/customer-interaction/${interactionId}/details`]);
+    const interaction = this.interactions.find(i => i.id === interactionId);
+    if (!interaction || !interaction.customer) {
+      alert('⚠️ مشتری یا تعامل یافت نشد.');
+      return;
+    }
+
+    const customer = interaction.customer;
+
+    // استخراج شناسه و نوع مشتری
+    let customerId: number | undefined;
+    let customerType: 'individual' | 'company' | undefined;
+
+    if ('customerId' in customer) { // مشتری حقیقی
+      customerId = customer.customerId;
+      customerType = 'individual';
+    } else if ('companyId' in customer || 'companyName' in customer) { // مشتری حقوقی
+      customerId = ('customerId' in customer) ? customer.customerId : undefined;
+      customerType = 'company';
+    }
+
+    if (!customerId || !customerType) {
+      alert('❌ customerId پیدا نشد.');
+      return;
+    }
+
+    // جمع‌آوری تمام تعامل‌های همان مشتری
+    const customerInteractions = this.interactions
+      .filter(i => {
+        if (!i.customer) return false;
+        const typeCheck = i.individualCustomerId && customerType === 'individual'
+          ? i.individualCustomerId === customerId
+          : i.companyCustomerId && customerType === 'company'
+            ? i.companyCustomerId === customerId
+            : false;
+        return typeCheck;
+      })
+      .map(i => i.id);
+
+    if (customerInteractions.length === 0) {
+      alert('⚠️ تعاملی برای این مشتری یافت نشد.');
+      return;
+    }
+
+    // ارسال به صفحه ارجاع با تمام تعامل‌ها
+    this.router.navigate([`/customer-interaction/referral`], {
+      queryParams: {
+        customerId,
+        customerType,
+        interactionIds: customerInteractions.join(',')
+      }
+    });
   }
+
   openIsActiveModal(interaction: CustomerInteraction) {
     this.editingActiveId = interaction.id!;
     this.selectedIsActive = interaction.isActive ?? false;
@@ -951,6 +1037,34 @@ export class CustomerInteractionComponent implements OnInit {
     if (value === null || value === undefined) return '-';
     return value.toString().replace(/[0-9]/g, (d: string) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
   }
+  canRefer1(interaction: CustomerInteraction): boolean {
+    const currentUserId = String(this.authService.getCurrentUserId() ?? '').trim();
+
+    // فقط صاحب فعلی تعامل می‌تواند ارجاع بزند
+    const isOwner = String(interaction.currentOwnerId ?? '').trim() === currentUserId;
+    if (!isOwner) return false;
+
+    // فقط آخرین تعامل همان مشتری
+    const lastInteraction = this.getLastInteractionOfCustomer(interaction);
+    const isLastInteraction = lastInteraction?.id === interaction.id;
+
+    console.log('🔹 currentUserId:', currentUserId);
+    console.log('🔹 resolved ownerId:', interaction.currentOwnerId);
+    console.log('🔹 isOwner:', isOwner);
+    console.log('🔹 isLastInteraction:', isLastInteraction);
+
+    return isLastInteraction;
+  }
+
+  hasAnyOperation: boolean = false;
+
+  updateHasAnyOperation(): void {
+    this.hasAnyOperation = this.filteredInteractions.some(
+      i => this.canRefer1(i) || this.canEditInteraction(i) || this.hasPermission('customerinteraction.delete')
+    );
+  }
+
+
 
 
 }

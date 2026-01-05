@@ -1,0 +1,193 @@
+.sidebar {
+  position: relative; /* والد موقعیت مطلق */
+  width: 220px;
+  height: 100vh;
+  overflow-y: auto;
+  box-sizing: border-box;
+  background-color: #e7f0fd;
+  padding: 15px 12px;
+  font-family: Tahoma, Arial, sans-serif;
+  direction: rtl;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  color: #222;
+  font-size: 0.75rem;
+  user-select: none;
+}
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+  ul li {
+    list-style: none;
+  }
+
+.nav-item {
+  position: relative;
+  padding: 6px 0; /* فقط فاصله عمودی بین آیتم‌ها */
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  background: none; /* حذف پس‌زمینه */
+  box-shadow: none; /* حذف سایه */
+  cursor: pointer;
+  transition: color 0.3s ease;
+  user-select: none;
+}
+
+  .nav-item:hover {
+    color: #0057b8; /* تغییر رنگ متن روی هاور */
+  }
+
+  .nav-item a {
+    text-decoration: none;
+    color: inherit; /* رنگ متن از والد بگیره */
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+
+    .nav-item a:hover {
+      border-bottom: 2px solid #0057b8; /* زیرخط ملایم روی هاور */
+    }
+
+
+.dropdown-label {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0; /* فاصله عمودی ساده */
+  font-weight: 600;
+  color: #222;
+  background: none; /* بدون پس‌زمینه */
+  box-shadow: none; /* بدون سایه */
+  font-size: 0.85rem;
+  border-radius: 0; /* گوشه‌ها صاف */
+  transition: color 0.3s ease;
+  position: relative;
+  z-index: 10;
+}
+
+  .dropdown-label:hover {
+    color: #0057b8; /* فقط تغییر رنگ متن */
+  }
+.dropdown-menu {
+  list-style: none; /* همین خط باعث حذف دایره‌ها میشه */
+  padding: 0;
+  margin: 0;
+}
+  .dropdown-menu li {
+    list-style: none; /* حذف دایره برای آیتم‌های لیست */
+  }
+
+.arrow {
+  transition: transform 0.3s ease, color 0.3s ease;
+  color: black/* آبی مدرن */
+  font-size: 2rem;
+  margin-right: 6px; /* فاصله از متن */
+  user-select: none;
+}
+
+  .arrow.open {
+    transform: rotate(180deg);
+    color: #003f7d; /* وقتی باز شد رنگ تیره‌تر */
+  }
+
+/* پنل بزرگتر و بیرون زده */
+.dropdown-panel {
+  position: absolute;
+  top: 0;
+  left: 20%;
+  background-color: rgba(0, 123, 255, 0.3); /* آبی شفاف */
+  backdrop-filter: blur(8px); /* افکت شیشه‌ای واقعی */
+  -webkit-backdrop-filter: blur(8px); /* سازگاری با Safari */
+  box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.7); /* سایه شعاعی مشکی */
+  border-radius: 12px 0 0 12px;
+  padding: 15px;
+  margin-left: 10px;
+  z-index: 1000;
+  user-select: text;
+  min-height: 100px;
+  transform-origin: right center;
+  animation: slideInFromRight 0.3s ease forwards;
+  color: white; /* متن سفید برای خوانایی */
+
+}
+
+
+/* لیست داخل پنل */
+.dropdown-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+  .dropdown-menu li {
+    margin-bottom: 8px;
+    font-size: 0.7rem;
+    font-weight:bold;
+  }
+
+    .dropdown-menu li a {
+      text-decoration: none;
+      color: #1a1a1a;
+      padding: 8px 12px;
+      display: block;
+      border-radius: 8px;
+      transition: background-color 0.25s ease;
+    }
+
+      .dropdown-menu li a:hover {
+        background-color: #a7c7ff;
+        font-size: 0.7rem;
+        color: #000000;
+        font-weight: bold;
+      }
+
+/* انیمیشن ورود از سمت راست */
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* لینک های عادی */
+.nav-link {
+  text-decoration: none;
+  color: #222;
+  display: block;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+  .nav-link:hover {
+    background-color: #cce4ff;
+  }
+
+.logout-btn {
+  margin-top: 25px;
+  width: 100%;
+  padding: 8px;
+  background-color: #0057b8;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  transition: background-color 0.3s ease;
+  user-select: none;
+}
+
+  .logout-btn:hover {
+    background-color: #003f7d;
+  }

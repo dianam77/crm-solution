@@ -85,6 +85,13 @@ export class SidebarComponent implements OnInit {
             icon: 'comments',
             permissions: ['customerinteraction.getall', 'customerinteraction.getmyinteractions']
           },
+          {
+            label: 'تاریخچه ارجاعات',
+            path: '/customer-interaction/referral-history',
+            icon: 'history',
+            permission: 'CustomerInteractionReferral.GetReferralHistory'
+          }
+
         ]
       },
 
